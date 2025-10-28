@@ -21,9 +21,9 @@ public class BooksController
   }
 
   @GetMapping("/Books")
-  public synchronized ResponseEntity<List<DTOBook>> getAllPlanets()
+  @ResponseStatus(HttpStatus.OK)
+  public synchronized List<DTOBook> getAllBooks()
   {
-    List<DTOBook> dtoBooks = new ArrayList<>(bookList.getAllBooks());
-    return new ResponseEntity<>( dtoBooks, HttpStatus.OK );
+    return new ArrayList<>(bookList.getAllBooks());
   }
 }
