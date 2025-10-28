@@ -6,16 +6,18 @@ import dk.via.sep3.GetAllBooksRequest;
 import dk.via.sep3.GetAllBooksResponse;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class GrpcConnection implements GrpcConnectionInterface
 {
-  private ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost",
+  private final ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost",
       9090).usePlaintext().build();
 
-  private BookServiceGrpc.BookServiceBlockingStub stub = BookServiceGrpc.newBlockingStub(
+  private final BookServiceGrpc.BookServiceBlockingStub stub = BookServiceGrpc.newBlockingStub(
       channel);
 
   public List<DTOBook> getAllBooks()

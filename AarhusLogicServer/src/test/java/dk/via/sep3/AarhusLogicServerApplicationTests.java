@@ -1,9 +1,9 @@
-package com.example.aarhuslogicserver;
+package dk.via.sep3;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+@SpringBootTest(classes = AarhusLogicServerApplication.class)
 class AarhusLogicServerApplicationTests {
 
     @Test
@@ -11,3 +11,4 @@ class AarhusLogicServerApplicationTests {
     }
 
 }
+
