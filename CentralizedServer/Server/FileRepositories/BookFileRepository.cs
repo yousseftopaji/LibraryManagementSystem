@@ -14,6 +14,17 @@ public class BookFileRepository : IBookRepository
         if (!File.Exists(filePath) || new FileInfo(filePath).Length == 0)
         {
             File.WriteAllText(filePath, "[]");
+
+            // Initialize with dummy books
+            var initialBooks = new List<Book>
+            {
+                new Book { BookId = 1, ISBN = "978-0132350884", Title = "Clean Code", Author = "Robert C. Martin", NoOfCopies = 5, State = "Available" },
+                new Book { BookId = 2, ISBN = "978-0201633610", Title = "Design Patterns", Author = "Erich Gamma", NoOfCopies = 3, State = "Available" },
+                new Book { BookId = 3, ISBN = "978-0131103627", Title = "The C Programming Language", Author = "Kernighan & Ritchie", NoOfCopies = 2, State = "Available" }
+            };
+
+
+            File.WriteAllText(filePath, JsonSerializer.Serialize(initialBooks, new JsonSerializerOptions { WriteIndented = true }));
         }
     }
 

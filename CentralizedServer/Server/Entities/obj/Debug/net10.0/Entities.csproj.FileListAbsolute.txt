@@ -1,0 +1,12 @@
+C:\Users\13nan\OneDrive - ViaUC\Software_Eng\3_sem\IT-SEP3X-A25\SEP3_Work\7.Source_Code\LibraryManagementSystem\CentralizedServer\Server\Entities\bin\Debug\net10.0\Entities.deps.json
+C:\Users\13nan\OneDrive - ViaUC\Software_Eng\3_sem\IT-SEP3X-A25\SEP3_Work\7.Source_Code\LibraryManagementSystem\CentralizedServer\Server\Entities\bin\Debug\net10.0\Entities.dll
+C:\Users\13nan\OneDrive - ViaUC\Software_Eng\3_sem\IT-SEP3X-A25\SEP3_Work\7.Source_Code\LibraryManagementSystem\CentralizedServer\Server\Entities\bin\Debug\net10.0\Entities.pdb
+C:\Users\13nan\OneDrive - ViaUC\Software_Eng\3_sem\IT-SEP3X-A25\SEP3_Work\7.Source_Code\LibraryManagementSystem\CentralizedServer\Server\Entities\obj\Debug\net10.0\Entities.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\13nan\OneDrive - ViaUC\Software_Eng\3_sem\IT-SEP3X-A25\SEP3_Work\7.Source_Code\LibraryManagementSystem\CentralizedServer\Server\Entities\obj\Debug\net10.0\Entities.AssemblyInfoInputs.cache
+C:\Users\13nan\OneDrive - ViaUC\Software_Eng\3_sem\IT-SEP3X-A25\SEP3_Work\7.Source_Code\LibraryManagementSystem\CentralizedServer\Server\Entities\obj\Debug\net10.0\Entities.AssemblyInfo.cs
+C:\Users\13nan\OneDrive - ViaUC\Software_Eng\3_sem\IT-SEP3X-A25\SEP3_Work\7.Source_Code\LibraryManagementSystem\CentralizedServer\Server\Entities\obj\Debug\net10.0\Entities.csproj.CoreCompileInputs.cache
+C:\Users\13nan\OneDrive - ViaUC\Software_Eng\3_sem\IT-SEP3X-A25\SEP3_Work\7.Source_Code\LibraryManagementSystem\CentralizedServer\Server\Entities\obj\Debug\net10.0\Entities.sourcelink.json
+C:\Users\13nan\OneDrive - ViaUC\Software_Eng\3_sem\IT-SEP3X-A25\SEP3_Work\7.Source_Code\LibraryManagementSystem\CentralizedServer\Server\Entities\obj\Debug\net10.0\Entities.dll
+C:\Users\13nan\OneDrive - ViaUC\Software_Eng\3_sem\IT-SEP3X-A25\SEP3_Work\7.Source_Code\LibraryManagementSystem\CentralizedServer\Server\Entities\obj\Debug\net10.0\refint\Entities.dll
+C:\Users\13nan\OneDrive - ViaUC\Software_Eng\3_sem\IT-SEP3X-A25\SEP3_Work\7.Source_Code\LibraryManagementSystem\CentralizedServer\Server\Entities\obj\Debug\net10.0\Entities.pdb
+C:\Users\13nan\OneDrive - ViaUC\Software_Eng\3_sem\IT-SEP3X-A25\SEP3_Work\7.Source_Code\LibraryManagementSystem\CentralizedServer\Server\Entities\obj\Debug\net10.0\ref\Entities.dll
