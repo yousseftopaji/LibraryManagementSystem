@@ -48,3 +48,21 @@ public class DBService
         return books;
     }
 }
+
+
+// Step 1: Install PostgreSQL client
+//         dotnet add package Npgsql
+//         dotnet add package Dapper 
+
+// Step 2: Add connection string
+// In appsettings.json:
+
+// Step 3: Create a DTO
+
+// Step 4: Create Database Service
+// DBService.cs — handles all PostgreSQL operations:
+
+// Step 5: Register DBService in Program.cs
+
+// Step 6: Inject DBService into gRPC Service
+// Example: BookServiceImpl.cs
