@@ -1,31 +1,40 @@
 using GrpcService.Protos;
 using Grpc.Core;
+using GrpcService.DatabaseService;
+using DTOs;
 
 namespace GrpcService.Services;
 
 public class BookServiceImpl : BookService.BookServiceBase
 {
     private readonly ILogger<BookServiceImpl> _logger;
+    private readonly DBService dbService;
 
-    public BookServiceImpl(ILogger<BookServiceImpl> logger)
+    public BookServiceImpl(ILogger<BookServiceImpl> logger, DBService dbService)
     {
         _logger = logger;
+        this.dbService = dbService;
     }
 
-    public override Task<GetAllBooksResponse> GetAllBooks(GetAllBooksRequest request, ServerCallContext context)
+
+  public async override Task<GetAllBooksResponse> GetAllBooks(GetAllBooksRequest request, ServerCallContext context)
+{
+    _logger.LogInformation("Received request to get all books.");
+
+    var booksFromDb = await dbService.GetAllBooksAsync();
+
+    var response = new GetAllBooksResponse();
+    
+    response.Books.AddRange(booksFromDb.Select(b => new DTOBook
     {
-        _logger.LogInformation("Received request to get all books.");
+        Title = b.Title ?? string.Empty,
+        Author = b.Author ?? string.Empty,
+        Isbn = b.ISBN ?? string.Empty,
+        State = b.State ?? string.Empty
+    }));
 
-        // Example data. Replace with your actual data source.
-        var books = new List<DTOBook>
-        {
-            new() { Title = "Book 1", Author = "Author 1", Isbn = "1234567890", State = "Available" },
-            new() { Title = "Book 2", Author = "Author 2", Isbn = "0987654321", State = "CheckedOut" }
-        };
+    return response;
+}
 
-        var response = new GetAllBooksResponse();
-        response.Books.AddRange(books);
 
-        return Task.FromResult(response);
-    }
 }
