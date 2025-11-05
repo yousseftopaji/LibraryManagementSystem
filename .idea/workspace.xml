@@ -1,17 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="RunManager">
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="CPHLogicServer" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="CPHLogicServer" />
-      <option name="filePath" />
-      <method v="2" />
-    </configuration>
     <configuration name="AarhusLogicServer" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="AarhusLogicServer" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="dk.via.sep3.controller.AarhusLogicServer" />
