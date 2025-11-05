@@ -29,7 +29,7 @@ public class DBService
         await using var conn = new NpgsqlConnection(connectionString);
         await conn.OpenAsync();
 
-        const string query = "SELECT isbn, author, title, state FROM borrow_book.\"book\"";
+        const string query = "SELECT isbn, author, title, state FROM kitabkhana.\"book\"";
 
         await using var cmd = new NpgsqlCommand(query, conn);
         await using var reader = await cmd.ExecuteReaderAsync();
