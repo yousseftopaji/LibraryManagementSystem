@@ -1,0 +1,22 @@
+syntax = "proto3";
+option java_multiple_files = true;
+
+package dk.via.sep3;
+
+message DTOBook {
+  string title = 1;
+  string author = 2;
+  string isbn = 3;
+  string state = 4;
+}
+
+message GetAllBooksRequest {
+}
+
+message GetAllBooksResponse {
+  repeated DTOBook books = 1;
+}
+
+service BookService {
+  rpc getAllBooks (GetAllBooksRequest) returns (GetAllBooksResponse);
+}
