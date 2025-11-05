@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "dp/q/FBDoE0=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\youss\\OneDrive\\Desktop\\VIA\\SEP3\\Sep3_SourceCode\\LibraryManagementSystem\\KitabKhanaClient\\KitabKhanaClient.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\youss\\.nuget\\packages\\microsoft.aspnetcore.app.internal.assets\\10.0.0-preview.7.25380.108\\microsoft.aspnetcore.app.internal.assets.10.0.0-preview.7.25380.108.nupkg.sha512"
+  ],
+  "logs": []
+}
