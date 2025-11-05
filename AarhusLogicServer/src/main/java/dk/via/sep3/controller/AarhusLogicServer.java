@@ -7,11 +7,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
-public class BooksServer
+public class AarhusLogicServer
 {
   public static void main(String[] args)
   {
-    SpringApplication.run( BooksServer.class, args );
+    SpringApplication.run( AarhusLogicServer.class, args );
   }
 
   @Bean
