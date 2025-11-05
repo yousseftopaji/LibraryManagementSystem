@@ -4,7 +4,6 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="83128bc0-a8b5-4c98-88eb-6a503b371533" name="Changes" comment="Add migration state configuration for various services and update project SDK version" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,22 +12,8 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "yousseftopaji"
-  }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/yousseftopaji/LibraryManagementSystem.git",
-    "accountId": "f0074573-6aea-46c4-aae6-5d1f54c21bf3"
-  }
-}]]></component>
   <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 1
 }]]></component>
-  <component name="ProjectId" id="353Tf0Dy00aU1ZARz0nVj115uuv" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -36,9 +21,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -58,29 +41,12 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="83128bc0-a8b5-4c98-88eb-6a503b371533" name="Changes" comment="" />
-      <created>1762337855382</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1762337855382</updated>
-      <workItem from="1762337856602" duration="1283000" />
     </task>
-    <task id="LOCAL-00001" summary="Add migration state configuration for various services and update project SDK version">
-      <option name="closed" value="true" />
-      <created>1762338056906</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1762338056906</updated>
-    </task>
-    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="Add migration state configuration for various services and update project SDK version" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add migration state configuration for various services and update project SDK version" />
   </component>
 </project>
