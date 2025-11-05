@@ -19,7 +19,12 @@ try
     var maskedPwd = string.IsNullOrEmpty(csb.Password) ? "(none)" : "*****";
     Console.WriteLine($"Connected to PostgreSQL: Host={csb.Host};Port={csb.Port};Database={csb.Database};Username={csb.Username};Password={maskedPwd}");
 }
-catch
+catch (ArgumentException)
+{
+    // Fallback if parsing fails
+    Console.WriteLine("Connected to PostgreSQL: (connection string present, password masked)");
+}
+catch (FormatException)
 {
     // Fallback if parsing fails
     Console.WriteLine("Connected to PostgreSQL: (connection string present, password masked)");
