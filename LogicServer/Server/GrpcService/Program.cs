@@ -12,23 +12,7 @@ builder.Services.AddSingleton<DBService>();
 
 // Read appsettings.json connection string for debugging
 var connectionString = builder.Configuration.GetConnectionString("LibraryDb");
-// Avoid printing the full connection string (don't expose passwords in logs).
-try
-{
-    var csb = new NpgsqlConnectionStringBuilder(connectionString);
-    var maskedPwd = string.IsNullOrEmpty(csb.Password) ? "(none)" : "*****";
-    Console.WriteLine($"Connected to PostgreSQL: Host={csb.Host};Port={csb.Port};Database={csb.Database};Username={csb.Username};Password={maskedPwd}");
-}
-catch (ArgumentException)
-{
-    // Fallback if parsing fails
-    Console.WriteLine("Connected to PostgreSQL: (connection string present, password masked)");
-}
-catch (FormatException)
-{
-    // Fallback if parsing fails
-    Console.WriteLine("Connected to PostgreSQL: (connection string present, password masked)");
-}
+Console.WriteLine($"Connected to PostgreSQL: {connectionString}");
 
 // Configure Kestrel to listen on port 9090 (HTTP/2)
 builder.WebHost.ConfigureKestrel(options =>
