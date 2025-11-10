@@ -1,23 +1,28 @@
-import org.apache.tomcat.jni.Library;
-
 public class Main {
     public static void main(String[] args) {
-        LibraryLogic libraryLogic = new LibraryLogic();
+        LibraryLogic logic = new LibraryLogic();
 
-        libraryLogic.addBook(new Book("9780123456789", "The Great Gatsby", "F. Scott Fitzgerald", "Fiction", 5, 5));
-        libraryLogic.addBook(new Book("139789876543210", "1984", "George Orwell", "Dystopian", 3, 3));
+        logic.addBook(new Book("978-1", "The Hobbit", "Tolkien", "Fantasy", 1, 1));
 
-        Book book = libraryLogic.getBook("9780123456789");
-        System.out.println("Book Title: " + book.getTitle() + ", Available Copies: " + book.getAvailableCopies());
+        System.out.println(logic.createLoan("alice", "978-1"));
+        System.out.println("Available after Alice borrows: " + logic.getBook("978-1").getAvailableCopies());
 
-        String result = libraryLogic.createLoan("john_doe", "9780123456789");
-        System.out.println(result);
+        System.out.println(logic.reserve("bob", "978-1"));
+        System.out.println(logic.reserve("carol", "978-1"));
 
-        Book updatedBook = libraryLogic.getBook("9780123456789");
-        System.out.println("After borrowing: " + updatedBook.getAvailableCopies() + " copies available." );
+        System.out.println(logic.createLoan("dave", "978-1")); // blocked by queue (bob first)
 
-        System.out.println(libraryLogic.returnBook(1));
-        System.out.println("After returning: " + libraryLogic.getBook("9780123456789").getAvailableCopies() + " copies available." );
 
+        System.out.println(logic.returnBook(1));
+        System.out.println("Available after return+handoff: " + logic.getBook("978-1").getAvailableCopies());
+
+        System.out.println(logic.createLoan("dave", "978-1"));
+        System.out.println("Queue positions:");
+        for (Reservation r : logic.viewQueue("978-1")) {
+            System.out.println("  " + r.getPosition() + ". " + r.getUsername());
+        }
+        
+        System.out.println(logic.createLoan("carol", "978-1"));
+        System.out.println("Queue after Carol borrows: " + logic.viewQueue("978-1").size());
     }
 }
