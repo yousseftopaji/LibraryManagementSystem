@@ -66,6 +66,7 @@ public class BookServiceImpl : BookService.BookServiceBase
 
         return new CreateLoanResponse
         {
+            Success = true,
             Message = $"Loan created successfully. Return in 30 days from now."
         };
 
