@@ -26,7 +26,17 @@ message GetBookResponse {
 DTOBook book = 1;
 }
 
+message CreateLoanRequest {
+  int32 bookId = 1;    
+}
+
+message CreateLoanResponse {
+  bool success = 1;
+  string message = 2;
+}
+
 service BookService {
   rpc GetAllBooks (GetAllBooksRequest) returns (GetAllBooksResponse);
   rpc GetBookById (GetBookRequest) returns (GetBookResponse);
+  rpc CreateLoan (CreateLoanRequest) returns (CreateLoanResponse);
 }

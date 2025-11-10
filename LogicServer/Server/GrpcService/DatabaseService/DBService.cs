@@ -48,7 +48,7 @@ public class DBService
         return books;
     }
 
-    public async Task<BookDTO> GetBookByIdAsync(int id)
+    public async Task<BookDTO?> GetBookByIdAsync(int id)
     {
         await using var conn = new NpgsqlConnection(connectionString);
         await conn.OpenAsync();
@@ -73,6 +73,48 @@ public class DBService
         return null;
     }
 
+    public async Task CreateLoanAsync(int bookId)
+    {
+        await using var conn = new NpgsqlConnection(connectionString);
+        await conn.OpenAsync();
+
+        // Transaction ensuring both book update and loan creation succeed together
+        await using var transaction = await conn.BeginTransactionAsync();
+
+        try
+        {
+            // 1️ Inserting a new loan
+            var insertLoanQuery = @"
+                    INSERT INTO kitabkhana.loan (book_id, borrow_date, return_date, isReturned, numberOfExtensions, username)
+                    VALUES (@book_id, NOW(), NOW() + INTERVAL '30 days', FALSE, 0, null);";
+
+            await using (var insertCmd = new NpgsqlCommand(insertLoanQuery, conn, transaction))
+            {
+                insertCmd.Parameters.AddWithValue("@book_id", bookId);
+                await insertCmd.ExecuteNonQueryAsync();
+            }
+
+            // 2 Updating the book state to "Borrowed"
+            var updateBookQuery = @"
+                    UPDATE kitabkhana.book
+                    SET state = 'Borrowed'
+                    WHERE id = @book_id;";
+
+            await using (var updateCmd = new NpgsqlCommand(updateBookQuery, conn, transaction))
+            {
+                updateCmd.Parameters.AddWithValue("@book_id", bookId);
+                await updateCmd.ExecuteNonQueryAsync();
+            }
+
+            // Commit both queries
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw; // rethrow to be caught by gRPC service
+        }
+    }
 }
 
 

@@ -42,6 +42,11 @@ public class BookServiceImpl : BookService.BookServiceBase
 
         var bookFromDb = await dbService.GetBookByIdAsync(request.Id);
 
+        if (bookFromDb == null)
+        {
+            throw new RpcException(new Status(StatusCode.NotFound, $"Book with id {request.Id} not found."));
+        }
+
         var dtoBook = new DTOBook
         {
             Title = bookFromDb.Title ?? string.Empty,
@@ -51,5 +56,18 @@ public class BookServiceImpl : BookService.BookServiceBase
         };
 
         return new GetBookResponse { Book = dtoBook };
+    }
+
+    public async override Task<CreateLoanResponse> CreateLoan(CreateLoanRequest request, ServerCallContext context)
+    {
+        _logger.LogInformation("Creating loan for book {BookId}", request.BookId);
+
+        await dbService.CreateLoanAsync(request.BookId);
+
+        return new CreateLoanResponse
+        {
+            Message = $"Loan created successfully. Return in 30 days from now."
+        };
+
     }
 }
