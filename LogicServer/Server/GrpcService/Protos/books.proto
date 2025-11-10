@@ -18,6 +18,15 @@ message GetAllBooksResponse {
   repeated DTOBook books = 1;
 }
 
+message GetBookRequest {
+  int32 id = 1;
+}
+
+message GetBookResponse {
+DTOBook book = 1;
+}
+
 service BookService {
   rpc GetAllBooks (GetAllBooksRequest) returns (GetAllBooksResponse);
+  rpc GetBookById (GetBookRequest) returns (GetBookResponse);
 }
