@@ -1,0 +1,40 @@
+﻿
+@page "/books"
+@rendermode InteractiveServer
+@using DTOs
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject BlazorApp.Services.IBookService BookService
+
+<h3>Books</h3>
+
+<button class="btn btn-primary" @onclick="GetBooks">Get Books</button>
+
+@if (books == null)
+{
+    <p class="text-muted fst-italic">Waiting for server connection...</p>
+}
+else
+{
+    <ul>
+        @foreach (var book in books)
+        {   
+            <li>@book.Title by @book.Author (ID: @book.BookId)</li>
+            Console.WriteLine(book.BookId);
+        }
+    </ul>
+}
+
+@code {
+    private List<BookDTO>? books;
+
+    private async Task GetBooks()
+    {
+        books = await BookService.GetBooksAsync();
+        Console.WriteLine("Books retrieved:");
+        foreach (var book in books)
+        {
+            Console.WriteLine($"Book ID: {book.BookId}, Title: {book.Title}, Author: {book.Author}");
+        }
+    }
+}

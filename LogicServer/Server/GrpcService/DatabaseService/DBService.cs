@@ -21,15 +21,15 @@ public class DBService
         var version = await cmd.ExecuteScalarAsync();
         return version?.ToString() ?? "Unknown Postgres Version";
     }
-    
+
     public async Task<List<BookDTO>> GetAllBooksAsync()
     {
-         var books = new List<BookDTO>();
+        var books = new List<BookDTO>();
 
         await using var conn = new NpgsqlConnection(connectionString);
         await conn.OpenAsync();
 
-        const string query = "SELECT isbn, author, title, state FROM kitabkhana.\"book\"";
+        const string query = "SELECT id, isbn, author, title, state FROM kitabkhana.\"book\"";
 
         await using var cmd = new NpgsqlCommand(query, conn);
         await using var reader = await cmd.ExecuteReaderAsync();
@@ -38,10 +38,11 @@ public class DBService
         {
             books.Add(new BookDTO
             {
-                ISBN = reader.GetString(0),
-                Author = reader.GetString(1),
-                Title = reader.GetString(2),
-                State = reader.GetString(3)
+                BookId = reader.GetInt32(0).ToString(),
+                ISBN = reader.IsDBNull(1) ? null : reader.GetString(1),
+                Author = reader.IsDBNull(2) ? null : reader.GetString(2),
+                Title = reader.IsDBNull(3) ? null : reader.GetString(3),
+                State = reader.GetString(4)
             });
         }
 

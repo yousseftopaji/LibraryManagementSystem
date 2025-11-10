@@ -22,16 +22,16 @@ public class BookServiceImpl : BookService.BookServiceBase
 
         var booksFromDb = await dbService.GetAllBooksAsync();
 
-        var response = new GetAllBooksResponse();
+        GetAllBooksResponse response = new GetAllBooksResponse();
 
         response.Books.AddRange(booksFromDb.Select(b => new DTOBook
         {
+            Id = b.BookId ?? string.Empty,
             Title = b.Title ?? string.Empty,
             Author = b.Author ?? string.Empty,
             Isbn = b.ISBN ?? string.Empty,
             State = b.State ?? string.Empty
         }));
-
         return response;
     }
 }

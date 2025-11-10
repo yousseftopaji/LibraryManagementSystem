@@ -7,6 +7,16 @@
     <list default="true" id="7449815c-ef65-418a-b907-8ae1a6bfd467" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/dk/via/sep3/controller/BooksController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dk/via/sep3/controller/BooksController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dk/via/sep3/model/entities/BookDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dk/via/sep3/model/entities/BookDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/proto/books.proto" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/proto/books.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Client/BlazorApp/Components/Layout/NavMenu.razor" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/BlazorApp/Components/Layout/NavMenu.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Client/BlazorApp/Components/Layout/NavMenu.razor.css" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/BlazorApp/Components/Layout/NavMenu.razor.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Client/BlazorApp/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/BlazorApp/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Client/BlazorApp/obj/Debug/net10.0/BlazorApp.AssemblyInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/BlazorApp/obj/Debug/net10.0/BlazorApp.AssemblyInfo.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Client/BlazorApp/obj/Debug/net10.0/BlazorApp.AssemblyInfoInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/BlazorApp/obj/Debug/net10.0/BlazorApp.AssemblyInfoInputs.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Client/BlazorApp/obj/Debug/net10.0/BlazorApp.GeneratedMSBuildEditorConfig.editorconfig" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/BlazorApp/obj/Debug/net10.0/BlazorApp.GeneratedMSBuildEditorConfig.editorconfig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Client/BlazorApp/obj/Debug/net10.0/BlazorApp.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/BlazorApp/obj/Debug/net10.0/BlazorApp.csproj.AssemblyReference.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../LogicServer/Server/GrpcService/Services/BookServiceImpl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../LogicServer/Server/GrpcService/Services/BookServiceImpl.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,7 +62,10 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "HTTP Request.generated-requests | #11.executor": "Run",
     "HTTP Request.generated-requests | #12.executor": "Run",
+    "HTTP Request.generated-requests | #13.executor": "Run",
+    "Maven.AarhusLogicServer [compile].executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
@@ -83,7 +96,9 @@
         <entry key="HttpClient.HttpRequestRunConfigurationType">
           <value>
             <map>
+              <entry key="generated-requests | #11" value="STOPPED" />
               <entry key="generated-requests | #12" value="STOPPED" />
+              <entry key="generated-requests | #13" value="STOPPED" />
             </map>
           </value>
         </entry>
@@ -91,7 +106,13 @@
     </option>
   </component>
   <component name="RunManager" selected="Spring Boot.AarhusLogicServer">
+    <configuration name="generated-requests | #11" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#11" index="11" runType="Run single request">
+      <method v="2" />
+    </configuration>
     <configuration name="generated-requests | #12" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#12" index="12" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests | #13" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#13" index="13" runType="Run single request">
       <method v="2" />
     </configuration>
     <configuration name="AarhusLogicServer" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
@@ -110,7 +131,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="HTTP Request.generated-requests | #13" />
         <item itemvalue="HTTP Request.generated-requests | #12" />
+        <item itemvalue="HTTP Request.generated-requests | #11" />
       </list>
     </recent_temporary>
   </component>
@@ -132,7 +155,7 @@
       <workItem from="1761647021764" duration="287000" />
       <workItem from="1761648325885" duration="655000" />
       <workItem from="1762292784452" duration="766000" />
-      <workItem from="1762776245860" duration="1319000" />
+      <workItem from="1762776245860" duration="4935000" />
     </task>
     <servers />
   </component>

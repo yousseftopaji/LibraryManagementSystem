@@ -26,6 +26,7 @@ public class BooksController
   {
     List<BookDTO> books = bookList.getAllBooks().stream()
         .map(grpcBook -> new BookDTO(
+            grpcBook.getId(),
             grpcBook.getTitle(),
             grpcBook.getAuthor(),
             grpcBook.getIsbn(),
