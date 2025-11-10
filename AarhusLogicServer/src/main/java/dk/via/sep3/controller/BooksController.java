@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/books")
 public class BooksController
 {
   private final BookList bookList;
@@ -21,7 +21,7 @@ public class BooksController
     this.bookList = bookList;
   }
 
-  @GetMapping("/Books")
+  @GetMapping
   public ResponseEntity<List<BookDTO>> getAllBooks()
   {
     List<BookDTO> books = bookList.getAllBooks().stream()
