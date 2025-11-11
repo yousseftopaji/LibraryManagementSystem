@@ -4,6 +4,9 @@ import dk.via.sep3.BookServiceGrpc;
 import dk.via.sep3.DTOBook;
 import dk.via.sep3.GetAllBooksRequest;
 import dk.via.sep3.GetAllBooksResponse;
+import dk.via.sep3.model.entities.BookDTO;
+import dk.via.sep3.model.entities.LoanDTO;
+import dk.via.sep3.model.entities.ReservationDTO;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
@@ -20,7 +23,22 @@ public class GrpcConnection implements GrpcConnectionInterface
   private BookServiceGrpc.BookServiceBlockingStub stub = BookServiceGrpc.newBlockingStub(
       channel);
 
-  public List<DTOBook> getAllBooks()
+    @Override
+    public BookDTO getBookByIsbn(String isbn) {
+        return null;
+    }
+
+    @Override
+    public LoanDTO createLoan(String username, String isbn) {
+        return null;
+    }
+
+    @Override
+    public ReservationDTO reserveBook(String username, String isbn) {
+        return null;
+    }
+
+    public List<DTOBook> getAllBooks()
   {
     try
     {

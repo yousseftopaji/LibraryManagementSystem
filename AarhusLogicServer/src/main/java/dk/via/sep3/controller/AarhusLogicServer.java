@@ -11,7 +11,8 @@ public class AarhusLogicServer
 {
   public static void main(String[] args)
   {
-    SpringApplication.run( AarhusLogicServer.class, args );
+
+      SpringApplication.run( AarhusLogicServer.class, args );
   }
 
   @Bean
@@ -29,6 +30,6 @@ public class AarhusLogicServer
   @Bean
   public BooksController booksController(BookList bookList)
   {
-    return new BooksController(bookList);
+    return new BooksController((GrpcConnectionInterface) bookList);
   }
 }

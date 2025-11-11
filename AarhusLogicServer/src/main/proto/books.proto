@@ -1,22 +1,43 @@
 syntax = "proto3";
-option java_multiple_files = true;
+package dk.via.sep3.proto;
 
-package dk.via.sep3;
+service LibraryService {
+  rpc GetBookByIsbn (GetBookByIsbnRequest) returns (GetBookByIsbnResponse);
+  rpc CreateLoan (CreateLoanRequestGrpc) returns (CreateLoanResponse);
+  rpc ReserveBook (CreateReservationRequestGrpc) returns (CreateReservationResponse);
+}
 
-message DTOBook {
-  string title = 1;
-  string author = 2;
+message GetBookByIsbnRequest { string isbn = 1; }
+message GetBookByIsbnResponse { BookGrpc book = 1; }
+
+message CreateLoanRequestGrpc { string username = 1; string isbn = 2; }
+message CreateLoanResponse { LoanGrpc loan = 1; }
+
+message CreateReservationRequestGrpc { string username = 1; string isbn = 2; }
+message CreateReservationResponse { ReservationGrpc reservation = 1; }
+
+message BookGrpc {
+  string isbn = 1;
+  string title = 2;
+  string author = 3;
+  string genre = 4;
+  string state = 5; // "AVAILABLE" | "BORROWED"
+}
+
+message LoanGrpc {
+  string id = 1;
+  string username = 2;
   string isbn = 3;
-  string state = 4;
+  string borrowDate = 4;  // yyyy-MM-dd
+  string dueDate = 5;     // yyyy-MM-dd
+  bool returned = 6;
+  int32 numberOfExtensions = 7;
 }
 
-message GetAllBooksRequest {
-}
-
-message GetAllBooksResponse {
-  repeated DTOBook books = 1;
-}
-
-service BookService {
-  rpc getAllBooks (GetAllBooksRequest) returns (GetAllBooksResponse);
+message ReservationGrpc {
+  string id = 1;
+  string username = 2;
+  string isbn = 3;
+  int32 numberInLine = 4;
+  string createdAt = 5;   // yyyy-MM-dd'T'HH:mm:ss
 }

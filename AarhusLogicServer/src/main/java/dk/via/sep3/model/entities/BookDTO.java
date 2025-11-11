@@ -62,5 +62,6 @@ public class BookDTO
   {
     this.state = state;
   }
+
 }
 

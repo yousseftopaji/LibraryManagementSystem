@@ -1,38 +1,47 @@
 package dk.via.sep3.controller;
 
-
-import dk.via.sep3.model.BookList;
+import dk.via.sep3.grpcConnection.GrpcConnectionInterface;
 import dk.via.sep3.model.entities.BookDTO;
+import dk.via.sep3.model.entities.LoanDTO;
+import dk.via.sep3.model.entities.ReservationDTO;
+import dk.via.sep3.model.entities.CreateLoanRequest;
+import dk.via.sep3.model.entities.CreateReservationRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/")
-public class BooksController
-{
-  private final BookList bookList;
+@RequestMapping("/api")
+@Validated
+public class BooksController {
 
-  public BooksController(BookList bookList)
-  {
-    this.bookList = bookList;
-  }
+    private final GrpcConnectionInterface grpc;
 
-  @GetMapping("/Books")
-  public ResponseEntity<List<BookDTO>> getAllBooks()
-  {
-    List<BookDTO> books = bookList.getAllBooks().stream()
-        .map(grpcBook -> new BookDTO(
-            grpcBook.getTitle(),
-            grpcBook.getAuthor(),
-            grpcBook.getIsbn(),
-            grpcBook.getState()
-        ))
-        .collect(Collectors.toList());
-    
-    return new ResponseEntity<>(books, HttpStatus.OK);
-  }
+    public BooksController(GrpcConnectionInterface grpc) {
+        this.grpc = grpc;
+    }
+
+    // GET /api/books/{isbn}
+    @GetMapping("/books/{isbn}")
+    public ResponseEntity<BookDTO> getBook(@PathVariable String isbn) {
+        BookDTO dto = grpc.getBookByIsbn(isbn);
+        if (dto == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(dto);
+    }
+
+    // POST /api/loans
+    @PostMapping("/loans")
+    public ResponseEntity<LoanDTO> createLoan( @RequestBody CreateLoanRequest req) {
+        LoanDTO loan = grpc.createLoan(req.getUsername(), req.getIsbn());
+        return ResponseEntity.status(HttpStatus.CREATED).body(loan);
+    }
+
+    // POST /api/reservations
+    @PostMapping("/reservations")
+    public ResponseEntity<ReservationDTO> reserve( @RequestBody CreateReservationRequest req) {
+        ReservationDTO res = grpc.reserveBook(req.getUsername(), req.getIsbn());
+        return ResponseEntity.status(HttpStatus.CREATED).body(res);
+    }
 }
