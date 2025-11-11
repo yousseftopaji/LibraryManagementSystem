@@ -1,5 +1,4 @@
 package dk.via.sep3.grpcConnection;
-
 import dk.via.sep3.BookServiceGrpc;
 import dk.via.sep3.DTOBook;
 import dk.via.sep3.GetAllBooksRequest;
@@ -19,23 +18,50 @@ public class GrpcConnection implements GrpcConnectionInterface
   private ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost",
       9090).usePlaintext().build();
 
-
   private BookServiceGrpc.BookServiceBlockingStub stub = BookServiceGrpc.newBlockingStub(
       channel);
-
-    @Override
+//I want to get books by isbn number
     public BookDTO getBookByIsbn(String isbn) {
-        return null;
+        GetAllBooksRequest request = GetAllBooksRequest.newBuilder().build();
+        GetAllBooksResponse response = stub.getAllBooks(request);
+        for (DTOBook dtoBook : response.getBooksList()) {
+            if (dtoBook.getIsbn().equals(isbn)) {
+                BookDTO bookDTO = new BookDTO();
+                bookDTO.setIsbn(dtoBook.getIsbn());
+                bookDTO.setTitle(dtoBook.getTitle());
+                bookDTO.setAuthor(dtoBook.getAuthor());
+                bookDTO.setState(dtoBook.getState());
+                return bookDTO;
+            }
+        }
     }
 
     @Override
     public LoanDTO createLoan(String username, String isbn) {
-        return null;
+       GetAllBooksRequest request = GetAllBooksRequest.newBuilder().build();
+         GetAllBooksResponse response = stub.getAllBooks(request);
+            for (DTOBook dtoBook : response.getBooksList()) {
+                if (dtoBook.getIsbn().equals(isbn)) {
+                    LoanDTO loanDTO = new LoanDTO();
+                    loanDTO.setIsbn(dtoBook.getIsbn());
+                    loanDTO.setUsername(username);
+                    return loanDTO;
+                }
+            }
     }
 
     @Override
     public ReservationDTO reserveBook(String username, String isbn) {
-        return null;
+        GetAllBooksRequest request = GetAllBooksRequest.newBuilder().build();
+        GetAllBooksResponse response = stub.getAllBooks(request);
+        for (DTOBook dtoBook : response.getBooksList()) {
+            if (dtoBook.getIsbn().equals(isbn)) {
+                ReservationDTO reservationDTO = new ReservationDTO();
+                reservationDTO.setIsbn(dtoBook.getIsbn());
+                reservationDTO.setUsername(username);
+                return reservationDTO;
+            }
+        }
     }
 
     public List<DTOBook> getAllBooks()
