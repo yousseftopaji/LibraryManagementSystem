@@ -21,6 +21,9 @@ builder.WebHost.ConfigureKestrel(options =>
     options.ListenAnyIP(9090);
 });
 
+    
+
+
 var app = builder.Build();
 
 // Map gRPC services

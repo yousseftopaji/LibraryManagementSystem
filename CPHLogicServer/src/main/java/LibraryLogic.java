@@ -32,6 +32,17 @@ public class LibraryLogic {
     public String createLoan(String username, String isbn) {
         Book book = getBook(isbn);
         if (book == null) return "Book not found.";
+        List<Reservation> queue = viewQueue(isbn);
+
+        if (!queue.isEmpty()) {
+            String firstUser = queue.get(0).getUsername();
+            if (!firstUser.equals(username)) {
+                return "This title is reserved. Only the first reserver may borrow now (current first: "
+                        + firstUser + ").";
+            }
+
+        }
+
 
         if (book.getAvailableCopies() <= 0) {
             return "No available copies. Try reserving the book.";
