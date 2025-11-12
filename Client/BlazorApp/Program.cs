@@ -1,5 +1,6 @@
 using BlazorApp.Components;
 using BlazorApp.Services;
+using BlazorApp.Services.LoanService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,10 +10,11 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri("http://localhost:8080/")
+    BaseAddress = new Uri("http://localhost:5251/")
 });
 
 builder.Services.AddScoped<IBookService, HttpBookService>();
+builder.Services.AddScoped<ILoanService, HttpLoanService>();
 
 var app = builder.Build();
 

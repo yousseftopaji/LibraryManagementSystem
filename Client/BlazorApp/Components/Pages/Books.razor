@@ -1,10 +1,8 @@
-﻿
-@page "/books"
+﻿@page "/books"
 @rendermode InteractiveServer
 @using DTOs
-@using System.Net.Http.Json
-@inject HttpClient Http
 @inject BlazorApp.Services.IBookService BookService
+@inject NavigationManager NavigationManager
 
 <h3>Books</h3>
 
@@ -16,13 +14,27 @@
 }
 else
 {
-    <ul>
-        @foreach (var book in books)
-        {   
-            <li>@book.Title by @book.Author (ID: @book.BookId)</li>
-            Console.WriteLine(book.BookId);
-        }
-    </ul>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Book ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>ISBN</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in books)
+            {
+                <tr style="cursor: pointer;" @onclick="@(() => NavigateToBook(book.ISBN))">
+                    <td>@book.BookId</td>
+                    <td>@book.Title</td>
+                    <td>@book.Author</td>
+                    <td>@book.ISBN</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 
 @code {
@@ -31,10 +43,13 @@ else
     private async Task GetBooks()
     {
         books = await BookService.GetBooksAsync();
-        Console.WriteLine("Books retrieved:");
-        foreach (var book in books)
+    }
+
+    private void NavigateToBook(string? isbn)
+    {
+        if (!string.IsNullOrEmpty(isbn))
         {
-            Console.WriteLine($"Book ID: {book.BookId}, Title: {book.Title}, Author: {book.Author}");
+            NavigationManager.NavigateTo($"/books/{isbn}");
         }
     }
 }

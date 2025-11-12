@@ -34,6 +34,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xCb29rcy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/youss/OneDrive/Desktop/VIA/SEP3/Sep3_SourceCode/LibraryManagementSystem/Client/BlazorApp/Components/Pages/BorrowBook.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xCb3Jyb3dCb29rLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/youss/OneDrive/Desktop/VIA/SEP3/Sep3_SourceCode/LibraryManagementSystem/Client/BlazorApp/Components/Pages/Counter.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDb3VudGVyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
@@ -48,6 +52,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/youss/OneDrive/Desktop/VIA/SEP3/Sep3_SourceCode/LibraryManagementSystem/Client/BlazorApp/Components/Pages/NotFound.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xOb3RGb3VuZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/youss/OneDrive/Desktop/VIA/SEP3/Sep3_SourceCode/LibraryManagementSystem/Client/BlazorApp/Components/Pages/ReserveBook.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xSZXNlcnZlQm9vay5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/youss/OneDrive/Desktop/VIA/SEP3/Sep3_SourceCode/LibraryManagementSystem/Client/BlazorApp/Components/Pages/Weather.razor]
