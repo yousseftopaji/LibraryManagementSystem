@@ -18,12 +18,12 @@ message GetAllBooksResponse {
   repeated DTOBook books = 1;
 }
 
-message GetBookRequest {
-  int32 id = 1;
+message GetIsbnBooksRequest {
+  string isbn = 1;
 }
 
-message GetBookResponse {
-DTOBook book = 1;
+message GetIsbnBooksResponse {
+repeated DTOBook books = 1;
 }
 
 message CreateLoanRequest {
@@ -37,6 +37,6 @@ message CreateLoanResponse {
 
 service BookService {
   rpc GetAllBooks (GetAllBooksRequest) returns (GetAllBooksResponse);
-  rpc GetBookById (GetBookRequest) returns (GetBookResponse);
+  rpc GetBooksByIsbn (GetIsbnBooksRequest) returns (GetIsbnBooksResponse);
   rpc CreateLoan (CreateLoanRequest) returns (CreateLoanResponse);
 }

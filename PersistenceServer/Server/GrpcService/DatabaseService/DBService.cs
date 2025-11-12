@@ -48,29 +48,32 @@ public class DBService
         return books;
     }
 
-    public async Task<BookDTO?> GetBookByIdAsync(int id)
+    public async Task<List<BookDTO>> GetBooksByIsbnAsync(string isbn)
     {
+        var books = new List<BookDTO>();
+
         await using var conn = new NpgsqlConnection(connectionString);
         await conn.OpenAsync();
 
-        var query = "SELECT isbn, author, title, state FROM kitabkhana.\"book\" WHERE id = @Id";
+        var query = "SELECT isbn, author, title, state FROM kitabkhana.book WHERE isbn = @isbn";
 
         await using var cmd = new NpgsqlCommand(query, conn);
-        cmd.Parameters.AddWithValue("Id", id);
+        cmd.Parameters.AddWithValue("isbn", isbn);
 
         await using var reader = await cmd.ExecuteReaderAsync();
 
-        if (await reader.ReadAsync())
+        while (await reader.ReadAsync())
         {
-            return new BookDTO
+            books.Add(new BookDTO
             {
                 ISBN = reader.GetString(0),
                 Author = reader.GetString(1),
                 Title = reader.GetString(2),
                 State = reader.GetString(3)
-            };
+            });
         }
-        return null;
+
+        return books;
     }
 
     public async Task CreateLoanAsync(int bookId)

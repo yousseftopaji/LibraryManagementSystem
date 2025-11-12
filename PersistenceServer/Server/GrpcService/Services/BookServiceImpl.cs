@@ -22,6 +22,11 @@ public class BookServiceImpl : BookService.BookServiceBase
         _logger.LogInformation("Received request to get all books.");
 
         var booksFromDb = await dbService.GetAllBooksAsync();
+       
+        if (booksFromDb == null)
+        {
+            throw new RpcException(new Status(StatusCode.NotFound, $"Books not found."));
+        }
 
         var response = new GetAllBooksResponse();
 
@@ -36,26 +41,28 @@ public class BookServiceImpl : BookService.BookServiceBase
         return response;
     }
 
-    public async override Task<GetBookResponse> GetBookById(GetBookRequest request, ServerCallContext context)
+    public async override Task<GetIsbnBooksResponse> GetBooksByIsbn(GetIsbnBooksRequest request, ServerCallContext context)
     {
-        _logger.LogInformation("Received request to get book by id.");
+        _logger.LogInformation($"Received request to get book by ISBN {request.Isbn}.");
 
-        var bookFromDb = await dbService.GetBookByIdAsync(request.Id);
+        var booksFromDb = await dbService.GetBooksByIsbnAsync(request.Isbn);
 
-        if (bookFromDb == null)
+        if (booksFromDb == null)
         {
-            throw new RpcException(new Status(StatusCode.NotFound, $"Book with id {request.Id} not found."));
+            throw new RpcException(new Status(StatusCode.NotFound, $"Books with ISBN {request.Isbn} not found."));
         }
 
-        var dtoBook = new DTOBook
-        {
-            Title = bookFromDb.Title ?? string.Empty,
-            Author = bookFromDb.Author ?? string.Empty,
-            Isbn = bookFromDb.ISBN ?? string.Empty,
-            State = bookFromDb.State ?? string.Empty
-        };
+        var response = new GetIsbnBooksResponse();
 
-        return new GetBookResponse { Book = dtoBook };
+        response.Books.AddRange(booksFromDb.Select(b => new DTOBook
+        {
+            Title = b.Title ?? string.Empty,
+            Author = b.Author ?? string.Empty,
+            Isbn = b.ISBN ?? string.Empty,
+            State = b.State ?? string.Empty
+        }));
+
+        return response;
     }
 
     public async override Task<CreateLoanResponse> CreateLoan(CreateLoanRequest request, ServerCallContext context)
