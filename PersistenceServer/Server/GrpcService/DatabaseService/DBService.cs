@@ -55,7 +55,7 @@ public class DBService
         await using var conn = new NpgsqlConnection(connectionString);
         await conn.OpenAsync();
 
-        var query = "SELECT isbn, author, title, state FROM kitabkhana.book WHERE isbn = @isbn";
+        var query = "SELECT isbn, author, title, genre, state FROM kitabkhana.book WHERE isbn = @isbn";
 
         await using var cmd = new NpgsqlCommand(query, conn);
         cmd.Parameters.AddWithValue("isbn", isbn);
