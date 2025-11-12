@@ -1,9 +1,6 @@
 package dk.via.sep3.grpcConnection;
 
-import dk.via.sep3.BookServiceGrpc;
-import dk.via.sep3.DTOBook;
-import dk.via.sep3.GetAllBooksRequest;
-import dk.via.sep3.GetAllBooksResponse;
+import dk.via.sep3.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
@@ -17,7 +14,10 @@ public class GrpcConnection implements GrpcConnectionInterface
       9090).usePlaintext().build();
 
 
-  private BookServiceGrpc.BookServiceBlockingStub stub = BookServiceGrpc.newBlockingStub(
+  private BookServiceGrpc.BookServiceBlockingStub bookStub = BookServiceGrpc.newBlockingStub(
+      channel);
+
+  private LoanServiceGrpc.LoanServiceBlockingStub loanStub = LoanServiceGrpc.newBlockingStub(
       channel);
 
   public List<DTOBook> getAllBooks()
@@ -26,7 +26,7 @@ public class GrpcConnection implements GrpcConnectionInterface
     {
       GetAllBooksRequest request = GetAllBooksRequest.newBuilder().build();
       System.out.println("Sending gRPC request to get all books...");
-      GetAllBooksResponse response = stub.getAllBooks(request);
+      GetAllBooksResponse response = bookStub.getAllBooks(request);
       System.out.println(response.getBooksList() + " <- Received gRPC response with all books.");
       return response.getBooksList();
     }
@@ -34,6 +34,57 @@ public class GrpcConnection implements GrpcConnectionInterface
     {
       ex.printStackTrace();
       return new ArrayList<>();
+    }
+  }
+
+  @Override
+  public DTOBook getBookByIsbn(String isbn)
+  {
+    try
+    {
+      GetBookByIsbnRequest request = GetBookByIsbnRequest.newBuilder()
+          .setIsbn(isbn)
+          .build();
+      System.out.println("Sending gRPC request to get book by ISBN: " + isbn);
+      GetBookByIsbnResponse response = bookStub.getBookByIsbn(request);
+      System.out.println("Received gRPC response: " + response.getBook());
+      return response.getBook();
+    }
+    catch (Exception ex)
+    {
+      ex.printStackTrace();
+      return null;
+    }
+  }
+
+  @Override
+  public DTOLoan createLoan(String username, String bookId, int loanDurationDays)
+  {
+    try
+    {
+      CreateLoanRequest request = CreateLoanRequest.newBuilder()
+          .setUsername(username)
+          .setBookId(bookId)
+          .setLoanDurationDays(loanDurationDays)
+          .build();
+      System.out.println("Sending gRPC request to create loan for user: " + username + ", bookId: " + bookId);
+      CreateLoanResponse response = loanStub.createLoan(request);
+
+      if (response.getSuccess())
+      {
+        System.out.println("Loan created successfully: " + response.getLoan());
+        return response.getLoan();
+      }
+      else
+      {
+        System.err.println("Failed to create loan: " + response.getMessage());
+        return null;
+      }
+    }
+    catch (Exception ex)
+    {
+      ex.printStackTrace();
+      return null;
     }
   }
 }

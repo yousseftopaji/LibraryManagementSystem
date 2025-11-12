@@ -12,6 +12,16 @@ message DTOBook {
   string state = 5;
 }
 
+message DTOLoan {
+  string id = 1;
+  string borrowDate = 2;
+  string dueDate = 3;
+  bool isReturned = 4;
+  int32 numberOfExtensions = 5;
+  string username = 6;
+  string bookId = 7;
+}
+
 message GetAllBooksRequest {
 }
 
@@ -19,6 +29,31 @@ message GetAllBooksResponse {
   repeated DTOBook books = 1;
 }
 
+message GetBookByIsbnRequest {
+  string isbn = 1;
+}
+
+message GetBookByIsbnResponse {
+  DTOBook book = 1;
+}
+
+message CreateLoanRequest {
+  string username = 1;
+  string bookId = 2;
+  int32 loanDurationDays = 3;
+}
+
+message CreateLoanResponse {
+  DTOLoan loan = 1;
+  bool success = 2;
+  string message = 3;
+}
+
 service BookService {
   rpc GetAllBooks (GetAllBooksRequest) returns (GetAllBooksResponse);
+  rpc GetBookByIsbn (GetBookByIsbnRequest) returns (GetBookByIsbnResponse);
+}
+
+service LoanService {
+  rpc CreateLoan (CreateLoanRequest) returns (CreateLoanResponse);
 }

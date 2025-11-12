@@ -1,5 +1,6 @@
 using Npgsql;
 using DTOs;
+using DTOs.Loan;
 
 namespace GrpcService.DatabaseService;
 
@@ -47,6 +48,102 @@ public class DBService
         }
 
         return books;
+    }
+
+    public async Task<BookDTO?> GetBookByIsbnAsync(string isbn)
+    {
+        await using var conn = new NpgsqlConnection(connectionString);
+        await conn.OpenAsync();
+
+        const string query = @"SELECT id, isbn, author, title, state
+                               FROM kitabkhana.""book""
+                               WHERE isbn = $1 AND state = 'Available'
+                               LIMIT 1";
+
+        await using var cmd = new NpgsqlCommand(query, conn);
+        cmd.Parameters.AddWithValue(isbn);
+
+        await using var reader = await cmd.ExecuteReaderAsync();
+
+        if (await reader.ReadAsync())
+        {
+            return new BookDTO
+            {
+                BookId = reader.GetInt32(0).ToString(),
+                ISBN = reader.IsDBNull(1) ? null : reader.GetString(1),
+                Author = reader.IsDBNull(2) ? null : reader.GetString(2),
+                Title = reader.IsDBNull(3) ? null : reader.GetString(3),
+                State = reader.GetString(4)
+            };
+        }
+
+        return null;
+    }
+
+    public async Task<LoanDTO?> CreateLoanAsync(string username, string bookId, int loanDurationDays)
+    {
+        await using var conn = new NpgsqlConnection(connectionString);
+        await conn.OpenAsync();
+
+        await using var transaction = await conn.BeginTransactionAsync();
+
+        try
+        {
+            // Check if book is available
+            const string checkBookQuery = @"SELECT state FROM kitabkhana.""book"" WHERE id = $1";
+            await using var checkCmd = new NpgsqlCommand(checkBookQuery, conn, transaction);
+            checkCmd.Parameters.AddWithValue(int.Parse(bookId));
+
+            var bookState = await checkCmd.ExecuteScalarAsync();
+            if (bookState == null || bookState.ToString() != "Available")
+            {
+                await transaction.RollbackAsync();
+                return null;
+            }
+
+            // Create loan
+            var borrowDate = DateTime.UtcNow.Date;
+            var dueDate = borrowDate.AddDays(loanDurationDays);
+
+            const string insertLoanQuery = @"INSERT INTO kitabkhana.""Loan""
+                                            (borrowDate, dueDate, isReturned, numberOfExtensions, username, bookId)
+                                            VALUES ($1, $2, $3, $4, $5, $6)
+                                            RETURNING id";
+
+            await using var insertCmd = new NpgsqlCommand(insertLoanQuery, conn, transaction);
+            insertCmd.Parameters.AddWithValue(borrowDate);
+            insertCmd.Parameters.AddWithValue(dueDate);
+            insertCmd.Parameters.AddWithValue(false);
+            insertCmd.Parameters.AddWithValue(0);
+            insertCmd.Parameters.AddWithValue(username);
+            insertCmd.Parameters.AddWithValue(int.Parse(bookId));
+
+            var loanId = await insertCmd.ExecuteScalarAsync();
+
+            // Update book state to Borrowed
+            const string updateBookQuery = @"UPDATE kitabkhana.""book"" SET state = 'Borrowed' WHERE id = $1";
+            await using var updateCmd = new NpgsqlCommand(updateBookQuery, conn, transaction);
+            updateCmd.Parameters.AddWithValue(int.Parse(bookId));
+            await updateCmd.ExecuteNonQueryAsync();
+
+            await transaction.CommitAsync();
+
+            return new LoanDTO
+            {
+                LoanId = loanId?.ToString(),
+                BorrowDate = borrowDate,
+                DueDate = dueDate,
+                IsReturned = false,
+                NumberOfExtensions = 0,
+                Username = username,
+                BookId = bookId
+            };
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 }
 

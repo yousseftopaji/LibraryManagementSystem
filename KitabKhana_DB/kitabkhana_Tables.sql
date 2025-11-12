@@ -41,18 +41,18 @@ CREATE TABLE "User" (
     CONSTRAINT ck_user_no_self_manage CHECK (managedBy IS NULL OR managedBy <> username)
 );
 
--- CREATE TABLE Loan (
---     id SERIAL PRIMARY KEY,
---     borrowDate DATE NOT NULL DEFAULT CURRENT_DATE,
---     dueDate DATE NOT NULL,
---     isReturned BOOLEAN NOT NULL DEFAULT FALSE,
---     numberOfExtensions INT NOT NULL DEFAULT 0 CHECK (numberOfExtensions >= 0),
---     username VARCHAR(100) NOT NULL,
---     bookCopyId INT NOT NULL,
---     FOREIGN KEY (username) REFERENCES "User"(username) ON DELETE RESTRICT ON UPDATE CASCADE,
---     FOREIGN KEY (bookCopyId) REFERENCES Book(id) ON DELETE RESTRICT ON UPDATE CASCADE,
---     CHECK (dueDate >= borrowDate)
--- );
+CREATE TABLE Loan (
+    id SERIAL PRIMARY KEY,
+    borrowDate DATE NOT NULL DEFAULT CURRENT_DATE,
+    dueDate DATE NOT NULL,
+    isReturned BOOLEAN NOT NULL DEFAULT FALSE,
+    numberOfExtensions INT NOT NULL DEFAULT 0 CHECK (numberOfExtensions >= 0),
+    username VARCHAR(100) NOT NULL,
+    bookId INT NOT NULL,
+    FOREIGN KEY (username) REFERENCES "User"(username) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (bookId) REFERENCES Book(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CHECK (dueDate >= borrowDate)
+);
 
 -- CREATE TABLE IF NOT EXISTS Reservation (
 --     id SERIAL PRIMARY KEY,

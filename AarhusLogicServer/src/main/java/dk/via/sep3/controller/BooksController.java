@@ -36,4 +36,25 @@ public class BooksController
     
     return new ResponseEntity<>(books, HttpStatus.OK);
   }
+
+  @GetMapping("/{isbn}")
+  public ResponseEntity<BookDTO> getBookByIsbn(@PathVariable String isbn)
+  {
+    var grpcBook = bookList.getBookByIsbn(isbn);
+
+    if (grpcBook == null || grpcBook.getId().isEmpty())
+    {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    BookDTO bookDTO = new BookDTO(
+        grpcBook.getId(),
+        grpcBook.getTitle(),
+        grpcBook.getAuthor(),
+        grpcBook.getIsbn(),
+        grpcBook.getState()
+    );
+
+    return new ResponseEntity<>(bookDTO, HttpStatus.OK);
+  }
 }
