@@ -1,0 +1,18 @@
+@using DTOs
+
+<div class="mt-3">
+    <button class="btn btn-warning" disabled>
+        Reserve (Coming Soon)
+    </button>
+</div>
+
+<div class="alert alert-info mt-3" role="alert">
+    <i class="bi bi-info-circle"></i> Book reservation functionality will be available soon.
+</div>
+
+@code {
+    [Parameter]
+    public required string ISBN { get; set; }
+
+    // TODO: Implement reservation logic in future
+}

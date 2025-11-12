@@ -6,6 +6,7 @@ package dk.via.sep3.model.entities;
  */
 public class BookDTO
 {
+  private String id;
   private String title;
   private String author;
   private String isbn;
@@ -15,12 +16,23 @@ public class BookDTO
   {
   }
 
-  public BookDTO(String title, String author, String isbn, String state)
+  public BookDTO(String id, String title, String author, String isbn, String state)
   {
+    this.id = id;
     this.title = title;
     this.author = author;
     this.isbn = isbn;
     this.state = state;
+  }
+
+  public String getId()
+  {
+    return id;
+  }
+
+  public void setId(String id)
+  {
+    this.id = id;
   }
 
   public String getTitle()

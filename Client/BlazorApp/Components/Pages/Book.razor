@@ -1,0 +1,59 @@
+﻿@page "/books/{ISBN}"
+@rendermode InteractiveServer
+@using DTOs
+@inject BlazorApp.Services.IBookService BookService
+
+<h3>Book Details</h3>
+@if (book == null)
+{
+    <p class="text-muted fst-italic">Loading book details...</p>
+}
+else
+{
+    <div>
+        <h4>@book.Title</h4>
+        <p><strong>Title:</strong> @book.Title</p>
+        <p><strong>Author:</strong> @book.Author</p>
+        <p><strong>ISBN:</strong> @book.ISBN</p>
+        <p><strong>Number of Copies:</strong> @book.NoOfCopies</p>
+        <p><strong>State:</strong> @book.State</p>
+
+        @if (book.State.Equals("Available", StringComparison.OrdinalIgnoreCase))
+        {
+            <BorrowBook ISBN="@book.ISBN" OnBorrowSuccess="RefreshBookDetails" />
+        }
+        else
+        {
+            <ReserveBook ISBN="@book.ISBN" />
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string ISBN { get; set; } = string.Empty;
+
+    private BookDTO? book;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBookDetails();
+    }
+
+    private async Task LoadBookDetails()
+    {
+        try
+        {
+            book = await BookService.GetBookAsync(ISBN);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading book details: {ex.Message}");
+        }
+    }
+
+    private async Task RefreshBookDetails()
+    {
+        await LoadBookDetails();
+    }
+}
