@@ -18,6 +18,33 @@ message GetAllBooksResponse {
   repeated DTOBook books = 1;
 }
 
+message GetBookRequest {
+  string isbn = 1;
+}
+
+message GetBookResponse {
+  DTOBook book = 1;
+}
+
+message CreateLoanRequest {
+  string bookISBN = 1;
+  string username = 2;
+}
+
+message CreateLoanResponse {
+  string loanId = 1;
+  string bookId = 2;
+  string isbn = 3;
+  string userId = 4;
+  string loanDate = 5;
+  string dueDate = 6;
+}
+
 service BookService {
   rpc getAllBooks (GetAllBooksRequest) returns (GetAllBooksResponse);
+  rpc getBook (GetBookRequest) returns (GetBookResponse);
+}
+
+service LoanService {
+  rpc createLoan (CreateLoanRequest) returns (CreateLoanResponse);
 }

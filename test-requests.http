@@ -1,0 +1,39 @@
+###
+# Variable Definitions
+# Replace these with actual ISBNs from your database
+@baseUrl = http://localhost:8080
+@isbn = 978-0-123456-78-9
+@username = john.doe
+
+###
+# 1. Get All Books (to see what's in the database)
+GET {{baseUrl}}/books
+Accept: application/json
+
+###
+# 2. Get Single Book by ISBN
+# Use an actual ISBN from the response above
+GET {{baseUrl}}/books/{{isbn}}
+Accept: application/json
+
+###
+# 3. Create a Loan
+# Make sure the ISBN exists in your database first!
+POST {{baseUrl}}/loans
+Content-Type: application/json
+
+{
+  "bookISBN": "{{isbn}}",
+  "username": "{{username}}"
+}
+
+###
+# Alternative: Create loan with hardcoded values
+POST {{baseUrl}}/loans
+Content-Type: application/json
+
+{
+  "bookISBN": "978-0-123456-78-9",
+  "username": "testuser"
+}
+

@@ -1,9 +1,7 @@
 package dk.via.sep3.grpcConnection;
 
-import dk.via.sep3.BookServiceGrpc;
-import dk.via.sep3.DTOBook;
-import dk.via.sep3.GetAllBooksRequest;
-import dk.via.sep3.GetAllBooksResponse;
+import dk.via.sep3.*;
+import dk.via.sep3.model.entities.CreateLoanDTO;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
@@ -17,7 +15,10 @@ public class GrpcConnection implements GrpcConnectionInterface
       9090).usePlaintext().build();
 
 
-  private BookServiceGrpc.BookServiceBlockingStub stub = BookServiceGrpc.newBlockingStub(
+  private BookServiceGrpc.BookServiceBlockingStub bookStub = BookServiceGrpc.newBlockingStub(
+      channel);
+
+  private LoanServiceGrpc.LoanServiceBlockingStub loanStub = LoanServiceGrpc.newBlockingStub(
       channel);
 
   public List<DTOBook> getAllBooks()
@@ -26,7 +27,7 @@ public class GrpcConnection implements GrpcConnectionInterface
     {
       GetAllBooksRequest request = GetAllBooksRequest.newBuilder().build();
       System.out.println("Sending gRPC request to get all books...");
-      GetAllBooksResponse response = stub.getAllBooks(request);
+      GetAllBooksResponse response = bookStub.getAllBooks(request);
       System.out.println(response.getBooksList() + " <- Received gRPC response with all books.");
       return response.getBooksList();
     }
@@ -34,6 +35,47 @@ public class GrpcConnection implements GrpcConnectionInterface
     {
       ex.printStackTrace();
       return new ArrayList<>();
+    }
+  }
+
+  @Override
+  public DTOBook getBook(String isbn)
+  {
+    try
+    {
+      GetBookRequest request = GetBookRequest.newBuilder()
+          .setIsbn(isbn)
+          .build();
+      System.out.println("Sending gRPC request to get book with ISBN: " + isbn);
+      GetBookResponse response = bookStub.getBook(request);
+      System.out.println("Received gRPC response: " + response.getBook());
+      return response.getBook();
+    }
+    catch (Exception ex)
+    {
+      ex.printStackTrace();
+      return null;
+    }
+  }
+
+  @Override
+  public CreateLoanResponse createLoan(CreateLoanDTO createLoanDTO)
+  {
+    try
+    {
+      CreateLoanRequest request = CreateLoanRequest.newBuilder()
+          .setBookISBN(createLoanDTO.getBookISBN())
+          .setUsername(createLoanDTO.getUsername())
+          .build();
+      System.out.println("Sending gRPC request to create loan for ISBN: " + createLoanDTO.getBookISBN());
+      CreateLoanResponse response = loanStub.createLoan(request);
+      System.out.println("Received gRPC response: Loan created with ID: " + response.getLoanId());
+      return response;
+    }
+    catch (Exception ex)
+    {
+      ex.printStackTrace();
+      return null;
     }
   }
 }

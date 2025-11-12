@@ -31,4 +31,10 @@ public class AarhusLogicServer
   {
     return new BooksController(bookList);
   }
+
+  @Bean
+  public LoansController loansController(BookList bookList)
+  {
+    return new LoansController(bookList);
+  }
 }

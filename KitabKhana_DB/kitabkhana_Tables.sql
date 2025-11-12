@@ -41,18 +41,18 @@ CREATE TABLE "User" (
     CONSTRAINT ck_user_no_self_manage CHECK (managedBy IS NULL OR managedBy <> username)
 );
 
--- CREATE TABLE Loan (
---     id SERIAL PRIMARY KEY,
---     borrowDate DATE NOT NULL DEFAULT CURRENT_DATE,
---     dueDate DATE NOT NULL,
---     isReturned BOOLEAN NOT NULL DEFAULT FALSE,
---     numberOfExtensions INT NOT NULL DEFAULT 0 CHECK (numberOfExtensions >= 0),
---     username VARCHAR(100) NOT NULL,
---     bookCopyId INT NOT NULL,
---     FOREIGN KEY (username) REFERENCES "User"(username) ON DELETE RESTRICT ON UPDATE CASCADE,
---     FOREIGN KEY (bookCopyId) REFERENCES Book(id) ON DELETE RESTRICT ON UPDATE CASCADE,
---     CHECK (dueDate >= borrowDate)
--- );
+CREATE TABLE Loan (
+    id SERIAL PRIMARY KEY,
+    book_id INT NOT NULL,
+    user_id VARCHAR(100) NOT NULL,
+    loan_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    due_date TIMESTAMP NOT NULL,
+    return_date TIMESTAMP NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'RETURNED', 'OVERDUE')),
+    FOREIGN KEY (book_id) REFERENCES Book(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES "User"(username) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CHECK (due_date >= loan_date)
+);
 
 -- CREATE TABLE IF NOT EXISTS Reservation (
 --     id SERIAL PRIMARY KEY,
@@ -112,20 +112,69 @@ INSERT INTO "User"(username, password, name, phoneNumber, isLibrarian) VALUES
 ('stud.alex',  '***hash***', 'Alex Student',   '+45-2222', FALSE)
 ON CONFLICT DO NOTHING;
 
--- Loan (Alex borrows Clean Code copy #2)
--- INSERT INTO Loan(dueDate, username, bookCopyId)
--- SELECT CURRENT_DATE + INTERVAL '30 days', 'stud.alex', bc.id
--- FROM BookCopy bc
--- JOIN Book b ON b.id = bc.bookId
--- WHERE b.ISBN = '9780132350884' AND bc.copyNumber = 2
--- ON CONFLICT DO NOTHING;
---
--- -- Reservation (Alex reserves Pragmatic copy #1, queue pos = 1)
--- INSERT INTO Reservation(numberInLine, bookCopyId, username)
--- SELECT 1, bc.id, 'stud.alex'
--- FROM BookCopy bc
--- JOIN Book b ON b.id = bc.bookId
--- WHERE b.ISBN = '9780201616224' AND bc.copyNumber = 1
--- ON CONFLICT DO NOTHING;
+-- Sample Loans (Alex borrows "The Pragmatic Programmer")
+INSERT INTO Loan(book_id, user_id, loan_date, due_date, status)
+SELECT b.id, 'stud.alex', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '14 days', 'ACTIVE'
+FROM Book b WHERE b.ISBN = '9780201616224' AND b.state = 'Borrowed'
+ON CONFLICT DO NOTHING;
 
-SELECT * from book;
+-- =========================
+-- Useful Queries
+-- =========================
+
+-- View all books
+SELECT * FROM Book;
+
+-- View all active loans with book details
+SELECT
+    l.id AS loan_id,
+    b.id AS book_id,
+    b.ISBN,
+    b.title,
+    b.author,
+    b.state,
+    l.user_id,
+    u.name AS borrower_name,
+    l.loan_date,
+    l.due_date,
+    l.status,
+    CASE
+        WHEN l.due_date < CURRENT_TIMESTAMP AND l.status = 'ACTIVE' THEN 'OVERDUE'
+        ELSE l.status
+    END AS current_status
+FROM Loan l
+JOIN Book b ON l.book_id = b.id
+JOIN "User" u ON l.user_id = u.username
+WHERE l.status = 'ACTIVE'
+ORDER BY l.loan_date DESC;
+
+-- View books that are currently on loan
+SELECT
+    b.id,
+    b.ISBN,
+    b.title,
+    b.author,
+    b.state,
+    l.user_id AS borrowed_by,
+    u.name AS borrower_name,
+    l.loan_date,
+    l.due_date
+FROM Book b
+JOIN Loan l ON b.id = l.book_id AND l.status = 'ACTIVE'
+JOIN "User" u ON l.user_id = u.username
+ORDER BY b.title;
+
+-- View books that are available (not on loan)
+SELECT
+    b.id,
+    b.ISBN,
+    b.title,
+    b.author,
+    b.state
+FROM Book b
+WHERE b.state = 'Available'
+  AND NOT EXISTS (
+    SELECT 1 FROM Loan l
+    WHERE l.book_id = b.id AND l.status = 'ACTIVE'
+  )
+ORDER BY b.title;
