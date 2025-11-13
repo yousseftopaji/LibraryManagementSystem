@@ -2,9 +2,26 @@
 .idea/
 *.iml
 out/
+
 # Gradle
 .gradle/
 build/
+
 # Maven
+target/
+
+# .NET / C#
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+*.AssemblyInfo.cs
+
 # Logs
 *.log

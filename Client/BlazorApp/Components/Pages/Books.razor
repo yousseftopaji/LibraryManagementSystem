@@ -1,0 +1,55 @@
+﻿@page "/books"
+@rendermode InteractiveServer
+@using DTOs
+@inject BlazorApp.Services.IBookService BookService
+@inject NavigationManager NavigationManager
+
+<h3>Books</h3>
+
+<button class="btn btn-primary" @onclick="GetBooks">Get Books</button>
+
+@if (books == null)
+{
+    <p class="text-muted fst-italic">Waiting for server connection...</p>
+}
+else
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Book ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>ISBN</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in books)
+            {
+                <tr style="cursor: pointer;" @onclick="@(() => NavigateToBook(book.ISBN))">
+                    <td>@book.BookId</td>
+                    <td>@book.Title</td>
+                    <td>@book.Author</td>
+                    <td>@book.ISBN</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<BookDTO>? books;
+
+    private async Task GetBooks()
+    {
+        books = await BookService.GetBooksAsync();
+    }
+
+    private void NavigateToBook(string? isbn)
+    {
+        if (!string.IsNullOrEmpty(isbn))
+        {
+            NavigationManager.NavigateTo($"/books/{isbn}");
+        }
+    }
+}
