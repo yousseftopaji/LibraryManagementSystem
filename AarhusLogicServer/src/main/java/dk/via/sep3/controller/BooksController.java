@@ -37,9 +37,10 @@ public class BooksController
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
-    @GetMapping("/isbn/{isbn}")
+    @GetMapping("/{isbn}")
     public ResponseEntity<List<BookDTO>> getBooksByIsbn(@PathVariable String isbn)
     {
+        System.out.println("Received request for books with ISBN: " + isbn);
         List<BookDTO> books = bookList.getAllBooks().stream()
                 .filter(grpcBook -> grpcBook.getIsbn().equals(isbn))
                 .map(grpcBook -> new BookDTO(
