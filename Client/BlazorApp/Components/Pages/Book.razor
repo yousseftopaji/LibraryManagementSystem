@@ -10,22 +10,28 @@
 }
 else
 {
-    <div>
-        <h4>@book.Title</h4>
-        <p><strong>Title:</strong> @book.Title</p>
-        <p><strong>Author:</strong> @book.Author</p>
-        <p><strong>ISBN:</strong> @book.ISBN</p>
-        <p><strong>Number of Copies:</strong> @book.NoOfCopies</p>
-        <p><strong>State:</strong> @book.State</p>
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">@book.Title</h4>
+            <p class="card-text"><strong>Author:</strong> @book.Author</p>
+            <p class="card-text"><strong>ISBN:</strong> @book.ISBN</p>
+            <p class="card-text"><strong>Available Copies:</strong> @book.NoOfCopies</p>
 
-        @if (book.State.Equals("Available", StringComparison.OrdinalIgnoreCase))
-        {
-            <BorrowBook ISBN="@book.ISBN" OnBorrowSuccess="RefreshBookDetails" />
-        }
-        else
-        {
-            <ReserveBook ISBN="@book.ISBN" />
-        }
+            @if (book.NoOfCopies > 0)
+            {
+                <div class="alert alert-success" role="alert">
+                    <i class="bi bi-check-circle"></i> This book is available for borrowing
+                </div>
+                <BorrowBook ISBN="@book.ISBN" OnBorrowSuccess="RefreshBookDetails" />
+            }
+            else
+            {
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i> All copies are currently borrowed
+                </div>
+                <ReserveBook ISBN="@book.ISBN" />
+            }
+        </div>
     </div>
 }
 

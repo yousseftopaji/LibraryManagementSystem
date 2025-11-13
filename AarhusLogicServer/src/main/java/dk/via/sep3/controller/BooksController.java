@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -24,17 +25,38 @@ public class BooksController
     @GetMapping
     public ResponseEntity<List<BookDTO>> getAllBooks()
     {
-        List<BookDTO> books = bookList.getAllBooks().stream()
-                .map(grpcBook -> new BookDTO(
-                        grpcBook.getId(),
-                        grpcBook.getTitle(),
-                        grpcBook.getAuthor(),
-                        grpcBook.getIsbn(),
-                        grpcBook.getState()
-                ))
+        // Group books by ISBN and return one book per ISBN with available copies count
+        List<dk.via.sep3.DTOBook> allBooks = bookList.getAllBooks();
+
+        Map<String, List<dk.via.sep3.DTOBook>> booksByIsbn = allBooks.stream()
+                .collect(Collectors.groupingBy(dk.via.sep3.DTOBook::getIsbn));
+
+        List<BookDTO> uniqueBooks = booksByIsbn.entrySet().stream()
+                .map(entry -> {
+                    String isbn = entry.getKey();
+                    List<dk.via.sep3.DTOBook> booksWithSameIsbn = entry.getValue();
+
+                    // Get the first book as representative
+                    dk.via.sep3.DTOBook representativeBook = booksWithSameIsbn.get(0);
+
+                    // Count available copies
+                    int availableCopies = (int) booksWithSameIsbn.stream()
+                            .filter(book -> "Available".equalsIgnoreCase(book.getState()))
+                            .count();
+
+                    return new BookDTO(
+                            representativeBook.getId(),
+                            representativeBook.getTitle(),
+                            representativeBook.getAuthor(),
+                            representativeBook.getIsbn(),
+                            representativeBook.getState(),
+                            availableCopies
+                    );
+                })
+                .sorted((b1, b2) -> b1.getTitle().compareTo(b2.getTitle()))
                 .collect(Collectors.toList());
 
-        return new ResponseEntity<>(books, HttpStatus.OK);
+        return new ResponseEntity<>(uniqueBooks, HttpStatus.OK);
     }
 
     @GetMapping("/{isbn}")
