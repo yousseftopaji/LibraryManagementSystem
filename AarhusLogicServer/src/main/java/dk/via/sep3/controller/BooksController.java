@@ -37,8 +37,17 @@ public class BooksController
     return new ResponseEntity<>(books, HttpStatus.OK);
   }
 
+<<<<<<< Updated upstream
     @GetMapping("/isbn/{isbn}")
     public ResponseEntity<List<BookDTO>> getBooksByIsbn(@PathVariable String isbn)
+=======
+  @GetMapping("/{isbn}")
+  public ResponseEntity<BookDTO> getBookByIsbn(@PathVariable String isbn)
+  {
+    var grpcBook = bookList.getBookByIsbn(isbn);
+    
+    if (grpcBook == null || grpcBook.getId().isEmpty())
+>>>>>>> Stashed changes
     {
         List<BookDTO> books = bookList.getAllBooks().stream()
                 .filter(grpcBook -> grpcBook.getIsbn().equals(isbn)) 
@@ -58,5 +67,19 @@ public class BooksController
 
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
+<<<<<<< Updated upstream
 
+=======
+    
+    BookDTO bookDTO = new BookDTO(
+        grpcBook.getId(),
+        grpcBook.getTitle(),
+        grpcBook.getAuthor(),
+        grpcBook.getIsbn(),
+        grpcBook.getState()
+    );
+    
+    return new ResponseEntity<>(bookDTO, HttpStatus.OK);
+  }
+>>>>>>> Stashed changes
 }
