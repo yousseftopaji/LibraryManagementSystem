@@ -12,6 +12,16 @@ message DTOBook {
   string state = 5;
 }
 
+message DTOLoan {
+  string id = 1;
+  string borrowDate = 2;
+  string dueDate = 3;
+  bool isReturned = 4;
+  int32 numberOfExtensions = 5;
+  string username = 6;
+  string bookId = 7;
+}
+
 message GetAllBooksRequest {
 }
 

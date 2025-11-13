@@ -20,4 +20,10 @@ public class Model implements BookList
     {
         return grpcConnectionInterface.getAllBooks();
     }
+
+    @Override
+    public List<DTOBook> getBookByIsbn(String isbn)
+    {
+        return grpcConnectionInterface.getBookByIsbn(isbn);
+    }
 }
