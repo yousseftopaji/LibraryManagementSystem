@@ -6,11 +6,16 @@
 
 <h3>Books</h3>
 
-<button class="btn btn-primary" @onclick="GetBooks">Get Books</button>
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-warning" role="alert">
+        @errorMessage
+    </div>
+}
 
 @if (books == null)
 {
-    <p class="text-muted fst-italic">Waiting for server connection...</p>
+    <p class="text-muted fst-italic">Loading books...</p>
 }
 else
 {
@@ -39,10 +44,25 @@ else
 
 @code {
     private List<BookDTO>? books;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetBooks();
+    }
 
     private async Task GetBooks()
     {
-        books = await BookService.GetBooksAsync();
+        try
+        {
+            books = await BookService.GetBooksAsync();
+            errorMessage = null;
+        }
+        catch (Exception)
+        {
+            errorMessage = "Unable to connect to server. Please try again later.";
+            books = new List<BookDTO>(); // Initialize empty list to show empty table
+        }
     }
 
     private void NavigateToBook(string? isbn)

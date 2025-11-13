@@ -14,44 +14,34 @@ import java.util.stream.Collectors;
 @RequestMapping("/books")
 public class BooksController
 {
-  private final BookList bookList;
+    private final BookList bookList;
 
-  public BooksController(BookList bookList)
-  {
-    this.bookList = bookList;
-  }
+    public BooksController(BookList bookList)
+    {
+        this.bookList = bookList;
+    }
 
-  @GetMapping
-  public ResponseEntity<List<BookDTO>> getAllBooks()
-  {
-    List<BookDTO> books = bookList.getAllBooks().stream()
-        .map(grpcBook -> new BookDTO(
-            grpcBook.getId(),
-            grpcBook.getTitle(),
-            grpcBook.getAuthor(),
-            grpcBook.getIsbn(),
-            grpcBook.getState()
-        ))
-        .collect(Collectors.toList());
-    
-    return new ResponseEntity<>(books, HttpStatus.OK);
-  }
+    @GetMapping
+    public ResponseEntity<List<BookDTO>> getAllBooks()
+    {
+        List<BookDTO> books = bookList.getAllBooks().stream()
+                .map(grpcBook -> new BookDTO(
+                        grpcBook.getId(),
+                        grpcBook.getTitle(),
+                        grpcBook.getAuthor(),
+                        grpcBook.getIsbn(),
+                        grpcBook.getState()
+                ))
+                .collect(Collectors.toList());
 
-<<<<<<< Updated upstream
+        return new ResponseEntity<>(books, HttpStatus.OK);
+    }
+
     @GetMapping("/isbn/{isbn}")
     public ResponseEntity<List<BookDTO>> getBooksByIsbn(@PathVariable String isbn)
-=======
-  @GetMapping("/{isbn}")
-  public ResponseEntity<BookDTO> getBookByIsbn(@PathVariable String isbn)
-  {
-    var grpcBook = bookList.getBookByIsbn(isbn);
-    
-    if (grpcBook == null || grpcBook.getId().isEmpty())
->>>>>>> Stashed changes
     {
-<<<<<<< Updated upstream
         List<BookDTO> books = bookList.getAllBooks().stream()
-                .filter(grpcBook -> grpcBook.getIsbn().equals(isbn)) 
+                .filter(grpcBook -> grpcBook.getIsbn().equals(isbn))
                 .map(grpcBook -> new BookDTO(
                         grpcBook.getId(),
                         grpcBook.getTitle(),
@@ -68,23 +58,5 @@ public class BooksController
 
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
-<<<<<<< Updated upstream
 
-=======
-=======
-      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
->>>>>>> Stashed changes
-    
-    BookDTO bookDTO = new BookDTO(
-        grpcBook.getId(),
-        grpcBook.getTitle(),
-        grpcBook.getAuthor(),
-        grpcBook.getIsbn(),
-        grpcBook.getState()
-    );
-    
-    return new ResponseEntity<>(bookDTO, HttpStatus.OK);
-  }
->>>>>>> Stashed changes
 }
