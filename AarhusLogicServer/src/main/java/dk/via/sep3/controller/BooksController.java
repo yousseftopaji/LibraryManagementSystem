@@ -49,6 +49,7 @@ public class BooksController
     if (grpcBook == null || grpcBook.getId().isEmpty())
 >>>>>>> Stashed changes
     {
+<<<<<<< Updated upstream
         List<BookDTO> books = bookList.getAllBooks().stream()
                 .filter(grpcBook -> grpcBook.getIsbn().equals(isbn)) 
                 .map(grpcBook -> new BookDTO(
@@ -70,6 +71,10 @@ public class BooksController
 <<<<<<< Updated upstream
 
 =======
+=======
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+>>>>>>> Stashed changes
     
     BookDTO bookDTO = new BookDTO(
         grpcBook.getId(),
