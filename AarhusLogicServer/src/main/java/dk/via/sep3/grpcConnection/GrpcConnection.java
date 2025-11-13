@@ -38,7 +38,7 @@ public class GrpcConnection implements GrpcConnectionInterface
   }
 
   @Override
-  public DTOBook getBookByIsbn(String isbn)
+  public List<DTOBook> getBookByIsbn(String isbn)
   {
     try
     {
@@ -47,8 +47,8 @@ public class GrpcConnection implements GrpcConnectionInterface
           .build();
       System.out.println("Sending gRPC request to get book by ISBN: " + isbn);
       GetBookByIsbnResponse response = bookStub.getBookByIsbn(request);
-      System.out.println("Received gRPC response: " + response.getBook());
-      return response.getBook();
+      System.out.println("Received gRPC response: " + response.getBookList());
+      return response.getBookList();
     }
     catch (Exception ex)
     {

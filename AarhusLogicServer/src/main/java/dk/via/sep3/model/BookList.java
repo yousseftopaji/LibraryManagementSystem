@@ -9,5 +9,5 @@ import java.util.List;
 public interface BookList
 {
   List<DTOBook> getAllBooks();
-  DTOBook getBookByIsbn(String isbn);
+    List<DTOBook> getBookByIsbn(String isbn);
 }

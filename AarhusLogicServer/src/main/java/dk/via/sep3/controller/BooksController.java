@@ -37,24 +37,26 @@ public class BooksController
     return new ResponseEntity<>(books, HttpStatus.OK);
   }
 
-  @GetMapping("/{isbn}")
-  public ResponseEntity<BookDTO> getBookByIsbn(@PathVariable String isbn)
-  {
-    var grpcBook = bookList.getBookByIsbn(isbn);
-
-    if (grpcBook == null || grpcBook.getId().isEmpty())
+    @GetMapping("/isbn/{isbn}")
+    public ResponseEntity<List<BookDTO>> getBooksByIsbn(@PathVariable String isbn)
     {
-      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        List<BookDTO> books = bookList.getAllBooks().stream()
+                .filter(grpcBook -> grpcBook.getIsbn().equals(isbn)) 
+                .map(grpcBook -> new BookDTO(
+                        grpcBook.getId(),
+                        grpcBook.getTitle(),
+                        grpcBook.getAuthor(),
+                        grpcBook.getIsbn(),
+                        grpcBook.getState()
+                ))
+                .collect(Collectors.toList());
+
+        if (books.isEmpty())
+        {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
-    BookDTO bookDTO = new BookDTO(
-        grpcBook.getId(),
-        grpcBook.getTitle(),
-        grpcBook.getAuthor(),
-        grpcBook.getIsbn(),
-        grpcBook.getState()
-    );
-
-    return new ResponseEntity<>(bookDTO, HttpStatus.OK);
-  }
 }

@@ -22,7 +22,7 @@ public class Model implements BookList
     }
 
     @Override
-    public DTOBook getBookByIsbn(String isbn)
+    public List<DTOBook> getBookByIsbn(String isbn)
     {
         return grpcConnectionInterface.getBookByIsbn(isbn);
     }

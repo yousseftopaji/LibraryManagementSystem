@@ -33,7 +33,7 @@ message GetBookByIsbnRequest {
 }
 
 message GetBookByIsbnResponse {
-  DTOBook book = 1;
+ repeated DTOBook book = 1;
 }
 
 message CreateLoanRequest {

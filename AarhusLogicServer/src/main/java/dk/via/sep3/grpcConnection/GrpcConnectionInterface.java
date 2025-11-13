@@ -8,6 +8,6 @@ import java.util.List;
 public interface GrpcConnectionInterface
 {
   public List<DTOBook> getAllBooks();
-  public DTOBook getBookByIsbn(String isbn);
+  public List<DTOBook> getBookByIsbn(String isbn);
   public DTOLoan createLoan(String username, String bookId, int loanDurationDays);
 }
