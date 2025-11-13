@@ -1,0 +1,24 @@
+### Get all books
+GET http://localhost:8080/books
+Accept: application/json
+
+###
+
+### Get book by ISBN
+GET http://localhost:8080/books/9780132350884
+Accept: application/json
+
+###
+
+### Create a loan
+POST http://localhost:8080/loans
+Content-Type: application/json
+
+{
+  "username": "stud.alex",
+  "bookId": "1",
+  "loanDurationDays": 30
+}
+
+###
+
