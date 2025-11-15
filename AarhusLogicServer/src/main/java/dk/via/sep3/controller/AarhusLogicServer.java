@@ -31,4 +31,16 @@ public class AarhusLogicServer
   {
     return new BooksController(bookList);
   }
+
+  @Bean
+  public LoanService loanService(GrpcConnectionInterface grpcConnectionInterface)
+  {
+    return new LoanServiceImpl(grpcConnectionInterface);
+  }
+
+  @Bean
+  public LoansController loansController(LoanService loanService)
+  {
+    return new LoansController(loanService);
+  }
 }

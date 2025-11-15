@@ -34,4 +34,27 @@ public class BookServiceImpl : BookService.BookServiceBase
         }));
         return response;
     }
+
+    public async override Task<GetBookByIsbnResponse> GetBookByIsbn(GetBookByIsbnRequest request, ServerCallContext context)
+    {
+        _logger.LogInformation($"Received request to get book by ISBN: {request.Isbn}");
+
+        var bookFromDb = await dbService.GetBookByIsbnAsync(request.Isbn);
+
+        GetBookByIsbnResponse response = new GetBookByIsbnResponse();
+
+        if (bookFromDb != null)
+        {
+            response.Book = new DTOBook
+            {
+                Id = bookFromDb.BookId ?? string.Empty,
+                Title = bookFromDb.Title ?? string.Empty,
+                Author = bookFromDb.Author ?? string.Empty,
+                Isbn = bookFromDb.ISBN ?? string.Empty,
+                State = bookFromDb.State ?? string.Empty
+            };
+        }
+
+        return response;
+    }
 }
