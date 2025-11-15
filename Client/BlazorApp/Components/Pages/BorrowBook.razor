@@ -3,7 +3,7 @@
 @inject BlazorApp.Services.LoanService.ILoanService LoanService
 
 <div class="mt-3">
-    <button class="btn btn-success" @onclick="HandleBorrow" disabled="@isProcessing">
+    <button class="btn btn-success" @onclick="ShowConfirmation" disabled="@isProcessing">
         @if (isProcessing)
         {
             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -11,6 +11,10 @@
         Borrow
     </button>
 </div>
+
+<ConfirmationDialog IsVisible="@showConfirmDialog" Title="Confirm Borrow"
+    Message="Are you sure you want to borrow this book?" ConfirmText="Yes, Borrow" CancelText="Cancel"
+    ConfirmButtonClass="btn-success" OnConfirm="HandleBorrow" OnCancel="HideConfirmation" />
 
 @if (!string.IsNullOrEmpty(message))
 {
@@ -29,9 +33,21 @@
     private bool isProcessing = false;
     private string message = string.Empty;
     private bool isError = false;
+    private bool showConfirmDialog = false;
+
+    private void ShowConfirmation()
+    {
+        showConfirmDialog = true;
+    }
+
+    private void HideConfirmation()
+    {
+        showConfirmDialog = false;
+    }
 
     private async Task HandleBorrow()
     {
+        showConfirmDialog = false;
         isProcessing = true;
         message = string.Empty;
         isError = false;

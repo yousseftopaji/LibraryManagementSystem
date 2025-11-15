@@ -33,15 +33,7 @@ message GetBookByIsbnRequest {
 }
 
 message GetBookByIsbnResponse {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
- repeated DTOBook book = 1;
-=======
   repeated DTOBook book = 1;
->>>>>>> Stashed changes
-=======
-  repeated DTOBook book = 1;
->>>>>>> Stashed changes
 }
 
 message CreateLoanRequest {
