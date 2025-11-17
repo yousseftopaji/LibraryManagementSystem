@@ -6,7 +6,7 @@ namespace DTOs.Loan;
 public class LoanDTO
 {
     [JsonPropertyName("id")]
-    public string? LoanId { get; set; }
+    public int LoanId { get; set; }
 
     [JsonPropertyName("borrowDate")]
     public DateTime BorrowDate { get; set; }
@@ -24,6 +24,6 @@ public class LoanDTO
     public string? Username { get; set; }
 
     [JsonPropertyName("bookId")]
-    public string? BookId { get; set; }
+    public int BookId { get; set; }
 }
 

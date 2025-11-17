@@ -1,5 +1,6 @@
 using System;
 using System.Text.Json;
+using DTOs;
 using Entities;
 using RepositoryContracts;
 
@@ -18,9 +19,6 @@ public class BookFileRepository : IBookRepository
             // Initialize with dummy books
             var initialBooks = new List<Book>
             {
-                new Book { BookId = 1, ISBN = "978-0132350884", Title = "Clean Code", Author = "Robert C. Martin", NoOfCopies = 5, State = "Available" },
-                new Book { BookId = 2, ISBN = "978-0201633610", Title = "Design Patterns", Author = "Erich Gamma", NoOfCopies = 3, State = "Available" },
-                new Book { BookId = 3, ISBN = "978-0131103627", Title = "The C Programming Language", Author = "Kernighan & Ritchie", NoOfCopies = 2, State = "Available" }
             };
 
 
@@ -33,9 +31,9 @@ public class BookFileRepository : IBookRepository
         string bookAsJson = await File.ReadAllTextAsync(filePath);
         List<Book> books = JsonSerializer.Deserialize<List<Book>>(bookAsJson)!;
 
-        int maxId = books.Count > 0 ? books.Max(b => b.BookId) : 0;
-        book.BookId = maxId + 1;
-
+        int maxId = books.Count > 0 ? books.Max(b => b.Id) : 0;
+        book.Id = maxId + 1;
+    
         books.Add(book);
         bookAsJson = JsonSerializer.Serialize(books);
 
@@ -49,7 +47,7 @@ public class BookFileRepository : IBookRepository
         string bookAsJson = await File.ReadAllTextAsync(filePath);
         List<Book> books = JsonSerializer.Deserialize<List<Book>>(bookAsJson)!;
 
-        Book? bookToRemove = books.SingleOrDefault(b => b.BookId == id);
+        Book? bookToRemove = books.SingleOrDefault(b => b.Id == id);
 
         if (bookToRemove is null)
         {
@@ -62,6 +60,16 @@ public class BookFileRepository : IBookRepository
         bookAsJson = JsonSerializer.Serialize(books);
         await File.WriteAllTextAsync(filePath, bookAsJson);
         return;
+    }
+
+    public Task<IEnumerable<BookDTO>> GetAllAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<BookDTO>> GetBooksByIsbnAsync(string isbn)
+    {
+        throw new NotImplementedException();
     }
 
     public IQueryable<Book> GetMany()
@@ -77,7 +85,7 @@ public class BookFileRepository : IBookRepository
         string bookAsJson = await File.ReadAllTextAsync(filePath);
         List<Book> books = JsonSerializer.Deserialize<List<Book>>(bookAsJson)!;
 
-        Book? book = books.SingleOrDefault(b => b.BookId == id);
+        Book? book = books.SingleOrDefault(b => b.Id == id);
 
         if (book is null)
         {
@@ -93,11 +101,11 @@ public class BookFileRepository : IBookRepository
         string bookAsJson = await File.ReadAllTextAsync(filePath);
         List<Book> books = JsonSerializer.Deserialize<List<Book>>(bookAsJson)!;
 
-        Book? existingBook = books.SingleOrDefault(b => b.BookId == book.BookId);
+        Book? existingBook = books.SingleOrDefault(b => b.Id == book.Id);
         if (existingBook is null)
         {
             throw new InvalidOperationException(
-                     $"Book with ID {book.BookId} not found");
+                     $"Book with ID {book.Id} not found");
         }
 
         books.Remove(existingBook);
@@ -106,5 +114,15 @@ public class BookFileRepository : IBookRepository
         bookAsJson = JsonSerializer.Serialize(books);
         await File.WriteAllTextAsync(filePath, bookAsJson);
         return;
+    }
+
+    public Task UpdateAsync(int id, string newState)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<BookDTO?> IBookRepository.GetSingleAsync(int id)
+    {
+        throw new NotImplementedException();
     }
 }
