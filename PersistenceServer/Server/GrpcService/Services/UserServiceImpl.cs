@@ -1,27 +1,31 @@
 ﻿using GrpcService.Protos;
+using Grpc.Core;
 using RepositoryContracts;
 
 namespace GrpcService.Services;
 
 public class UserServiceImpl(IUserRepository userRepository) : UserService.UserServiceBase
 {
-    public override async Task<GetUserByUsernameResponse> GetUserByUsername(GetUserByUsernameRequest request, Grpc.Core.ServerCallContext context)
+    public override async Task<GetUserByUsernameResponse> GetUserByUsername(GetUserByUsernameRequest request, ServerCallContext context)
     {
-        var response = new GetUserByUsernameResponse();
-
         try
         {
             var user = await userRepository.GetUserAsync(request.Username);
-            response.User.Username = user.Username;
-            response.Success = true;
-            response.Message = $"User with username {request.Username} retrieved successfully.";
+            var response = new GetUserByUsernameResponse
+            {
+                User = new DTOUser { Username = user.Username },
+                Success = true,
+                Message = "User retrieved successfully."
+            };
+            return response;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            response.Success = false;
-            response.Message = $"Error retrieving user with username {request.Username}: {e.Message}";
+            return new GetUserByUsernameResponse
+            {
+                Success = false,
+                Message = ex.Message
+            };
         }
-        
-        return response;
     }
 }

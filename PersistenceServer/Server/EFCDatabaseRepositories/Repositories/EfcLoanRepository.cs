@@ -1,20 +1,12 @@
 using DTOs.Loan;
 using EFCDatabaseRepositories.DBContext;
 using Entities;
-using Microsoft.EntityFrameworkCore;
 using RepositoryContracts;
 
-namespace EFCDatabaseRepositories;
+namespace EFCDatabaseRepositories.Repositories;
 
-public class EfcLoanRepository : ILoanRepository
+public class EfcLoanRepository(LibraryDbContext context) : ILoanRepository
 {
-    private readonly LibraryDbContext context;
-
-    public EfcLoanRepository(LibraryDbContext context)
-    {
-        this.context = context;
-    }
-
     public async Task<LoanDTO> CreateLoanAsync(Loan loan)
     {
         var entityEntry = await context.Loan.AddAsync(loan);

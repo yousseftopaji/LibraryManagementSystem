@@ -2,7 +2,6 @@ using GrpcService.Protos;
 using Grpc.Core;
 using RepositoryContracts;
 using Entities;
-using DTOs.Loan;
 
 namespace GrpcService.Services;
 
@@ -25,11 +24,14 @@ public class LoanServiceImpl(ILoanRepository loanRepository) : LoanService.LoanS
             var createdLoan = await loanRepository.CreateLoanAsync(loan);
 
             // Populate response
-            response.Loan.Id = createdLoan.LoanId;
-            response.Loan.BorrowDate = createdLoan.BorrowDate.ToString("yyyy-MM-dd");
-            response.Loan.DueDate = createdLoan.DueDate.ToString("yyyy-MM-dd");
-            response.Loan.Username = createdLoan.Username ?? string.Empty;
-            response.Loan.BookId = createdLoan.BookId;
+            response.Loan = new DTOLoan
+            {
+                Id = createdLoan.LoanId,
+                BorrowDate = createdLoan.BorrowDate.ToString("yyyy-MM-dd"),
+                DueDate = createdLoan.DueDate.ToString("yyyy-MM-dd"),
+                Username = createdLoan.Username ?? string.Empty,
+                BookId = createdLoan.BookId
+            };
             response.Success = true;
             response.Message = "Loan created successfully.";
         }
@@ -43,4 +45,3 @@ public class LoanServiceImpl(ILoanRepository loanRepository) : LoanService.LoanS
         return response;
     }
 }
-
