@@ -1,5 +1,7 @@
 package dk.via.sep3.shared;
 
+import dk.via.sep3.shared.State;
+
 public class Book
 {
   long id;

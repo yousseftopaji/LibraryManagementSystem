@@ -61,6 +61,17 @@ message GetBookByIdResponse {
   string message = 3;
 }
 
+message UpdateBookStateRequest {
+  int32 id = 1;
+  string state = 2;
+}
+
+message UpdateBookStateResponse {
+  DTOBook book = 1;
+  bool success = 2;
+  string message = 3;
+}
+
 // ========================
 // Loan Service Messages
 // ========================
@@ -102,6 +113,7 @@ service BookService {
   rpc GetAllBooks (GetAllBooksRequest) returns (GetAllBooksResponse);
   rpc GetBooksByIsbn (GetBooksByIsbnRequest) returns (GetBooksByIsbnResponse);
   rpc GetBookById (GetBookByIdRequest) returns (GetBookByIdResponse);
+  rpc UpdateBookState (UpdateBookStateRequest) returns (UpdateBookStateResponse);
 }
 
 service LoanService {

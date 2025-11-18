@@ -1,6 +1,5 @@
 package dk.via.sep3.controller;
 
-
 import dk.via.sep3.model.books.BookService;
 import dk.via.sep3.shared.BookDTO;
 import org.springframework.http.HttpStatus;

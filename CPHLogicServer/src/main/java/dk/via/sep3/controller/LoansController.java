@@ -1,11 +1,14 @@
 package dk.via.sep3.controller;
 
 import dk.via.sep3.model.loans.LoanService;
-import dk.via.sep3.shared.CreateLoanRequest;
+import dk.via.sep3.shared.CreateLoanDTO;
 import dk.via.sep3.shared.LoanDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/loans")
@@ -19,15 +22,11 @@ public class LoansController
   }
 
   @PostMapping
-  public ResponseEntity<LoanDTO> createLoan(@RequestBody CreateLoanRequest request)
+  public ResponseEntity<LoanDTO> createLoan(@RequestBody CreateLoanDTO request)
   {
     try
     {
-      LoanDTO loanDTO = loanService.createLoan(
-          request.getUsername(),
-          request.getBookId(),
-          request.getLoanDurationDays()
-      );
+      LoanDTO loanDTO = loanService.createLoan(request);
 
       return new ResponseEntity<>(loanDTO, HttpStatus.CREATED);
     }
@@ -47,7 +46,5 @@ public class LoansController
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
-
 }
 

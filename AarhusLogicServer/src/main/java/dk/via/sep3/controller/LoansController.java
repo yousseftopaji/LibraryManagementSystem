@@ -1,6 +1,7 @@
 package dk.via.sep3.controller;
 
 import dk.via.sep3.model.loans.LoanService;
+import dk.via.sep3.shared.CreateLoanDTO;
 import dk.via.sep3.shared.CreateLoanRequest;
 import dk.via.sep3.shared.LoanDTO;
 import org.springframework.http.HttpStatus;
@@ -19,15 +20,11 @@ public class LoansController
   }
 
   @PostMapping
-  public ResponseEntity<LoanDTO> createLoan(@RequestBody CreateLoanRequest request)
+  public ResponseEntity<LoanDTO> createLoan(@RequestBody CreateLoanDTO request)
   {
     try
     {
-      LoanDTO loanDTO = loanService.createLoan(
-          request.getUsername(),
-          request.getBookId(),
-          request.getLoanDurationDays()
-      );
+      LoanDTO loanDTO = loanService.createLoan(request);
 
       return new ResponseEntity<>(loanDTO, HttpStatus.CREATED);
     }

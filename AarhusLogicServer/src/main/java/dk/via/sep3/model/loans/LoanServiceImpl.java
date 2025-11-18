@@ -2,67 +2,72 @@ package dk.via.sep3.model.loans;
 
 import dk.via.sep3.DTOBook;
 import dk.via.sep3.DTOLoan;
-import dk.via.sep3.grpcConnection.GrpcConnectionInterface;
-import dk.via.sep3.model.users.UserService;
+import dk.via.sep3.DTOUser;
+import dk.via.sep3.grpcConnection.bookGrpcService.BookGrpcService;
+import dk.via.sep3.grpcConnection.loanGrpcService.LoanGrpcService;
+import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
+import dk.via.sep3.shared.CreateLoanDTO;
 import dk.via.sep3.shared.LoanDTO;
-import dk.via.sep3.shared.UserDTO;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.util.List;
 
 @Service
 public class LoanServiceImpl implements LoanService
 {
-  private final GrpcConnectionInterface grpcConnectionInterface;
-  private final UserService userService;
+  private final BookGrpcService bookGrpcService;
+  private final LoanGrpcService loanGrpcService;
+  private final UserGrpcService userGrpcService;
 
-  public LoanServiceImpl(GrpcConnectionInterface grpcConnectionInterface, UserService userService)
+  public LoanServiceImpl(BookGrpcService bookGrpcService, LoanGrpcService loanGrpcService, UserGrpcService userGrpcService)
   {
-    this.grpcConnectionInterface = grpcConnectionInterface;
-    this.userService = userService;
+    this.bookGrpcService = bookGrpcService;
+    this.loanGrpcService = loanGrpcService;
+    this.userGrpcService = userGrpcService;
   }
 
   @Override
-  public LoanDTO createLoan(String username, String bookId, int loanDurationDays)
+  public LoanDTO createLoan(CreateLoanDTO createLoanDTO)
   {
-    // Validate DATES - loan duration must be positive
-    if (loanDurationDays <= 0)
-    {
-      throw new IllegalArgumentException("Loan duration must be positive. Provided: " + loanDurationDays + " days");
-    }
-
     // Validate USER exists
-    UserDTO user = userService.getUserByUsername(username);
+    DTOUser user = userGrpcService.getUserByUsername(createLoanDTO.getUsername());
     if (user == null)
     {
-      throw new IllegalArgumentException("User not found with username: " + username);
+      throw new IllegalArgumentException("User not found with username: " + createLoanDTO.getUsername());
     }
 
     // Validate BOOK exists and is available
-    List<DTOBook> allBooks = grpcConnectionInterface.getAllBooks();
+    List<DTOBook> books = bookGrpcService.getBooksByIsbn(createLoanDTO.getBookISBN());
     DTOBook targetBook = null;
-
-    for (DTOBook book : allBooks)
+    for (DTOBook book : books)
     {
-      if (String.valueOf(book.getId()).equals(bookId))
+      if (book.getState().equalsIgnoreCase("AVAILABLE"))
       {
         targetBook = book;
         break;
       }
+      throw new IllegalArgumentException("Book is not available");
     }
-
     if (targetBook == null)
     {
-      throw new IllegalArgumentException("Book not found with ID: " + bookId);
+      throw new IllegalArgumentException("Book not found with ID: " + createLoanDTO.getBookISBN());
     }
 
-    if (!targetBook.getState().equals("AVAILABLE"))
-    {
-      throw new IllegalStateException("Book with ID: " + bookId + " is not available. Current state: " + targetBook.getState());
-    }
+    bookGrpcService.updateBookStatus(String.valueOf(targetBook.getId()), "Borrowedd");
+
+    // Create a variable of today's date, that I can save in the db as a borrow date yyyy-mm-dd
+    Date today = new Date(System.currentTimeMillis());
+    Date borrowDate = Date.valueOf(today.toLocalDate());
+    Date dueDate = Date.valueOf(today.toLocalDate().plusDays(30));
 
     // All validations passed, create the loan via gRPC
-    DTOLoan grpcLoan = grpcConnectionInterface.createLoan(username, bookId, loanDurationDays);
+    DTOLoan grpcLoan = loanGrpcService.createLoan(
+        createLoanDTO.getUsername(),
+        String.valueOf(targetBook.getId()),
+        borrowDate.toString(),
+        dueDate.toString()
+    );
 
     if (grpcLoan == null || grpcLoan.getId() <= 0)
     {

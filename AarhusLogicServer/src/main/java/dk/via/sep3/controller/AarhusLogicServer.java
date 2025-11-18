@@ -1,6 +1,5 @@
 package dk.via.sep3.controller;
 
-import dk.via.sep3.grpcConnection.*;
 
 import dk.via.sep3.model.books.BookService;
 import dk.via.sep3.model.books.BookServiceImpl;
@@ -11,36 +10,14 @@ import dk.via.sep3.model.users.UserServiceImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
+@ComponentScan(basePackages = "dk.via.sep3")
 public class AarhusLogicServer
 {
   public static void main(String[] args)
   {
     SpringApplication.run( AarhusLogicServer.class, args );
   }
-  @Bean
-  public BookService bookService()
-  {
-      return new BookServiceImpl(grpcConnectionInterface());
-
-  }
-
-  @Bean
-    public GrpcConnectionInterface grpcConnectionInterface()
-    {
-        return new GrpcConnection();
-    }
-
-    @Bean
-    public LoanService loanService()
-    {
-        return new LoanServiceImpl( grpcConnectionInterface(), userService() );
-    }
-
-    @Bean
-    public UserService userService()
-    {
-        return new UserServiceImpl();
-    }
 }
