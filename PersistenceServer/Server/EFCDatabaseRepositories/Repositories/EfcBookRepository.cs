@@ -1,18 +1,12 @@
 using DTOs;
+using EFCDatabaseRepositories.DBContext;
 using Microsoft.EntityFrameworkCore;
 using RepositoryContracts;
 
-namespace EFCDatabaseRepositories;
+namespace EFCDatabaseRepositories.Repositories;
 
-public class EfcBookRepository : IBookRepository
+public class EfcBookRepository(LibraryDbContext context) : IBookRepository
 {
-    private readonly LibraryDbContext context;
-
-    public EfcBookRepository(LibraryDbContext context)
-    {
-        this.context = context;
-    }
-
     public async Task<BookDTO?> GetBookAsync(int id)
     {
         var book = await context.Book.FindAsync(id);

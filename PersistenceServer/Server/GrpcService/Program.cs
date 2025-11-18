@@ -1,7 +1,7 @@
 using EFCDatabaseRepositories;
+using EFCDatabaseRepositories.Repositories;
 using GrpcService.Services;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using RepositoryContracts;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,11 +19,6 @@ Console.WriteLine($"Connected to PostgreSQL: {connectionString}");
 // Register repositories for dependency injection
 builder.Services.AddScoped<IBookRepository, EfcBookRepository>();
 builder.Services.AddScoped<ILoanRepository, EfcLoanRepository>();
-
-
-// Register DbContext with connection string from appsettings.json
-builder.Services.AddDbContext<LibraryDbContext>(options =>
-    options.UseNpgsql(connectionString));
 
 var app = builder.Build();
 

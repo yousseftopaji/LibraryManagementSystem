@@ -6,38 +6,28 @@ using DTOs.Loan;
 
 namespace GrpcService.Services;
 
-public class LoanServiceImpl : LoanService.LoanServiceBase
+public class LoanServiceImpl(ILoanRepository loanRepository) : LoanService.LoanServiceBase
 {
-    private readonly ILoanRepository loanRepository;
-    public LoanServiceImpl(ILoanRepository loanRepository)
+    public override async Task<CreateLoanResponse> CreateLoan(CreateLoanRequest request, ServerCallContext context)
     {
-        this.loanRepository = loanRepository;
-    }
-
-    public async override Task<CreateLoanResponse> CreateLoan(CreateLoanRequest request, ServerCallContext context)
-    {
-        CreateLoanResponse response = new CreateLoanResponse();
+        var response = new CreateLoanResponse();
 
         try
         {
-            Loan loan = new Loan
+            var loan = new Loan
             {
                 BorrowDate = DateTime.Parse(request.BorrowDate),
                 DueDate = DateTime.Parse(request.DueDate),
-                IsReturned = request.IsReturned,
-                NumberOfExtensions = request.NumberOfExtensions,
                 Username = request.Username,
                 BookId = request.BookId
             };
             // Create loan using repository
-            LoanDTO createdLoan = await loanRepository.CreateLoanAsync(loan);
+            var createdLoan = await loanRepository.CreateLoanAsync(loan);
 
             // Populate response
             response.Loan.Id = createdLoan.LoanId;
             response.Loan.BorrowDate = createdLoan.BorrowDate.ToString("yyyy-MM-dd");
             response.Loan.DueDate = createdLoan.DueDate.ToString("yyyy-MM-dd");
-            response.Loan.IsReturned = createdLoan.IsReturned;
-            response.Loan.NumberOfExtensions = createdLoan.NumberOfExtensions;
             response.Loan.Username = createdLoan.Username ?? string.Empty;
             response.Loan.BookId = createdLoan.BookId;
             response.Success = true;

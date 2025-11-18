@@ -1,7 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using Entities;
+using Microsoft.EntityFrameworkCore;
 
-namespace EFCDatabaseRepositories;
+namespace EFCDatabaseRepositories.DBContext;
 
 public class LibraryDbContext : DbContext
 {
@@ -12,17 +12,11 @@ public class LibraryDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=Via@12345");
-        }
+        optionsBuilder.UseSqlite("Data Source=library.db");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Set default schema to kitabkhana
-        modelBuilder.HasDefaultSchema("kitabkhana_2");
-
         modelBuilder.Entity<User>().HasKey(u => u.Username);
         modelBuilder.Entity<Genre>().HasKey(g => g.Name);
     }

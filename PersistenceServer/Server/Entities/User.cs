@@ -9,5 +9,5 @@ public class User
     public required string Role { get; set; }
     public required string Name { get; set; }
     public required string PhoneNumber { get; set; }
-    public required List<Loan> Loans { get; set; }
+    public List<Loan> Loans { get; set; }
 }

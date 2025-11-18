@@ -4,17 +4,9 @@ using RepositoryContracts;
 
 namespace GrpcService.Services;
 
-public class BookServiceImpl : BookService.BookServiceBase
+public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookServiceBase
 {
-    private readonly IBookRepository bookRepository;
-
-    public BookServiceImpl(IBookRepository bookRepository)
-    {
-        this.bookRepository = bookRepository;
-    }
-
-
-    public async override Task<GetAllBooksResponse> GetAllBooks(GetAllBooksRequest request, ServerCallContext context)
+    public override async Task<GetAllBooksResponse> GetAllBooks(GetAllBooksRequest request, ServerCallContext context)
     {
         var booksFromDb = (await bookRepository.GetAllBooksAsync()).ToList();
         var response = new GetAllBooksResponse();

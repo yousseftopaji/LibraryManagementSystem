@@ -14,12 +14,6 @@ public class LoanDTO
     [JsonPropertyName("dueDate")]
     public DateTime DueDate { get; set; }
 
-    [JsonPropertyName("isReturned")]
-    public bool IsReturned { get; set; }
-
-    [JsonPropertyName("numberOfExtensions")]
-    public int NumberOfExtensions { get; set; }
-
     [JsonPropertyName("username")]
     public string? Username { get; set; }
 
