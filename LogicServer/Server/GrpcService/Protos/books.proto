@@ -5,7 +5,7 @@ option csharp_namespace = "GrpcService.Protos";
 package dk.via.sep3;
 
 message DTOBook {
-  string id = 1;
+  int32 id = 1;
   string title = 2;
   string author = 3;
   string isbn = 4;
@@ -13,13 +13,13 @@ message DTOBook {
 }
 
 message DTOLoan {
-  string id = 1;
+  int32 id = 1;
   string borrowDate = 2;
   string dueDate = 3;
   bool isReturned = 4;
   int32 numberOfExtensions = 5;
   string username = 6;
-  string bookId = 7;
+  int32 bookId = 7;
 }
 
 message GetAllBooksRequest {
@@ -29,17 +29,19 @@ message GetAllBooksResponse {
   repeated DTOBook books = 1;
 }
 
-message GetBookByIsbnRequest {
+message GetBooksByIsbnRequest {
   string isbn = 1;
 }
 
-message GetBookByIsbnResponse {
-  DTOBook book = 1;
+message GetBooksByIsbnResponse {
+  repeated DTOBook books = 1;
+  bool success = 2;
+  string message = 3;
 }
 
 message CreateLoanRequest {
   string username = 1;
-  string bookId = 2;
+  int32 bookId = 2;
   int32 loanDurationDays = 3;
 }
 
@@ -51,7 +53,7 @@ message CreateLoanResponse {
 
 service BookService {
   rpc GetAllBooks (GetAllBooksRequest) returns (GetAllBooksResponse);
-  rpc GetBookByIsbn (GetBookByIsbnRequest) returns (GetBookByIsbnResponse);
+  rpc GetBooksByIsbn (GetBooksByIsbnRequest) returns (GetBooksByIsbnResponse);
 }
 
 service LoanService {

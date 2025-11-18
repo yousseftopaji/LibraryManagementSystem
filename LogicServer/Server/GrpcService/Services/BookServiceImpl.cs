@@ -26,7 +26,7 @@ public class BookServiceImpl : BookService.BookServiceBase
 
         response.Books.AddRange(booksFromDb.Select(b => new DTOBook
         {
-            Id = b.BookId ?? string.Empty,
+            Id = int.TryParse(b.BookId, out var id) ? id : 0,
             Title = b.Title ?? string.Empty,
             Author = b.Author ?? string.Empty,
             Isbn = b.ISBN ?? string.Empty,
@@ -35,24 +35,31 @@ public class BookServiceImpl : BookService.BookServiceBase
         return response;
     }
 
-    public async override Task<GetBookByIsbnResponse> GetBookByIsbn(GetBookByIsbnRequest request, ServerCallContext context)
+    public async override Task<GetBooksByIsbnResponse> GetBooksByIsbn(GetBooksByIsbnRequest request, ServerCallContext context)
     {
-        _logger.LogInformation($"Received request to get book by ISBN: {request.Isbn}");
+        _logger.LogInformation($"Received request to get books by ISBN: {request.Isbn}");
 
-        var bookFromDb = await dbService.GetBookByIsbnAsync(request.Isbn);
+        var booksFromDb = await dbService.GetBooksByIsbnAsync(request.Isbn);
 
-        GetBookByIsbnResponse response = new GetBookByIsbnResponse();
+        GetBooksByIsbnResponse response = new GetBooksByIsbnResponse();
 
-        if (bookFromDb != null)
+        if (booksFromDb != null && booksFromDb.Any())
         {
-            response.Book = new DTOBook
+            response.Books.AddRange(booksFromDb.Select(b => new DTOBook
             {
-                Id = bookFromDb.BookId ?? string.Empty,
-                Title = bookFromDb.Title ?? string.Empty,
-                Author = bookFromDb.Author ?? string.Empty,
-                Isbn = bookFromDb.ISBN ?? string.Empty,
-                State = bookFromDb.State ?? string.Empty
-            };
+                Id = int.TryParse(b.BookId, out var id) ? id : 0,
+                Title = b.Title ?? string.Empty,
+                Author = b.Author ?? string.Empty,
+                Isbn = b.ISBN ?? string.Empty,
+                State = b.State ?? string.Empty
+            }));
+            response.Success = true;
+            response.Message = $"Found {booksFromDb.Count()} book(s) with ISBN {request.Isbn}";
+        }
+        else
+        {
+            response.Success = false;
+            response.Message = $"No books found with ISBN {request.Isbn}";
         }
 
         return response;

@@ -13,11 +13,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
-public class AarhusLogicServer
+public class CPHLogicServer
 {
   public static void main(String[] args)
   {
-    SpringApplication.run( AarhusLogicServer.class, args );
+    SpringApplication.run( CPHLogicServer.class, args );
   }
   @Bean
   public BookService bookService()

@@ -1,0 +1,113 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option csharp_namespace = "GrpcService.Protos";
+
+package dk.via.sep3;
+
+// ========================
+// Shared DTOs
+// ========================
+
+message DTOBook {
+  int32 id = 1;
+  string title = 2;
+  string author = 3;
+  string isbn = 4;
+  string state = 5;
+}
+
+message DTOLoan {
+  int32 id = 1;
+  string borrowDate = 2;
+  string dueDate = 3;
+  string username = 4;
+  int32 bookId = 5;
+}
+
+message DTOUser {
+  string username = 1;
+}
+
+// ========================
+// Book Service Messages
+// ========================
+
+message GetAllBooksRequest {
+}
+
+message GetAllBooksResponse {
+  repeated DTOBook books = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message GetBooksByIsbnRequest {
+  string isbn = 1;
+}
+
+message GetBooksByIsbnResponse {
+  repeated DTOBook books = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message GetBookByIdRequest {
+  int32 id = 1;
+}
+
+message GetBookByIdResponse {
+  DTOBook book = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+// ========================
+// Loan Service Messages
+// ========================
+
+message CreateLoanRequest {
+  string borrowDate = 1;
+  string dueDate = 2;
+  string username = 3;
+  int32 bookId = 4;
+}
+
+
+message CreateLoanResponse {
+  DTOLoan loan = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+// ========================
+// User Service Messages
+// ========================
+
+message GetUserByUsernameRequest {
+  string username = 1;
+}
+
+message GetUserByUsernameResponse {
+  DTOUser user = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+
+// ========================
+// Services
+// ========================
+
+service BookService {
+  rpc GetAllBooks (GetAllBooksRequest) returns (GetAllBooksResponse);
+  rpc GetBooksByIsbn (GetBooksByIsbnRequest) returns (GetBooksByIsbnResponse);
+  rpc GetBookById (GetBookByIdRequest) returns (GetBookByIdResponse);
+}
+
+service LoanService {
+  rpc CreateLoan (CreateLoanRequest) returns (CreateLoanResponse);
+}
+
+service UserService {
+  rpc GetUserByUsername (GetUserByUsernameRequest) returns (GetUserByUsernameResponse);
+}

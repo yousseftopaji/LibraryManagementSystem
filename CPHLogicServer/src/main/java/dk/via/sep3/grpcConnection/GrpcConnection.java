@@ -47,14 +47,37 @@ public class GrpcConnection implements GrpcConnectionInterface
       GetBooksByIsbnRequest request = GetBooksByIsbnRequest.newBuilder()
           .setIsbn(isbn)
           .build();
-      System.out.println("Sending gRPC request to get book by ISBN: " + isbn);
+      System.out.println("========================================");
+      System.out.println("GRPC: Sending getBooksByIsbn request for ISBN: " + isbn);
+
       GetBooksByIsbnResponse response = bookStub.getBooksByIsbn(request);
-      System.out.println("Received gRPC response: " + response.getBooksList());
+
+      System.out.println("GRPC: Response received");
+      System.out.println("  Success: " + response.getSuccess());
+      System.out.println("  Message: " + response.getMessage());
+      System.out.println("  Books count: " + response.getBooksList().size());
+
+      if (response.getSuccess() && !response.getBooksList().isEmpty())
+      {
+        System.out.println("  ✓ Found " + response.getBooksList().size() + " book(s)");
+        for (DTOBook book : response.getBooksList())
+        {
+          System.out.println("    - Book ID: " + book.getId() + ", Title: " + book.getTitle() + ", State: " + book.getState());
+        }
+      }
+      else
+      {
+        System.out.println("  ✗ " + response.getMessage());
+      }
+      System.out.println("========================================");
+
       return response.getBooksList();
     }
     catch (Exception ex)
     {
+      System.err.println("✗ GRPC ERROR in getBooksByIsbn: " + ex.getMessage());
       ex.printStackTrace();
+      System.out.println("========================================");
       return new ArrayList<>();
     }
   }
@@ -71,10 +94,11 @@ public class GrpcConnection implements GrpcConnectionInterface
       java.time.LocalDate now = java.time.LocalDate.now();
       java.time.LocalDate dueDate = now.plusDays(loanDurationDays);
 
-      CreateLoanRequest request = CreateLoanRequest.newBuilder()
+      // Use fully qualified name to avoid conflict with shared.CreateLoanRequest
+      dk.via.sep3.CreateLoanRequest request = dk.via.sep3.CreateLoanRequest.newBuilder()
               .setUsername(username)
               .setBookId(bookIdInt)
-              .setBorrowDate(now.toString())  // Changed from setLoanDate
+              .setBorrowDate(now.toString())
               .setDueDate(dueDate.toString())
               .build();
       System.out.println("Sending gRPC request to create loan for user: " + username + ", bookId: " + bookId);

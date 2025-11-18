@@ -21,7 +21,7 @@ public class LoanServiceImpl : LoanService.LoanServiceBase
 
         try
         {
-            var loanFromDb = await dbService.CreateLoanAsync(request.Username, request.BookId, request.LoanDurationDays);
+            var loanFromDb = await dbService.CreateLoanAsync(request.Username, request.BookId.ToString(), request.LoanDurationDays);
 
             CreateLoanResponse response = new CreateLoanResponse();
 
@@ -29,13 +29,13 @@ public class LoanServiceImpl : LoanService.LoanServiceBase
             {
                 response.Loan = new DTOLoan
                 {
-                    Id = loanFromDb.LoanId ?? string.Empty,
+                    Id = int.TryParse(loanFromDb.LoanId, out var loanId) ? loanId : 0,
                     BorrowDate = loanFromDb.BorrowDate.ToString("yyyy-MM-dd"),
                     DueDate = loanFromDb.DueDate.ToString("yyyy-MM-dd"),
                     IsReturned = loanFromDb.IsReturned,
                     NumberOfExtensions = loanFromDb.NumberOfExtensions,
                     Username = loanFromDb.Username ?? string.Empty,
-                    BookId = loanFromDb.BookId ?? string.Empty
+                    BookId = int.TryParse(loanFromDb.BookId, out var bookId) ? bookId : 0
                 };
                 response.Success = true;
                 response.Message = "Loan created successfully";
