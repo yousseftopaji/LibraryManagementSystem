@@ -33,7 +33,7 @@ public class BooksController
                         grpcBook.getState()
                 ))
                 .collect(Collectors.toList());
-
+      System.out.println("Returning all books: " + books);
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
 

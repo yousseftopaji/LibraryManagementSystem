@@ -26,7 +26,7 @@ public class HttpBookService : IBookService
     }
 
     public async Task<List<BookDTO>> GetBooksAsync()
-    {
+    {      
         HttpResponseMessage httpResponse = await client.GetAsync("books");
         string response = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode)
@@ -34,7 +34,7 @@ public class HttpBookService : IBookService
             throw new Exception(response);
         }
         return JsonSerializer.Deserialize<List<BookDTO>>(response, JsonOptions())!;
-    }
+        }
 
     private JsonSerializerOptions? JsonOptions()
     {

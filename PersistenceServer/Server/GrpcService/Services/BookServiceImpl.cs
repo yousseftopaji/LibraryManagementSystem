@@ -12,7 +12,7 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
         var response = new GetAllBooksResponse();
         response.Books.AddRange(booksFromDb.Select(b => new DTOBook
         {
-            Id = b.BookId,
+            Id = int.Parse(b.BookId),
             Title = b.Title ?? string.Empty,
             Author = b.Author ?? string.Empty,
             Isbn = b.ISBN ?? string.Empty,
@@ -23,13 +23,13 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
         return response;
     }
 
-    public async override Task<GetBooksByIsbnResponse> GetBooksByIsbn(GetBooksByIsbnRequest request, ServerCallContext context)
+    public override async Task<GetBooksByIsbnResponse> GetBooksByIsbn(GetBooksByIsbnRequest request, ServerCallContext context)
     {
         var booksFromDb = (await bookRepository.GetBooksByIsbnAsync(request.Isbn)).ToList();
         var response = new GetBooksByIsbnResponse();
         response.Books.AddRange(booksFromDb.Select(b => new DTOBook
         {
-            Id = b.BookId,
+            Id = int.Parse(b.BookId),
             Title = b.Title ?? string.Empty,
             Author = b.Author ?? string.Empty,
             Isbn = b.ISBN ?? string.Empty,
@@ -40,7 +40,7 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
         return response;
     }
 
-    public async override Task<GetBookByIdResponse> GetBookById(GetBookByIdRequest request, ServerCallContext context)
+    public override async Task<GetBookByIdResponse> GetBookById(GetBookByIdRequest request, ServerCallContext context)
     {
         var bookFromDb = await bookRepository.GetBookAsync(request.Id);
         var response = new GetBookByIdResponse();
@@ -48,7 +48,7 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
         {
             response.Book = new DTOBook
             {
-                Id = bookFromDb.BookId,
+                Id = int.Parse(bookFromDb.BookId),
                 Title = bookFromDb.Title,
                 Author = bookFromDb.Author,
                 Isbn = bookFromDb.ISBN,
@@ -62,6 +62,33 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
             response.Book = null;
             response.Success = false;
             response.Message = $"Book with ID {request.Id} not found.";
+        }
+        return response;
+    }
+    
+    public override async Task<UpdateBookStateResponse> UpdateBookState(UpdateBookStateRequest request, ServerCallContext context)
+    {
+        var response = new UpdateBookStateResponse();
+        try
+        {
+            var updatedBook = await bookRepository.UpdateBookStateAsync(request.Id, request.State);
+           
+                response.Book = new DTOBook
+                {
+                    Id = int.Parse(updatedBook.BookId),
+                    Title = updatedBook.Title ?? string.Empty,
+                    Author = updatedBook.Author ?? string.Empty,
+                    Isbn = updatedBook.ISBN ?? string.Empty,
+                    State = updatedBook.State
+                };
+                response.Success = true;
+                response.Message = $"Book state updated successfully for ID {request.Id}.";
+        }
+        catch (Exception ex)
+        {
+            response.Book = null;
+            response.Success = false;
+            response.Message = $"Error updating book state: {ex.Message}";
         }
         return response;
     }

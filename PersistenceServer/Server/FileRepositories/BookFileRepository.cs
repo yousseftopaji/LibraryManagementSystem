@@ -2,11 +2,10 @@ using System;
 using System.Text.Json;
 using DTOs;
 using Entities;
-using RepositoryContracts;
 
 namespace FileRepositories;
 
-public class BookFileRepository : IBookRepository
+public class BookFileRepository 
 {
     public Task<BookDTO?> GetBookAsync(int id)
     {
@@ -23,7 +22,7 @@ public class BookFileRepository : IBookRepository
         throw new NotImplementedException();
     }
 
-    public Task UpdateAsync(int id, string newState)
+    public Task UpdateStatAsync(int id, string newState)
     {
         throw new NotImplementedException();
     }

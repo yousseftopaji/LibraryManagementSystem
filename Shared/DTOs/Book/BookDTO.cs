@@ -6,7 +6,7 @@ namespace DTOs;
 public class BookDTO
 {
     [JsonPropertyName("id")]
-    public int BookId { get; set; }
+    public string BookId { get; set; }
 
     [JsonPropertyName("title")]
     public string? Title { get; set; }

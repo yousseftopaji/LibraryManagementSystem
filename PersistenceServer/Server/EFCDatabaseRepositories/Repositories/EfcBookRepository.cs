@@ -14,7 +14,7 @@ public class EfcBookRepository(LibraryDbContext context) : IBookRepository
 
         return new BookDTO
         {
-            BookId = book.Id,
+            BookId = book.Id.ToString(),
             ISBN = book.ISBN,
             Title = book.Title,
             Author = book.Author,
@@ -27,7 +27,7 @@ public class EfcBookRepository(LibraryDbContext context) : IBookRepository
         var books = await context.Book.ToListAsync();
         return books.Select(b => new BookDTO
         {
-            BookId = b.Id,
+            BookId = b.Id.ToString(),
             ISBN = b.ISBN,
             Title = b.Title,
             Author = b.Author,
@@ -43,7 +43,7 @@ public class EfcBookRepository(LibraryDbContext context) : IBookRepository
 
         return books.Select(b => new BookDTO
         {
-            BookId = b.Id,
+            BookId = b.Id.ToString(),
             ISBN = b.ISBN,
             Title = b.Title,
             Author = b.Author,
@@ -51,13 +51,21 @@ public class EfcBookRepository(LibraryDbContext context) : IBookRepository
         });
     }
 
-    public async Task UpdateAsync(int id, string newState)
+    public async Task<BookDTO> UpdateBookStateAsync(int id, string newState)
     {
         var book = await context.Book.FindAsync(id);
-        if (book != null)
+        if (book == null) throw new ArgumentException("Book not found");
+
+        book.State = newState;
+        await context.SaveChangesAsync();
+
+        return new BookDTO
         {
-            book.State = newState;
-            await context.SaveChangesAsync();
-        }
+            BookId = book.Id.ToString(),
+            ISBN = book.ISBN,
+            Title = book.Title,
+            Author = book.Author,
+            State = book.State
+        };
     }
 }
