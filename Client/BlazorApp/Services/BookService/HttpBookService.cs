@@ -2,6 +2,7 @@ using System;
 using System.Net.Http.Json;
 using System.Text.Json;
 using DTOs;
+using DTOs.Book;
 
 namespace BlazorApp.Services;
 
@@ -35,7 +36,7 @@ public class HttpBookService : IBookService
     }
 
     public async Task<List<BookDTO>> GetBooksAsync()
-    {
+    {      
         HttpResponseMessage httpResponse = await client.GetAsync("books");
         string response = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode)
@@ -43,7 +44,7 @@ public class HttpBookService : IBookService
             throw new Exception(response);
         }
         return JsonSerializer.Deserialize<List<BookDTO>>(response, JsonOptions())!;
-    }
+        }
 
     private JsonSerializerOptions? JsonOptions()
     {
