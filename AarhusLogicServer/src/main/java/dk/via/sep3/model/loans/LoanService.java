@@ -1,7 +1,7 @@
 package dk.via.sep3.model.loans;
 
-import dk.via.sep3.shared.CreateLoanDTO;
-import dk.via.sep3.shared.LoanDTO;
+import dk.via.sep3.shared.loan.CreateLoanDTO;
+import dk.via.sep3.shared.loan.LoanDTO;
 
 public interface LoanService
 {

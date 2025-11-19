@@ -2,11 +2,14 @@ package dk.via.sep3.model.books;
 
 import dk.via.sep3.DTOBook;
 import dk.via.sep3.grpcConnection.bookGrpcService.BookGrpcService;
-import dk.via.sep3.shared.BookDTO;
+import dk.via.sep3.shared.book.BookDTO;
+import dk.via.sep3.shared.book.State;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BookServiceImpl implements BookService
@@ -21,77 +24,54 @@ public class BookServiceImpl implements BookService
   @Override public List<BookDTO> getAllBooks()
   {
     List<DTOBook> allBooks = bookGrpcService.getAllBooks();
-    java.util.Map<String, BookDTO> uniqueBooksByIsbn = new java.util.LinkedHashMap<>();
-    java.util.Map<String, Integer> availableCopiesCount = new java.util.HashMap<>();
+    return createUniqueBooks(allBooks);
+  }
 
-    // First pass: count available copies for each ISBN
+  @Override public BookDTO getBookByIsbn(String isbn)
+  {
+    List<DTOBook> books = bookGrpcService.getBooksByIsbn(isbn);
+    return findRepresentativeBook(books);
+  }
+
+  private List<BookDTO> createUniqueBooks(List<DTOBook> allBooks)
+  {
+    Map<String, BookDTO> uniqueBooksByIsbn = new LinkedHashMap<>();
     for (DTOBook dtoBook : allBooks)
     {
       String isbn = dtoBook.getIsbn();
-      String state = dtoBook.getState();
-
-      if (state.trim().equalsIgnoreCase("Available"))
-      {
-        availableCopiesCount.put(isbn,
-            availableCopiesCount.getOrDefault(isbn, 0) + 1);
-      }
-    }
-
-    // Second pass: create unique books with their available copy counts
-    for (DTOBook dtoBook : allBooks)
-    {
-      String isbn = dtoBook.getIsbn();
-
-      // Only add the book if we haven't seen this ISBN before
       if (!uniqueBooksByIsbn.containsKey(isbn))
       {
-        int availableCopies = availableCopiesCount.getOrDefault(isbn, 0);
+        State initialState = State.valueOf(dtoBook.getState().toUpperCase());
         BookDTO bookdto = new BookDTO(String.valueOf(dtoBook.getId()),
             dtoBook.getTitle(), dtoBook.getAuthor(), dtoBook.getIsbn(),
-            dtoBook.getState(), availableCopies);
+            initialState);
         uniqueBooksByIsbn.put(isbn, bookdto);
       }
     }
     return new ArrayList<>(uniqueBooksByIsbn.values());
   }
 
-  @Override public BookDTO getBookByIsbn(String isbn)
+  private BookDTO findRepresentativeBook(List<DTOBook> books)
   {
-    List<DTOBook> books = bookGrpcService.getBooksByIsbn(isbn);
+    if (books == null || books.isEmpty())
+    {
+      return null;
+    }
     DTOBook dtoBook = null;
-    BookDTO bookdto = null;
-    int availableCount = 0;
-
-    if (books != null && !books.isEmpty())
+    for (DTOBook b : books)
     {
-      // Count available copies
-      for (DTOBook b : books)
+      if (b.getState().trim().equalsIgnoreCase("Available"))
       {
-        String state = b.getState();
-        if (state.trim().equalsIgnoreCase("Available"))
-        {
-          availableCount++;
-          if (dtoBook == null)
-          {
-            // Use the first available book as the representative
-            dtoBook = b;
-          }
-        }
-      }
-
-      // If no available book found, use the first one
-      if (dtoBook == null)
-      {
-        dtoBook = books.get(0);
+        dtoBook = b;
+        break;
       }
     }
-
-    if (dtoBook != null)
+    if (dtoBook == null)
     {
-      bookdto = new BookDTO(String.valueOf(dtoBook.getId()), dtoBook.getTitle(),
-          dtoBook.getAuthor(), dtoBook.getIsbn(), dtoBook.getState(),
-          availableCount);
+      dtoBook = books.get(0);
     }
-    return bookdto;
+    State initialState = State.valueOf(dtoBook.getState().toUpperCase());
+    return new BookDTO(String.valueOf(dtoBook.getId()), dtoBook.getTitle(),
+        dtoBook.getAuthor(), dtoBook.getIsbn(), initialState);
   }
 }

@@ -1,4 +1,4 @@
-package dk.via.sep3.shared;
+package dk.via.sep3.shared.book;
 
 /**
  * Simple POJO for REST API responses
@@ -10,31 +10,19 @@ public class BookDTO
   private String title;
   private String author;
   private String isbn;
-  private String state;
-  private int noOfCopies;
+  private State state;
 
   public BookDTO()
   {
   }
 
-  public BookDTO(String id, String title, String author, String isbn, String state)
+  public BookDTO(String id, String title, String author, String isbn, State state)
   {
     this.id = id;
     this.title = title;
     this.author = author;
     this.isbn = isbn;
     this.state = state;
-    this.noOfCopies = 0;
-  }
-
-  public BookDTO(String id, String title, String author, String isbn, String state, int noOfCopies)
-  {
-    this.id = id;
-    this.title = title;
-    this.author = author;
-    this.isbn = isbn;
-    this.state = state;
-    this.noOfCopies = noOfCopies;
   }
 
   public String getId()
@@ -77,24 +65,14 @@ public class BookDTO
     this.isbn = isbn;
   }
 
-  public String getState()
+  public State getState()
   {
     return state;
   }
 
-  public void setState(String state)
+  public void setState(State state)
   {
     this.state = state;
-  }
-
-  public int getNoOfCopies()
-  {
-    return noOfCopies;
-  }
-
-  public void setNoOfCopies(int noOfCopies)
-  {
-    this.noOfCopies = noOfCopies;
   }
 }
 

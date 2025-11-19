@@ -1,4 +1,4 @@
-package dk.via.sep3.shared;
+package dk.via.sep3.shared.loan;
 
 public class CreateLoanDTO
 {

@@ -8,8 +8,8 @@
 //import dk.via.sep3.grpcConnection.loanGrpcService.LoanGrpcServiceImpl;
 //import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
 //import dk.via.sep3.model.users.UserService;
-//import dk.via.sep3.shared.LoanDTO;
-//import dk.via.sep3.shared.UserDTO;
+//import dk.via.sep3.shared.loan.LoanDTO;
+//import dk.via.sep3.shared.user.UserDTO;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;
 //import org.junit.jupiter.api.DisplayName;

@@ -6,8 +6,8 @@ import dk.via.sep3.DTOUser;
 import dk.via.sep3.grpcConnection.bookGrpcService.BookGrpcService;
 import dk.via.sep3.grpcConnection.loanGrpcService.LoanGrpcService;
 import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
-import dk.via.sep3.shared.CreateLoanDTO;
-import dk.via.sep3.shared.LoanDTO;
+import dk.via.sep3.shared.loan.CreateLoanDTO;
+import dk.via.sep3.shared.loan.LoanDTO;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -30,41 +30,49 @@ public class LoanServiceImpl implements LoanService
   @Override
   public LoanDTO createLoan(CreateLoanDTO createLoanDTO)
   {
-    // Validate USER exists
-    DTOUser user = userGrpcService.getUserByUsername(createLoanDTO.getUsername());
+    validateUser(createLoanDTO.getUsername());
+    DTOBook targetBook = findAvailableBook(createLoanDTO.getBookISBN());
+    updateBookStatus(targetBook);
+    DTOLoan grpcLoan = createGrpcLoan(createLoanDTO, targetBook);
+    return convertToLoanDTO(grpcLoan);
+  }
+
+  private void validateUser(String username)
+  {
+    DTOUser user = userGrpcService.getUserByUsername(username);
     if (user == null)
     {
-      throw new IllegalArgumentException("User not found with username: " + createLoanDTO.getUsername());
+      throw new IllegalArgumentException("User not found with username: " + username);
     }
+  }
 
-    // Validate BOOK exists and is available
-    List<DTOBook> books = bookGrpcService.getBooksByIsbn(createLoanDTO.getBookISBN());
-    DTOBook targetBook = null;
+  private DTOBook findAvailableBook(String isbn)
+  {
+    List<DTOBook> books = bookGrpcService.getBooksByIsbn(isbn);
     for (DTOBook book : books)
     {
       if (book.getState().equalsIgnoreCase("AVAILABLE"))
       {
-        targetBook = book;
-        break;
+        return book;
       }
-      throw new IllegalArgumentException("Book is not available");
     }
-    if (targetBook == null)
-    {
-      throw new IllegalArgumentException("Book not found with ID: " + createLoanDTO.getBookISBN());
-    }
+    throw new IllegalArgumentException("Book not found or not available with ISBN: " + isbn);
+  }
 
-    bookGrpcService.updateBookStatus(String.valueOf(targetBook.getId()), "Borrowedd");
+  private void updateBookStatus(DTOBook book)
+  {
+    bookGrpcService.updateBookStatus(String.valueOf(book.getId()), "Borrowed");
+  }
 
-    // Create a variable of today's date, that I can save in the db as a borrow date yyyy-mm-dd
+  private DTOLoan createGrpcLoan(CreateLoanDTO createLoanDTO, DTOBook book)
+  {
     Date today = new Date(System.currentTimeMillis());
     Date borrowDate = Date.valueOf(today.toLocalDate());
     Date dueDate = Date.valueOf(today.toLocalDate().plusDays(30));
 
-    // All validations passed, create the loan via gRPC
     DTOLoan grpcLoan = loanGrpcService.createLoan(
         createLoanDTO.getUsername(),
-        String.valueOf(targetBook.getId()),
+        String.valueOf(book.getId()),
         borrowDate.toString(),
         dueDate.toString()
     );
@@ -73,8 +81,11 @@ public class LoanServiceImpl implements LoanService
     {
       throw new RuntimeException("Failed to create loan - received invalid response from server");
     }
+    return grpcLoan;
+  }
 
-    // Convert DTOLoan to LoanDTO and return
+  private LoanDTO convertToLoanDTO(DTOLoan grpcLoan)
+  {
     return new LoanDTO(
         String.valueOf(grpcLoan.getId()),
         grpcLoan.getBorrowDate(),
@@ -86,4 +97,3 @@ public class LoanServiceImpl implements LoanService
     );
   }
 }
-

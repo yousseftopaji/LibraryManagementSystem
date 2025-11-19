@@ -1,6 +1,6 @@
 package dk.via.sep3.model.books;
 
-import dk.via.sep3.shared.BookDTO;
+import dk.via.sep3.shared.book.BookDTO;
 
 import java.util.List;
 

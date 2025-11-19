@@ -1,8 +1,8 @@
 package dk.via.sep3.controller;
 
 import dk.via.sep3.model.loans.LoanService;
-import dk.via.sep3.shared.CreateLoanDTO;
-import dk.via.sep3.shared.LoanDTO;
+import dk.via.sep3.shared.loan.CreateLoanDTO;
+import dk.via.sep3.shared.loan.LoanDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

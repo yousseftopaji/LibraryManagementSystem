@@ -1,7 +1,7 @@
 package dk.via.sep3.controller;
 
 import dk.via.sep3.model.books.BookService;
-import dk.via.sep3.shared.BookDTO;
+import dk.via.sep3.shared.book.BookDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
