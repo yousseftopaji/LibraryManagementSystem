@@ -1,7 +1,7 @@
 ﻿@page "/books/{ISBN}"
+@using DTOs.Book
 @rendermode InteractiveServer
-@using DTOs
-@inject BlazorApp.Services.IBookService BookService
+@inject Services.IBookService BookService
 
 <h3>Book Details</h3>
 @if (book == null)

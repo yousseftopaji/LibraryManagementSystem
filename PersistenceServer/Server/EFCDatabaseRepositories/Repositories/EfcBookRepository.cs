@@ -1,4 +1,5 @@
 using DTOs;
+using DTOs.Book;
 using EFCDatabaseRepositories.DBContext;
 using Microsoft.EntityFrameworkCore;
 using RepositoryContracts;

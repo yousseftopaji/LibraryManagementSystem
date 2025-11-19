@@ -1,12 +1,11 @@
-using System;
 using System.Text.Json.Serialization;
 
-namespace DTOs;
+namespace DTOs.Book;
 
 public class BookDTO
 {
     [JsonPropertyName("id")]
-    public string BookId { get; set; }
+    public string? BookId { get; set; }
 
     [JsonPropertyName("title")]
     public string? Title { get; set; }

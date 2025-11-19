@@ -14,7 +14,7 @@ public class HttpLoanService : ILoanService
         this.client = client;
     }
 
-    public async Task<LoanResponseDTO> CreateLoanAsync(CreateLoanDTO createLoanDto)
+    public async Task<LoanDTO> CreateLoanAsync(CreateLoanDTO createLoanDto)
     {
         HttpResponseMessage httpResponse = await client.PostAsJsonAsync("loans", createLoanDto);
         string response = await httpResponse.Content.ReadAsStringAsync();
@@ -22,6 +22,6 @@ public class HttpLoanService : ILoanService
         {
             throw new Exception(response);
         }
-        return JsonSerializer.Deserialize<LoanResponseDTO>(response, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        return JsonSerializer.Deserialize<LoanDTO>(response, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
     }
 }

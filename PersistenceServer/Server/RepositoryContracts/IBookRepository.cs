@@ -1,4 +1,5 @@
 using DTOs;
+using DTOs.Book;
 using Entities;
 
 namespace RepositoryContracts;

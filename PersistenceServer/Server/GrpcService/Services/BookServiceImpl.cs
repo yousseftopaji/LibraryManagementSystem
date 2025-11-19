@@ -12,7 +12,7 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
         var response = new GetAllBooksResponse();
         response.Books.AddRange(booksFromDb.Select(b => new DTOBook
         {
-            Id = int.Parse(b.BookId),
+            Id = int.Parse(b.BookId ?? throw new InvalidOperationException()),
             Title = b.Title ?? string.Empty,
             Author = b.Author ?? string.Empty,
             Isbn = b.ISBN ?? string.Empty,
@@ -29,7 +29,7 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
         var response = new GetBooksByIsbnResponse();
         response.Books.AddRange(booksFromDb.Select(b => new DTOBook
         {
-            Id = int.Parse(b.BookId),
+            Id = int.Parse(b.BookId ?? throw new InvalidOperationException()),
             Title = b.Title ?? string.Empty,
             Author = b.Author ?? string.Empty,
             Isbn = b.ISBN ?? string.Empty,
@@ -48,7 +48,7 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
         {
             response.Book = new DTOBook
             {
-                Id = int.Parse(bookFromDb.BookId),
+                Id = int.Parse(bookFromDb.BookId ?? throw new InvalidOperationException()),
                 Title = bookFromDb.Title,
                 Author = bookFromDb.Author,
                 Isbn = bookFromDb.ISBN,
@@ -72,7 +72,8 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
         try
         {
             var updatedBook = await bookRepository.UpdateBookStateAsync(request.Id, request.State);
-           
+
+            if (updatedBook.BookId != null)
                 response.Book = new DTOBook
                 {
                     Id = int.Parse(updatedBook.BookId),
@@ -81,7 +82,7 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
                     Isbn = updatedBook.ISBN ?? string.Empty,
                     State = updatedBook.State
                 };
-                response.Success = true;
+            response.Success = true;
                 response.Message = $"Book state updated successfully for ID {request.Id}.";
         }
         catch (Exception ex)

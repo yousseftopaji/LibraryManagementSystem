@@ -3,7 +3,7 @@ package dk.via.sep3.model.entities;
 public class CreateLoanRequest
 {
   private String username;
-  private String bookId;
+  private String bookISBN;
   private int loanDurationDays;
 
   public CreateLoanRequest()
@@ -48,4 +48,5 @@ public class CreateLoanRequest
     this.loanDurationDays = loanDurationDays;
   }
 }
+
 
