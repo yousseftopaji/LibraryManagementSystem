@@ -5,5 +5,5 @@ namespace BlazorApp.Services.LoanService;
 
 public interface ILoanService
 {
-    public Task<LoanResponseDTO> CreateLoanAsync(CreateLoanDTO createLoanDTO);
+    public Task<LoanDTO> CreateLoanAsync(CreateLoanDTO createLoanDTO);
 }

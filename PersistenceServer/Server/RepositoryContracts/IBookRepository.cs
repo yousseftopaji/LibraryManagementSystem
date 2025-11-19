@@ -1,12 +1,13 @@
+using DTOs;
+using DTOs.Book;
 using Entities;
 
 namespace RepositoryContracts;
 
 public interface IBookRepository
 {
-    Task<Book> AddAsync(Book book);
-    Task UpdateAsync(Book book);
-    Task DeleteAsync(int id);
-    Task<Book> GetSingleAsync(int id);
-    IQueryable<Book> GetMany();
+    Task<BookDTO?> GetBookAsync(int id);
+    Task<IEnumerable<BookDTO>> GetAllBooksAsync();
+    Task<IEnumerable<BookDTO>> GetBooksByIsbnAsync(string isbn);
+    Task<BookDTO> UpdateBookStateAsync(int id, string newState);
 }

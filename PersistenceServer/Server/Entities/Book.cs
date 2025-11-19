@@ -2,11 +2,11 @@ namespace Entities;
 
 public class Book
 {
-    public int BookId { get; set; }
-    public string? ISBN { get; set; }
-    public string? Title { get; set; }
-    public string? Author { get; set; }
-    public int NoOfCopies { get; set; }
+    public int Id { get; set; }
+    public required string ISBN { get; set; }
+    public required string Author { get; set; }
+    public required string Title { get; set; }
     public required string State { get; set; }
-
+    public required List<Genre> Genre { get; set; }
+    public required List<Loan> Loans { get; set; }
 }

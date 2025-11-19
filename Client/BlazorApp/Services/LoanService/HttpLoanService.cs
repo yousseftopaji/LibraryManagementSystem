@@ -14,15 +14,14 @@ public class HttpLoanService : ILoanService
         this.client = client;
     }
 
-    public async Task<LoanResponseDTO> CreateLoanAsync(CreateLoanDTO createLoanDTO)
+    public async Task<LoanDTO> CreateLoanAsync(CreateLoanDTO createLoanDto)
     {
-        StringContent content = new StringContent(JsonSerializer.Serialize(createLoanDTO), System.Text.Encoding.UTF8, "application/json");
-        HttpResponseMessage httpResponse = await client.PostAsync("loans", content);
+        HttpResponseMessage httpResponse = await client.PostAsJsonAsync("loans", createLoanDto);
         string response = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode)
         {
             throw new Exception(response);
         }
-        return JsonSerializer.Deserialize<LoanResponseDTO>(response, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        return JsonSerializer.Deserialize<LoanDTO>(response, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
     }
 }

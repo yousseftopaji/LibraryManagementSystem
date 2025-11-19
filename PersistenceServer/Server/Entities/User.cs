@@ -1,12 +1,13 @@
 using System;
 
-namespace DTOs.User;
+namespace Entities;
 
-public class UserDTO
+public class User
 {
     public required string Username { get; set; }
     public required string PasswordHash { get; set; }
     public required string Role { get; set; }
     public required string Name { get; set; }
     public required string PhoneNumber { get; set; }
+    public List<Loan> Loans { get; set; }
 }

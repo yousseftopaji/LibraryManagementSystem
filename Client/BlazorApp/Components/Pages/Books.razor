@@ -1,7 +1,7 @@
 ﻿@page "/books"
+@using DTOs.Book
 @rendermode InteractiveServer
-@using DTOs
-@inject BlazorApp.Services.IBookService BookService
+@inject Services.IBookService BookService
 @inject NavigationManager NavigationManager
 
 <h3>Books</h3>
@@ -22,7 +22,6 @@ else
     <table class="table table-hover">
         <thead>
             <tr>
-                <th>Book ID</th>
                 <th>Title</th>
                 <th>Author</th>
                 <th>ISBN</th>
@@ -32,7 +31,6 @@ else
             @foreach (var book in books)
             {
                 <tr style="cursor: pointer;" @onclick="@(() => NavigateToBook(book.ISBN))">
-                    <td>@book.BookId</td>
                     <td>@book.Title</td>
                     <td>@book.Author</td>
                     <td>@book.ISBN</td>
@@ -56,12 +54,13 @@ else
         try
         {
             books = await BookService.GetBooksAsync();
+            
             errorMessage = null;
         }
         catch (Exception)
         {
             errorMessage = "Unable to connect to server. Please try again later.";
-            books = new List<BookDTO>(); // Initialize empty list to show empty table
+            books = []; // Initialize empty list to show empty table
         }
     }
 

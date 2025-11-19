@@ -11,7 +11,7 @@ public class GrpcConnection implements GrpcConnectionInterface
 {
   //I want to check my connection to this server
   private ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost",
-      9090).usePlaintext().build();
+      5020).usePlaintext().build();
 
 
   private BookServiceGrpc.BookServiceBlockingStub bookStub = BookServiceGrpc.newBlockingStub(

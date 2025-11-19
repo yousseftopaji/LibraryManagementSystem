@@ -1,62 +1,47 @@
 using GrpcService.Protos;
 using Grpc.Core;
-using GrpcService.DatabaseService;
+using RepositoryContracts;
+using Entities;
 
 namespace GrpcService.Services;
 
-public class LoanServiceImpl : LoanService.LoanServiceBase
+public class LoanServiceImpl(ILoanRepository loanRepository) : LoanService.LoanServiceBase
 {
-    private readonly ILogger<LoanServiceImpl> _logger;
-    private readonly DBService dbService;
-
-    public LoanServiceImpl(ILogger<LoanServiceImpl> logger, DBService dbService)
+    public override async Task<CreateLoanResponse> CreateLoan(CreateLoanRequest request, ServerCallContext context)
     {
-        _logger = logger;
-        this.dbService = dbService;
-    }
-
-    public async override Task<CreateLoanResponse> CreateLoan(CreateLoanRequest request, ServerCallContext context)
-    {
-        _logger.LogInformation($"Received request to create loan for user: {request.Username}, bookId: {request.BookId}");
+        var response = new CreateLoanResponse();
 
         try
         {
-            var loanFromDb = await dbService.CreateLoanAsync(request.Username, request.BookId, request.LoanDurationDays);
-
-            CreateLoanResponse response = new CreateLoanResponse();
-
-            if (loanFromDb != null)
+            var loan = new Loan
             {
-                response.Loan = new DTOLoan
-                {
-                    Id = loanFromDb.LoanId ?? string.Empty,
-                    BorrowDate = loanFromDb.BorrowDate.ToString("yyyy-MM-dd"),
-                    DueDate = loanFromDb.DueDate.ToString("yyyy-MM-dd"),
-                    IsReturned = loanFromDb.IsReturned,
-                    NumberOfExtensions = loanFromDb.NumberOfExtensions,
-                    Username = loanFromDb.Username ?? string.Empty,
-                    BookId = loanFromDb.BookId ?? string.Empty
-                };
-                response.Success = true;
-                response.Message = "Loan created successfully";
-            }
-            else
-            {
-                response.Success = false;
-                response.Message = "Book is not available for loan";
-            }
+                BorrowDate = DateTime.Parse(request.BorrowDate),
+                DueDate = DateTime.Parse(request.DueDate),
+                Username = request.Username,
+                BookId = request.BookId
+            };
+            // Create loan using repository
+            var createdLoan = await loanRepository.CreateLoanAsync(loan);
 
-            return response;
+            // Populate response
+            response.Loan = new DTOLoan
+            {
+                Id = createdLoan.LoanId,
+                BorrowDate = createdLoan.BorrowDate.ToString("yyyy-MM-dd"),
+                DueDate = createdLoan.DueDate.ToString("yyyy-MM-dd"),
+                Username = createdLoan.Username ?? string.Empty,
+                BookId = createdLoan.BookId
+            };
+            response.Success = true;
+            response.Message = "Loan created successfully.";
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error creating loan");
-            return new CreateLoanResponse
-            {
-                Success = false,
-                Message = $"Error creating loan: {ex.Message}"
-            };
+            response.Loan = null;
+            response.Success = false;
+            response.Message = $"Error creating loan: {ex.Message}";
         }
+
+        return response;
     }
 }
-
