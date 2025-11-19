@@ -16,8 +16,10 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(basePackages = "dk.via.sep3")
 public class AarhusLogicServer
 {
+
   public static void main(String[] args)
   {
     SpringApplication.run( AarhusLogicServer.class, args );
   }
+
 }
