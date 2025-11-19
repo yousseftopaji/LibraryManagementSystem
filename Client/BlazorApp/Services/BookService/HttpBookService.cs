@@ -23,7 +23,16 @@ public class HttpBookService : IBookService
         {
             throw new Exception(response);
         }
-        return JsonSerializer.Deserialize<BookDTO>(response, JsonOptions())!;
+
+        // Server returns a single BookDTO
+        var book = JsonSerializer.Deserialize<BookDTO>(response, JsonOptions());
+
+        if (book == null)
+        {
+            throw new Exception($"No book found with ISBN: {isbn}");
+        }
+
+        return book;
     }
 
     public async Task<List<BookDTO>> GetBooksAsync()
