@@ -31,7 +31,7 @@ var app = builder.Build();
 app.MapGrpcService<BookServiceImpl>();
 app.MapGrpcService<LoanServiceImpl>();
 app.MapGrpcService<UserServiceImpl>();
-
+app.MapGrpcService<ReserveServiceImpl>();
 // Add gRPC reflection for testing with tools like BloomRPC
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
 
@@ -39,5 +39,5 @@ Console.WriteLine("gRPC services registered:");
 Console.WriteLine("- BookService available at /BookService");
 Console.WriteLine("- LoanService available at /LoanService");
 Console.WriteLine("- UserService available at /UserService");
-
+Console.WriteLine("- Reserve Service available at /ReserveService");
 app.Run();

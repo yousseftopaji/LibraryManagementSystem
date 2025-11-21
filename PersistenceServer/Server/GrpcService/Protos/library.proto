@@ -24,6 +24,13 @@ message DTOLoan {
   int32 bookId = 5;
 }
 
+message DTOReserve{
+  int32 id=1;
+  string reserveDate=2;
+  string username=3;
+  int32 bookId=4;
+}
+
 message DTOUser {
   string username = 1;
 }
@@ -89,6 +96,18 @@ message CreateLoanResponse {
   string message = 3;
 }
 
+
+message CreateReserveRequest {
+  string reserveDate = 1;
+  string username = 2;
+  int32 bookId = 3;
+}
+
+message CreateReserveResponse {
+  DTOReserve reserve = 1;
+  bool success = 2;
+  string message = 3;
+}
 // ========================
 // User Service Messages
 // ========================
@@ -122,3 +141,10 @@ service LoanService {
 service UserService {
   rpc GetUserByUsername (GetUserByUsernameRequest) returns (GetUserByUsernameResponse);
 }
+
+
+service ReserveService{
+  rpc ReserveService (CreateReserveRequest) returns (CreateReserveResponse);
+
+}
+
