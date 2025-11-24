@@ -14,6 +14,7 @@ public class BookDTO
 
   public BookDTO()
   {
+
   }
 
   public BookDTO(String id, String title, String author, String isbn, State state)

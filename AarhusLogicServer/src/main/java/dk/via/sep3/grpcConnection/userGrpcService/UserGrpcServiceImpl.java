@@ -4,7 +4,7 @@ import dk.via.sep3.DTOUser;
 import dk.via.sep3.GetUserByUsernameRequest;
 import dk.via.sep3.GetUserByUsernameResponse;
 import dk.via.sep3.UserServiceGrpc;
-import dk.via.sep3.grpcConnection.loanGrpcService.LoanGrpcService;
+import dk.via.sep3.grpcConnection.loanPersistenceService.LoanPersistenceService;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class UserGrpcServiceImpl implements UserGrpcService
 {
   private static final Logger logger = LoggerFactory.getLogger(
-      LoanGrpcService.class);
+      LoanPersistenceService.class);
   private UserServiceGrpc.UserServiceBlockingStub userStub;
 
   public UserGrpcServiceImpl(ManagedChannel channel)

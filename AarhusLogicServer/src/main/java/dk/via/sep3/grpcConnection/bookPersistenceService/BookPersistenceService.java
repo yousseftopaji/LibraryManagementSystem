@@ -1,4 +1,4 @@
-package dk.via.sep3.grpcConnection.bookGrpcService;
+package dk.via.sep3.grpcConnection.bookPersistenceService;
 
 // AarhusLogicServer/src/main/java/dk/via/sep3/grpcConnection/BookGrpcServiceInterface.java
 
@@ -6,10 +6,10 @@ import dk.via.sep3.DTOBook;
 
 import java.util.List;
 
-public interface BookGrpcService
+public interface BookPersistenceService
 {
   List<DTOBook> getAllBooks();
   List<DTOBook> getBooksByIsbn(String isbn);
   DTOBook getBookById(String bookId);
-  DTOBook updateBookStatus(String bookId, String status);
+  void updateBookStatus(String bookId, String status);
 }

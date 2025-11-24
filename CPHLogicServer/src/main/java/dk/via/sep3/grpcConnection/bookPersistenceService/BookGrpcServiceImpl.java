@@ -1,5 +1,5 @@
 // AarhusLogicServer/src/main/java/dk/via/sep3/grpcConnection/BookGrpcService.java
-package dk.via.sep3.grpcConnection.bookGrpcService;
+package dk.via.sep3.grpcConnection.bookPersistenceService;
 
 import dk.via.sep3.*;
 import io.grpc.ManagedChannel;

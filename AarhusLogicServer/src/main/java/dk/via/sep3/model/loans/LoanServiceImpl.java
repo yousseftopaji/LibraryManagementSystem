@@ -2,10 +2,9 @@ package dk.via.sep3.model.loans;
 
 import dk.via.sep3.DTOBook;
 import dk.via.sep3.DTOLoan;
-import dk.via.sep3.DTOUser;
-import dk.via.sep3.grpcConnection.bookGrpcService.BookGrpcService;
-import dk.via.sep3.grpcConnection.loanGrpcService.LoanGrpcService;
-import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
+import dk.via.sep3.grpcConnection.bookPersistenceService.BookPersistenceService;
+import dk.via.sep3.grpcConnection.loanPersistenceService.LoanPersistenceService;
+import dk.via.sep3.model.utils.validation.Validator;
 import dk.via.sep3.shared.loan.CreateLoanDTO;
 import dk.via.sep3.shared.loan.LoanDTO;
 import org.springframework.stereotype.Service;
@@ -16,15 +15,15 @@ import java.util.List;
 @Service
 public class LoanServiceImpl implements LoanService
 {
-  private final BookGrpcService bookGrpcService;
-  private final LoanGrpcService loanGrpcService;
-  private final UserGrpcService userGrpcService;
+  private final BookPersistenceService bookPersistenceService;
+  private final LoanPersistenceService loanPersistenceService;
+  private final Validator validator;
 
-  public LoanServiceImpl(BookGrpcService bookGrpcService, LoanGrpcService loanGrpcService, UserGrpcService userGrpcService)
+  public LoanServiceImpl(BookPersistenceService bookPersistenceService, LoanPersistenceService loanPersistenceService, Validator validator)
   {
-    this.bookGrpcService = bookGrpcService;
-    this.loanGrpcService = loanGrpcService;
-    this.userGrpcService = userGrpcService;
+    this.bookPersistenceService = bookPersistenceService;
+    this.loanPersistenceService = loanPersistenceService;
+    this.validator = validator;
   }
 
   @Override
@@ -39,16 +38,12 @@ public class LoanServiceImpl implements LoanService
 
   private void validateUser(String username)
   {
-    DTOUser user = userGrpcService.getUserByUsername(username);
-    if (user == null)
-    {
-      throw new IllegalArgumentException("User not found with username: " + username);
-    }
+    validator.validateUser(username);
   }
 
   private DTOBook findAvailableBook(String isbn)
   {
-    List<DTOBook> books = bookGrpcService.getBooksByIsbn(isbn);
+    List<DTOBook> books = bookPersistenceService.getBooksByIsbn(isbn);
     for (DTOBook book : books)
     {
       if (book.getState().equalsIgnoreCase("AVAILABLE"))
@@ -61,7 +56,7 @@ public class LoanServiceImpl implements LoanService
 
   private void updateBookStatus(DTOBook book)
   {
-    bookGrpcService.updateBookStatus(String.valueOf(book.getId()), "Borrowed");
+    bookPersistenceService.updateBookStatus(String.valueOf(book.getId()), "Borrowed");
   }
 
   private DTOLoan createGrpcLoan(CreateLoanDTO createLoanDTO, DTOBook book)
@@ -70,7 +65,7 @@ public class LoanServiceImpl implements LoanService
     Date borrowDate = Date.valueOf(today.toLocalDate());
     Date dueDate = Date.valueOf(today.toLocalDate().plusDays(30));
 
-    DTOLoan grpcLoan = loanGrpcService.createLoan(
+    DTOLoan grpcLoan = loanPersistenceService.createLoan(
         createLoanDTO.getUsername(),
         String.valueOf(book.getId()),
         borrowDate.toString(),

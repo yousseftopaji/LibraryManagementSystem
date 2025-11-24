@@ -1,8 +1,6 @@
-package dk.via.sep3.grpcConnection.loanGrpcService;
+package dk.via.sep3.grpcConnection.loanPersistenceService;
 
 import dk.via.sep3.DTOLoan;
-
-import java.sql.Date;
 
 public interface LoanGrpcService
 {

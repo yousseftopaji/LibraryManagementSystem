@@ -1,12 +1,10 @@
-package dk.via.sep3.grpcConnection.loanGrpcService;
+package dk.via.sep3.grpcConnection.loanPersistenceService;
 
 import dk.via.sep3.*;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class LoanGrpcServiceImpl implements LoanGrpcService {

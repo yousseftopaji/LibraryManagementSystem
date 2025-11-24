@@ -1,7 +1,7 @@
 package dk.via.sep3.model.books;
 
 import dk.via.sep3.DTOBook;
-import dk.via.sep3.grpcConnection.bookGrpcService.BookGrpcService;
+import dk.via.sep3.grpcConnection.bookPersistenceService.BookGrpcService;
 import dk.via.sep3.shared.book.BookDTO;
 import dk.via.sep3.shared.book.State;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package dk.via.sep3.grpcConnection.bookGrpcService;
+package dk.via.sep3.grpcConnection.bookPersistenceService;
 
 // AarhusLogicServer/src/main/java/dk/via/sep3/grpcConnection/BookGrpcServiceInterface.java
 

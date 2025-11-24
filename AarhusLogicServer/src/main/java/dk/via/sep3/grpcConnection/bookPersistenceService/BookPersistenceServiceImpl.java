@@ -1,5 +1,5 @@
 // AarhusLogicServer/src/main/java/dk/via/sep3/grpcConnection/BookGrpcService.java
-package dk.via.sep3.grpcConnection.bookGrpcService;
+package dk.via.sep3.grpcConnection.bookPersistenceService;
 
 import dk.via.sep3.*;
 import io.grpc.ManagedChannel;
@@ -11,13 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class BookGrpcServiceImpl implements BookGrpcService
+public class BookPersistenceServiceImpl implements BookPersistenceService
 {
   private static final Logger logger = LoggerFactory.getLogger(
-      BookGrpcService.class);
+      BookPersistenceService.class);
   private final BookServiceGrpc.BookServiceBlockingStub bookStub;
 
-  public BookGrpcServiceImpl(ManagedChannel channel)
+  public BookPersistenceServiceImpl(ManagedChannel channel)
   {
     this.bookStub = BookServiceGrpc.newBlockingStub(channel);
   }
@@ -81,7 +81,7 @@ public class BookGrpcServiceImpl implements BookGrpcService
     }
   }
 
-  @Override public DTOBook updateBookStatus(String bookId, String status)
+  @Override public void updateBookStatus(String bookId, String status)
   {
     try
     {
@@ -94,18 +94,15 @@ public class BookGrpcServiceImpl implements BookGrpcService
       UpdateBookStateResponse response = bookStub
           .updateBookState(request);
       logger.info("Received gRPC response");
-      return response.getBook();
     }
     catch (NumberFormatException ex)
     {
       logger.error("Invalid bookId format: {}", bookId, ex);
-      return null;
     }
     catch (Exception ex)
     {
       logger.error("Error updating book status. ID: {}, Status: {}", bookId,
           status, ex);
-      return null;
     }
   }
 }
