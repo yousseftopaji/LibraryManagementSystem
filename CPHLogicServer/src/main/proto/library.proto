@@ -28,6 +28,13 @@ message DTOUser {
   string username = 1;
 }
 
+message DTOReserve {
+  int32 id = 1;
+  string username = 2;
+  int32 bookId = 3;
+  string reserveDate = 4;
+  int32 queueNumber = 5;
+}
 // ========================
 // Book Service Messages
 // ========================
@@ -104,7 +111,32 @@ message GetUserByUsernameResponse {
   string message = 3;
 }
 
+// ========================
+// Reserve Service Messages
+// ========================
 
+message CreateReserveRequest {
+  string username = 1;
+  int32 bookId = 2;
+  string reserveDate = 3;
+  int32 queueNumber = 4;
+}
+
+message CreateReserveResponse {
+  DTOReserve reserve = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message GetReservationsByIsbnRequest {
+  string isbn = 1;
+}
+
+message GetReservationsByIsbnResponse {
+  repeated DTOReserve reservations = 1;
+  bool success = 2;
+  string message = 3;
+}
 // ========================
 // Services
 // ========================
@@ -122,4 +154,9 @@ service LoanService {
 
 service UserService {
   rpc GetUserByUsername (GetUserByUsernameRequest) returns (GetUserByUsernameResponse);
+}
+
+service ReserveService {
+  rpc CreateReserve (CreateReserveRequest) returns (CreateReserveResponse);
+  rpc GetReservationsByIsbn (GetReservationsByIsbnRequest) returns (GetReservationsByIsbnResponse);
 }
