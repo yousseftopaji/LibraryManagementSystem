@@ -1,10 +1,10 @@
-package dk.via.sep3.shared.reserve;
+package dk.via.sep3.shared.reservation;
 
-public class CreateReserveDTO {
+public class CreateReservationDTO {
     private String username;
     private String bookISBN;
 
-    public CreateReserveDTO(String username, String bookISBN)
+    public CreateReservationDTO(String username, String bookISBN)
     {
         this.username = username;
         this.bookISBN = bookISBN;
