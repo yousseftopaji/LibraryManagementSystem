@@ -11,6 +11,7 @@ public class LibraryDbContext : DbContext
     public DbSet<User> User => Set<User>();
     public DbSet<Genre> Genre => Set<Genre>();
     public DbSet<Loan> Loan => Set<Loan>();
+    public DbSet<Reserve> Reserve => Set<Reserve>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
