@@ -15,7 +15,7 @@ public class EfcBookRepository(LibraryDbContext context) : IBookRepository
 
         return new BookDTO
         {
-            BookId = book.Id.ToString(),
+            BookId = book.Id(),
             ISBN = book.ISBN,
             Title = book.Title,
             Author = book.Author,
@@ -28,7 +28,7 @@ public class EfcBookRepository(LibraryDbContext context) : IBookRepository
         var books = await context.Book.ToListAsync();
         return books.Select(b => new BookDTO
         {
-            BookId = b.Id.ToString(),
+            BookId = b.Id(),
             ISBN = b.ISBN,
             Title = b.Title,
             Author = b.Author,
@@ -44,7 +44,7 @@ public class EfcBookRepository(LibraryDbContext context) : IBookRepository
 
         return books.Select(b => new BookDTO
         {
-            BookId = b.Id.ToString(),
+            BookId = b.Id(),
             ISBN = b.ISBN,
             Title = b.Title,
             Author = b.Author,

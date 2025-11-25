@@ -9,6 +9,7 @@ namespace BlazorApp.Services;
 public class HttpBookService : IBookService
 {
     private readonly HttpClient client;
+    private IBookService _bookServiceImplementation;
 
     public HttpBookService(HttpClient client)
     {
@@ -46,8 +47,25 @@ public class HttpBookService : IBookService
         return JsonSerializer.Deserialize<List<BookDTO>>(response, JsonOptions())!;
         }
 
+    public async Task<ReservationDTO> ReserveBookAsync(Guid bookId)
+    {
+        HttpResponseMessage httpResponse =
+            await client.PostAsync($"books/{bookId}/reserve", null);
+
+        string response = await httpResponse.Content.ReadAsStringAsync();
+
+        if (!httpResponse.IsSuccessStatusCode)
+        {
+            throw new Exception(response);
+        }
+
+        return JsonSerializer.Deserialize<ReservationDTO>(response, JsonOptions())
+               ?? throw new Exception("Failed to parse reservation response.");
+    }
+
     private JsonSerializerOptions? JsonOptions()
     {
         return new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
     }
+    
 }

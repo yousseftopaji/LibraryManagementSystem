@@ -22,6 +22,25 @@
         @message
     </div>
 }
+@if (loan != null)
+{
+    <div class="mt-3">
+        <button class="btn btn-secondary" @onclick="OnExtendClicked" disabled="@isExtending">
+            @(isExtending ? "Extending…" : "Extend")
+        </button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(extendErrorMessage))
+    {
+        <div class="alert alert-danger mt-2">@extendErrorMessage</div>
+    }
+
+    @if (!string.IsNullOrEmpty(extendSuccessMessage))
+    {
+        <div class="alert alert-success mt-2">@extendSuccessMessage</div>
+    }
+}
+
 
 @code {
     [Parameter]
@@ -44,7 +63,11 @@
     {
         showConfirmDialog = false;
     }
-
+    private LoanDTO? loan; 
+    
+    private bool isExtending = false;
+    private string? extendErrorMessage; 
+    private string? extendSuccessMessage;
     private async Task HandleBorrow()
     {
         showConfirmDialog = false;
@@ -64,6 +87,7 @@
             Console.WriteLine(loanResponseDto);
             message = "Book successfully borrowed!";
             isError = false;
+            loan = loanResponseDto;
 
             // Notify parent component to refresh book details
             await OnBorrowSuccess.InvokeAsync();
@@ -77,6 +101,38 @@
         finally
         {
             isProcessing = false;
+        }
+    }
+    private async Task OnExtendClicked()
+    {
+        extendErrorMessage = null;
+        extendSuccessMessage = null;
+
+        if (loan == null)
+        {
+            extendErrorMessage = "No active loan to extend.";
+            return;
+        }
+
+        isExtending = true;
+
+        try
+        {
+            
+            var updatedLoan = await LoanService.ExtendLoanAsync(loan.LoanId);
+
+            
+            loan = updatedLoan;
+            extendSuccessMessage = $"Loan extended — new due date: {loan.DueDate.ToLocalTime():g}";
+        }
+        catch (Exception ex)
+        {
+            
+            extendErrorMessage = ex.Message;
+        }
+        finally
+        {
+            isExtending = false;
         }
     }
 }

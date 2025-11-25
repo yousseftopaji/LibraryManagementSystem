@@ -25,6 +25,8 @@ else
                 <th>Title</th>
                 <th>Author</th>
                 <th>ISBN</th>
+                <th>State</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -34,6 +36,21 @@ else
                     <td>@book.Title</td>
                     <td>@book.Author</td>
                     <td>@book.ISBN</td>
+                    <td>@book.State</td>
+                    <td>
+                        @if (book.State.Equals("Available", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <button class="btn btn-success btn-sm" @onclick="@(() => NavigateToBook(book.ISBN))">
+                                Borrow
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary btn-sm" @onclick="@(() => NavigateToBook(book.ISBN))">
+                                Reserve
+                            </button>
+                        }
+                    </td>
                 </tr>
             }
         </tbody>

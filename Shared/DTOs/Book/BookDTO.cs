@@ -5,7 +5,7 @@ namespace DTOs.Book;
 public class BookDTO
 {
     [JsonPropertyName("id")]
-    public string? BookId { get; set; }
+    public Guid BookId { get; set; }
 
     [JsonPropertyName("title")]
     public string? Title { get; set; }

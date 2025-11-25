@@ -23,7 +23,7 @@ else
         }
         else
         {
-            <ReserveBook ISBN="@book.ISBN" />
+            <ReserveBook ISBN="@book.ISBN" OnReservedSuccess="RefreshBookDetails" />
         }
     </div>
 }
