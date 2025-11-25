@@ -21,37 +21,20 @@ message DTOLoan {
   string borrowDate = 2;
   string dueDate = 3;
   string username = 4;
-  int32 bookId = 5;
+  bool isReturned = 5;
+  int32 bookId = 6;
 }
 
 message DTOUser {
   string username = 1;
 }
 
-message DTOReserve {
+message DTOReservation {
   int32 id = 1;
-  string reserveDate = 2;
+  string reservationDate = 2;
   string username = 3;
   int32 bookId = 4;
-  string status = 5;
 }
-
-// ========================
-// Reserve Service Messages
-// ========================
-
-message CreateReserveRequest {
-  string reserveDate = 1;
-  string username = 2;
-  int32 bookId = 3;
-}
-
-message CreateReserveResponse {
-  DTOReserve reserve = 1;
-  bool success = 2;
-  string message = 3;
-}
-
 
 // ========================
 // Book Service Messages
@@ -108,8 +91,35 @@ message CreateLoanRequest {
   int32 bookId = 4;
 }
 
+
 message CreateLoanResponse {
   DTOLoan loan = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+// ========================
+// Reservation Service Messages
+// ========================
+
+message CreateReservationRequest {
+  string reservationDate = 1;
+  string username = 2;
+  int32 bookId = 3;
+}
+
+message CreateReservationResponse {
+  DTOReservation reservation = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message GetReservationCountByIsbnRequest {
+  string isbn = 1;
+}
+
+message GetReservationCountByIsbnResponse {
+  int32 numberOfReservations = 1;
   bool success = 2;
   string message = 3;
 }
@@ -128,6 +138,15 @@ message GetUserByUsernameResponse {
   string message = 3;
 }
 
+message GetLoansByISBNRequest {
+  string isbn = 1;
+}
+
+message GetLoansByISBNResponse {
+  repeated DTOLoan loans = 1;
+  bool success = 2;
+  string message = 3;
+}
 
 // ========================
 // Services
@@ -142,12 +161,14 @@ service BookService {
 
 service LoanService {
   rpc CreateLoan (CreateLoanRequest) returns (CreateLoanResponse);
+  rpc GetLoansByISBN (GetLoansByISBNRequest) returns (GetLoansByISBNResponse);
 }
 
 service UserService {
   rpc GetUserByUsername (GetUserByUsernameRequest) returns (GetUserByUsernameResponse);
 }
 
-service ReserveService {
-  rpc CreateReserve (CreateReserveRequest) returns (CreateReserveResponse);
+service ReservationService {
+  rpc CreateReservation (CreateReservationRequest) returns (CreateReservationResponse);
+  rpc GetReservationCountByIsbn (GetReservationCountByIsbnRequest) returns (GetReservationCountByIsbnResponse);
 }
