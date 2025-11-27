@@ -23,6 +23,7 @@ message DTOLoan {
   string username = 4;
   bool isReturned = 5;
   int32 bookId = 6;
+  int32 numberOfExtensions = 7;
 }
 
 message DTOUser {
@@ -98,6 +99,18 @@ message CreateLoanResponse {
   string message = 3;
 }
 
+message GetLoanByIdRequest
+{
+  int32 id = 1;
+}
+
+message GetLoanByIdResponse
+{
+  DTOLoan loan = 1;
+  bool success = 2;
+  string message = 3;
+}
+
 // ========================
 // Reservation Service Messages
 // ========================
@@ -123,6 +136,21 @@ message GetReservationCountByIsbnResponse {
   bool success = 2;
   string message = 3;
 }
+
+// ========================
+// Extension Service Messages
+// ========================
+
+message ExtendLoanRequest {
+  int32 loanId = 1;
+}
+
+message ExtendLoanResponse {
+  DTOLoan loan = 1;
+  bool success = 2;
+  string message = 3;
+}
+
 
 // ========================
 // User Service Messages
@@ -162,6 +190,8 @@ service BookService {
 service LoanService {
   rpc CreateLoan (CreateLoanRequest) returns (CreateLoanResponse);
   rpc GetLoansByISBN (GetLoansByISBNRequest) returns (GetLoansByISBNResponse);
+  rpc ExtendLoan (ExtendLoanRequest) returns (ExtendLoanResponse);
+  rpc GetLoanById (GetLoanByIdRequest) returns (GetLoanByIdResponse);
 }
 
 service UserService {

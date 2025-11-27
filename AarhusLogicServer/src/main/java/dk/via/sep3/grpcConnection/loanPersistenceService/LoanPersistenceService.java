@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface LoanPersistenceService
 {
-  DTOLoan createLoan(String username, String bookId, String now, String dueDate);
+  DTOLoan createLoan(String username, int bookId, String now, String dueDate);
   List<DTOLoan> getLoansByISBN(String isbn);
+  void extendLoan(int LoanId);
+  DTOLoan getLoanById(int loanId);
 }

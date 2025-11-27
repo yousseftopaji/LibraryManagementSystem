@@ -36,6 +36,38 @@ public class LoanServiceImpl implements LoanService
     return convertToLoanDTO(grpcLoan);
   }
 
+  @Override
+  public void extendLoan(int bookId, int loanId)
+  {
+    //Get the book by its id
+    DTOBook book = bookPersistenceService.getBookById(String.valueOf(bookId));
+    if (book == null)
+    {
+      throw new IllegalArgumentException("Book not found with ID: " + bookId);
+    }
+    if (book.getState().equalsIgnoreCase("reserved"))
+    {
+      throw new IllegalStateException("Book is reserved and cannot be extended.");
+    }
+    if (book.getState().equalsIgnoreCase("available"))
+    {
+      throw new IllegalStateException("Book is available and cannot be extended.");
+    }
+
+    //Get the loan by its id
+    DTOLoan loan = loanPersistenceService.getLoanById(loanId);
+    if (loan == null)
+    {
+      throw new IllegalArgumentException("Loan not found with ID: " + loanId);
+    }
+    if (loan.getNumberOfExtensions() == 12)
+    {
+      throw new IllegalStateException("Loan has reached the maximum number of extensions.");
+    }
+    //Extend the loan
+    loanPersistenceService.extendLoan(loanId);
+  }
+
   private void validateUser(String username)
   {
     validator.validateUser(username);
@@ -67,7 +99,7 @@ public class LoanServiceImpl implements LoanService
 
     DTOLoan grpcLoan = loanPersistenceService.createLoan(
         createLoanDTO.getUsername(),
-        String.valueOf(book.getId()),
+        book.getId(),
         borrowDate.toString(),
         dueDate.toString()
     );
