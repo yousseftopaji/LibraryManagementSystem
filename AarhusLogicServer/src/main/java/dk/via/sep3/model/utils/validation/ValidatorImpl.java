@@ -1,21 +1,21 @@
 package dk.via.sep3.model.utils.validation;
 
-import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
+import dk.via.sep3.grpcConnection.userPersistenceService.UserPersistenceService;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ValidatorImpl implements Validator
 {
-  private final UserGrpcService userGrpcService;
+  private final UserPersistenceService userPersistenceService;
 
-  public ValidatorImpl(UserGrpcService userGrpcService)
+  public ValidatorImpl(UserPersistenceService userPersistenceService)
   {
-    this.userGrpcService = userGrpcService;
+    this.userPersistenceService = userPersistenceService;
   }
 
   @Override public void validateUser(String username)
   {
-    if (userGrpcService.getUserByUsername(username) == null)
+    if (userPersistenceService.getUserByUsername(username) == null)
     {
       throw new IllegalArgumentException("User not found with username: " + username);
     }

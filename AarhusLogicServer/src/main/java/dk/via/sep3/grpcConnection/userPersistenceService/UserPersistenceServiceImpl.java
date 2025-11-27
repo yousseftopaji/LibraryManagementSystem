@@ -1,23 +1,23 @@
-package dk.via.sep3.grpcConnection.userGrpcService;
+package dk.via.sep3.grpcConnection.userPersistenceService;
 
 import dk.via.sep3.DTOUser;
 import dk.via.sep3.GetUserByUsernameRequest;
 import dk.via.sep3.GetUserByUsernameResponse;
 import dk.via.sep3.UserServiceGrpc;
-import dk.via.sep3.grpcConnection.loanPersistenceService.LoanGrpcService;
+import dk.via.sep3.grpcConnection.loanPersistenceService.LoanPersistenceService;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserGrpcServiceImpl implements UserGrpcService
+public class UserPersistenceServiceImpl implements UserPersistenceService
 {
   private static final Logger logger = LoggerFactory.getLogger(
-      LoanGrpcService.class);
-  private UserServiceGrpc.UserServiceBlockingStub userStub;
+      LoanPersistenceService.class);
+  private final UserServiceGrpc.UserServiceBlockingStub userStub;
 
-  public UserGrpcServiceImpl(ManagedChannel channel)
+  public UserPersistenceServiceImpl(ManagedChannel channel)
   {
     this.userStub = UserServiceGrpc.newBlockingStub(channel);
   }

@@ -5,7 +5,7 @@ import dk.via.sep3.DTOLoan;
 import dk.via.sep3.DTOUser;
 import dk.via.sep3.grpcConnection.bookPersistenceService.BookGrpcService;
 import dk.via.sep3.grpcConnection.loanPersistenceService.LoanGrpcService;
-import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
+import dk.via.sep3.grpcConnection.userPersistenceService.UserGrpcService;
 import dk.via.sep3.shared.loan.CreateLoanDTO;
 import dk.via.sep3.shared.loan.LoanDTO;
 import org.springframework.stereotype.Service;

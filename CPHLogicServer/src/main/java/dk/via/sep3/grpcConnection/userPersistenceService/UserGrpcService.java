@@ -1,4 +1,4 @@
-package dk.via.sep3.grpcConnection.userGrpcService;
+package dk.via.sep3.grpcConnection.userPersistenceService;
 
 import dk.via.sep3.DTOUser;
 
