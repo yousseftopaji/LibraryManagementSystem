@@ -21,4 +21,7 @@ public class LoanDTO
     [JsonPropertyName("bookId")]
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public int BookId { get; set; }
+
+    [JsonPropertyName("numberOfExtensions")]
+    public int NumberOfExtensions { get; set; }
 }

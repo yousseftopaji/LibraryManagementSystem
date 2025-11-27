@@ -11,6 +11,9 @@ public class Loan
     public required string Username { get; set; }
     public required int BookId { get; set; }
 
+    // Number of times this loan has been extended
+    public int NumberOfExtensions { get; set; }
+
     [ForeignKey("Username")]
     public User? User { get; set; }
     public Book? Book { get; set; }
