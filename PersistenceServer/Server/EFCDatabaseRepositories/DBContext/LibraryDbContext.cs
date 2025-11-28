@@ -6,7 +6,7 @@ namespace EFCDatabaseRepositories.DBContext;
 public class LibraryDbContext : DbContext
 {
     public LibraryDbContext(DbContextOptions<LibraryDbContext> options) : base(options) { }
-
+     public LibraryDbContext() { }
     public DbSet<Book> Book => Set<Book>();
     public DbSet<User> User => Set<User>();
     public DbSet<Genre> Genre => Set<Genre>();

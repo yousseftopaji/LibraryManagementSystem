@@ -3,7 +3,10 @@ using EFCDatabaseRepositories.DBContext;
 using Entities;
 using RepositoryContracts;
 using Microsoft.EntityFrameworkCore;
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 
 namespace EFCDatabaseRepositories.Repositories;
 
@@ -63,5 +66,15 @@ public class EfcLoanRepository(LibraryDbContext context) : ILoanRepository
             DueDate = existing.DueDate,
             NumberOfExtensions = existing.NumberOfExtensions
         };
+    }
+
+     public async Task<IEnumerable<Loan>> GetLoansByIsbnAsync(string isbn)
+    {
+        return await (from loan in context.Loan
+                      join book in context.Book
+                      on loan.BookId equals book.Id
+                      where book.ISBN == isbn
+                      select loan)
+                      .ToListAsync();
     }
 }

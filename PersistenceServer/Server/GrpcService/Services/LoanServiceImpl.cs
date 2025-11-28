@@ -49,6 +49,7 @@ public class LoanServiceImpl(ILoanRepository loanRepository, IBookRepository boo
         return response;
     }
 
+<<<<<<< Updated upstream
     public override async Task<ExtendLoanResponse> ExtendLoan(ExtendLoanRequest request, ServerCallContext context)
     {
         var response = new ExtendLoanResponse();
@@ -107,6 +108,34 @@ public class LoanServiceImpl(ILoanRepository loanRepository, IBookRepository boo
         {
             response.Success = false;
             response.Message = $"Error extending loan: {ex.Message}";
+=======
+     public override async Task<GetLoansByISBNResponse> GetLoansByISBN(GetLoansByISBNRequest request, ServerCallContext context)
+    {
+        var response = new GetLoansByISBNResponse();
+
+        try
+        {
+            var loans = await loanRepository.GetLoansByIsbnAsync(request.Isbn);
+
+            response.Loans.AddRange(loans.Select(l => new DTOLoan
+            {
+                Id = l.Id,
+                BorrowDate = l.BorrowDate.ToString("yyyy-MM-dd"),
+                DueDate = l.DueDate.ToString("yyyy-MM-dd"),
+                Username = l.Username ?? string.Empty,
+                BookId = l.BookId
+                // IsReturned = l.IsReturned
+            }));
+
+            response.Success = true;
+            response.Message = "Loans retrieved successfully.";
+        }
+        catch (Exception ex)
+        {
+            response.Loans.Clear();
+            response.Success = false;
+            response.Message = $"Error retrieving loans: {ex.Message}";
+>>>>>>> Stashed changes
         }
 
         return response;
