@@ -3,10 +3,6 @@ using EFCDatabaseRepositories.DBContext;
 using Entities;
 using RepositoryContracts;
 using Microsoft.EntityFrameworkCore;
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 
 namespace EFCDatabaseRepositories.Repositories;
 

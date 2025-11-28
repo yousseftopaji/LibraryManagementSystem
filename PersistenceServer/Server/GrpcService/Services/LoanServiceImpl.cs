@@ -48,9 +48,7 @@ public class LoanServiceImpl(ILoanRepository loanRepository, IBookRepository boo
 
         return response;
     }
-
-<<<<<<< Updated upstream
-    public override async Task<ExtendLoanResponse> ExtendLoan(ExtendLoanRequest request, ServerCallContext context)
+   public override async Task<ExtendLoanResponse> ExtendLoan(ExtendLoanRequest request, ServerCallContext context)
     {
         var response = new ExtendLoanResponse();
         try
@@ -108,7 +106,9 @@ public class LoanServiceImpl(ILoanRepository loanRepository, IBookRepository boo
         {
             response.Success = false;
             response.Message = $"Error extending loan: {ex.Message}";
-=======
+        }
+        return response;
+    }
      public override async Task<GetLoansByISBNResponse> GetLoansByISBN(GetLoansByISBNRequest request, ServerCallContext context)
     {
         var response = new GetLoansByISBNResponse();
@@ -135,7 +135,6 @@ public class LoanServiceImpl(ILoanRepository loanRepository, IBookRepository boo
             response.Loans.Clear();
             response.Success = false;
             response.Message = $"Error retrieving loans: {ex.Message}";
->>>>>>> Stashed changes
         }
 
         return response;
