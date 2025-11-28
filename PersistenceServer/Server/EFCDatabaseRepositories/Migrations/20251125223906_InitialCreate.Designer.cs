@@ -3,6 +3,7 @@ using System;
 using EFCDatabaseRepositories.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EFCDatabaseRepositories.Migrations
 {
     [DbContext(typeof(LibraryDbContext))]
-    partial class LibraryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251125223906_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.0");
@@ -83,9 +86,6 @@ namespace EFCDatabaseRepositories.Migrations
 
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("NumberOfExtensions")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Username")
                         .IsRequired()
