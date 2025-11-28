@@ -20,7 +20,7 @@ public class HttpLoanService : ILoanService
         string response = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode)
         {
-            throw new Exception(response);
+            throw new Exception($"Error creating loan: {response}");
         }
         return JsonSerializer.Deserialize<LoanDTO>(response, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
     }
