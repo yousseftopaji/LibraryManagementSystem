@@ -26,7 +26,7 @@ public class HttpLoanService : ILoanService
         return JsonSerializer.Deserialize<LoanDTO>(response, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
     }
 
-    public  async Task<LoanDTO> ExtendLoanAsync(Guid loanId)
+    public  async Task<LoanDTO> ExtendLoanAsync(int loanId)
     {HttpResponseMessage httpResponse = await client.PostAsync($"loans/{loanId}/extend", null);
         string response = await httpResponse.Content.ReadAsStringAsync();
 
