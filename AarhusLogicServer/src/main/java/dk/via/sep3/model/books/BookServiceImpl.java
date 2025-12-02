@@ -2,7 +2,7 @@ package dk.via.sep3.model.books;
 
 import dk.via.sep3.DTOBook;
 import dk.via.sep3.grpcConnection.bookPersistenceService.BookPersistenceService;
-import dk.via.sep3.shared.book.BookDTO;
+import dk.via.sep3.shared.book.Book;
 import dk.via.sep3.shared.book.State;
 import org.springframework.stereotype.Service;
 
@@ -20,28 +20,28 @@ import java.util.Map;
     this.bookPersistenceService = bookPersistenceService;
   }
 
-  @Override public List<BookDTO> getAllBooks()
+  @Override public List<Book> getAllBooks()
   {
     List<DTOBook> allBooks = bookPersistenceService.getAllBooks();
     return createUniqueBooks(allBooks);
   }
 
-  @Override public BookDTO getBookByIsbn(String isbn)
+  @Override public Book getBookByIsbn(String isbn)
   {
     List<DTOBook> books = bookPersistenceService.getBooksByIsbn(isbn);
     return findRepresentativeBook(books);
   }
 
-  private List<BookDTO> createUniqueBooks(List<DTOBook> allBooks)
+  private List<Book> createUniqueBooks(List<DTOBook> allBooks)
   {
-    Map<String, BookDTO> uniqueBooksByIsbn = new LinkedHashMap<>();
+    Map<String, Book> uniqueBooksByIsbn = new LinkedHashMap<>();
     for (DTOBook dtoBook : allBooks)
     {
       String isbn = dtoBook.getIsbn();
       if (!uniqueBooksByIsbn.containsKey(isbn))
       {
         State initialState = State.valueOf(dtoBook.getState().toUpperCase());
-        BookDTO bookdto = new BookDTO(String.valueOf(dtoBook.getId()),
+        Book bookdto = new Book(String.valueOf(dtoBook.getId()),
             dtoBook.getTitle(), dtoBook.getAuthor(), dtoBook.getIsbn(),
             initialState);
         uniqueBooksByIsbn.put(isbn, bookdto);
@@ -50,7 +50,7 @@ import java.util.Map;
     return new ArrayList<>(uniqueBooksByIsbn.values());
   }
 
-  private BookDTO findRepresentativeBook(List<DTOBook> books)
+  private Book findRepresentativeBook(List<DTOBook> books)
   {
     if (books == null || books.isEmpty())
     {
@@ -70,7 +70,7 @@ import java.util.Map;
       dtoBook = books.get(0);
     }
     State initialState = State.valueOf(dtoBook.getState().toUpperCase());
-    return new BookDTO(String.valueOf(dtoBook.getId()), dtoBook.getTitle(),
+    return new Book(String.valueOf(dtoBook.getId()), dtoBook.getTitle(),
         dtoBook.getAuthor(), dtoBook.getIsbn(), initialState);
   }
 }

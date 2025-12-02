@@ -7,6 +7,7 @@ import dk.via.sep3.grpcConnection.loanPersistenceService.LoanPersistenceService;
 import dk.via.sep3.model.utils.validation.Validator;
 import dk.via.sep3.shared.loan.CreateLoanDTO;
 import dk.via.sep3.shared.loan.LoanDTO;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -37,6 +38,7 @@ public class LoanServiceImpl implements LoanService
   }
 
   @Override
+  @Async
   public void extendLoan(int bookId, int loanId)
   {
     //Get the book by its id

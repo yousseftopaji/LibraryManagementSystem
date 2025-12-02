@@ -4,7 +4,7 @@ package dk.via.sep3.shared.book;
  * Simple POJO for REST API responses
  * This is separate from the gRPC DTOBook to avoid serialization issues
  */
-public class BookDTO
+public class Book
 {
   private String id;
   private String title;
@@ -12,12 +12,12 @@ public class BookDTO
   private String isbn;
   private State state;
 
-  public BookDTO()
+  public Book()
   {
 
   }
 
-  public BookDTO(String id, String title, String author, String isbn, State state)
+  public Book(String id, String title, String author, String isbn, State state)
   {
     this.id = id;
     this.title = title;

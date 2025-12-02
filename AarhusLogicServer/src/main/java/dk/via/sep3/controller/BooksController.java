@@ -1,7 +1,7 @@
 package dk.via.sep3.controller;
 
 import dk.via.sep3.model.books.BookService;
-import dk.via.sep3.shared.book.BookDTO;
+import dk.via.sep3.shared.book.Book;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +20,9 @@ public class BooksController
     }
 
     @GetMapping
-    public ResponseEntity<List<BookDTO>> getAllBooks()
+    public ResponseEntity<List<Book>> getAllBooks()
     {
-        List<BookDTO> uniqueBooks = books.getAllBooks();
+        List<Book> uniqueBooks = books.getAllBooks();
 
         if(uniqueBooks.isEmpty())
         {
@@ -32,9 +32,9 @@ public class BooksController
     }
 
     @GetMapping("/{isbn}")
-    public ResponseEntity<BookDTO> getBooksByIsbn(@PathVariable String isbn)
+    public ResponseEntity<Book> getBooksByIsbn(@PathVariable String isbn)
     {
-        BookDTO book = books.getBookByIsbn(isbn);
+        Book book = books.getBookByIsbn(isbn);
         if (book == null)
         {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

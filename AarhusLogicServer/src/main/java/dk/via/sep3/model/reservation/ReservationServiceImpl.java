@@ -5,17 +5,13 @@ import dk.via.sep3.DTOLoan;
 import dk.via.sep3.DTOReservation;
 import dk.via.sep3.grpcConnection.bookPersistenceService.BookPersistenceService;
 import dk.via.sep3.grpcConnection.loanPersistenceService.LoanPersistenceService;
-import dk.via.sep3.grpcConnection.loanPersistenceService.LoanPersistenceServiceImpl;
 import dk.via.sep3.grpcConnection.reservationPersistenceService.ReservationPersistenceService;
-import dk.via.sep3.model.domain.Book;
-import dk.via.sep3.model.domain.state.AvailableState;
 import dk.via.sep3.model.utils.validation.Validator;
 import dk.via.sep3.shared.reservation.CreateReservationDTO;
 import dk.via.sep3.shared.reservation.ReservationDTO;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
-import java.util.Comparator;
 import java.util.List;
 import java.time.LocalDate;
 
