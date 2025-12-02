@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EFCDatabaseRepositories.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class AddEntities : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -86,7 +86,8 @@ namespace EFCDatabaseRepositories.Migrations
                     BorrowDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     DueDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Username = table.Column<string>(type: "TEXT", nullable: false),
-                    BookId = table.Column<int>(type: "INTEGER", nullable: false)
+                    BookId = table.Column<int>(type: "INTEGER", nullable: false),
+                    NumberOfExtensions = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {

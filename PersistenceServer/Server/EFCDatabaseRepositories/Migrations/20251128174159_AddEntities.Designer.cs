@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EFCDatabaseRepositories.Migrations
 {
     [DbContext(typeof(LibraryDbContext))]
-    [Migration("20251125223906_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251128174159_AddEntities")]
+    partial class AddEntities
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -86,6 +86,9 @@ namespace EFCDatabaseRepositories.Migrations
 
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("NumberOfExtensions")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Username")
                         .IsRequired()
