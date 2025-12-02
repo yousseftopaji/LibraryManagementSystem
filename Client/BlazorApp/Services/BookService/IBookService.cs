@@ -7,5 +7,5 @@ public interface IBookService
 {
     public Task<BookDTO> GetBookAsync (string isbn);
     public Task<List<BookDTO>> GetBooksAsync();
-     public Task<ReservationDTO> ReserveBookAsync(Guid bookId);
+     public Task<ReservationDTO> ReserveBookAsync(BookDTO book, string username);
 }

@@ -47,22 +47,34 @@ public class HttpBookService : IBookService
         return JsonSerializer.Deserialize<List<BookDTO>>(response, JsonOptions())!;
         }
 
-    public async Task<ReservationDTO> ReserveBookAsync(Guid bookId)
+   public async Task<ReservationDTO> ReserveBookAsync(BookDTO book, string username)
+{
+    // Build CreateReservationDTO for Java backend
+    var payload = new
     {
-        HttpResponseMessage httpResponse =
-            await client.PostAsync($"books/{bookId}/reserve", null);
+        username = username,
+        bookISBN = book.ISBN
+    };
 
-        string response = await httpResponse.Content.ReadAsStringAsync();
+    // POST to /reservations
+    HttpResponseMessage httpResponse = await client.PostAsJsonAsync("reservations", payload);
 
-        if (!httpResponse.IsSuccessStatusCode)
-        {
-            throw new Exception(response);
-        }
+    string response = await httpResponse.Content.ReadAsStringAsync();
 
-        return JsonSerializer.Deserialize<ReservationDTO>(response, JsonOptions())
-               ?? throw new Exception("Failed to parse reservation response.");
+    if (!httpResponse.IsSuccessStatusCode)
+    {
+        throw new Exception(response);  // backend sends useful error messages
     }
 
+    var reservation = JsonSerializer.Deserialize<ReservationDTO>(response, JsonOptions());
+
+    if (reservation == null)
+    {
+        throw new Exception("Failed to parse reservation response.");
+    }
+
+    return reservation;
+}
     private JsonSerializerOptions? JsonOptions()
     {
         return new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
