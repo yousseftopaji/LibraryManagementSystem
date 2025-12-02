@@ -1,167 +1,3 @@
-//syntax = "proto3";
-//option java_multiple_files = true;
-//option csharp_namespace = "GrpcService.Protos";
-//
-//package dk.via.sep3;
-//
-//// ========================
-//// Shared DTOs
-//// ========================
-//
-//message DTOBook {
-//  int32 id = 1;
-//  string title = 2;
-//  string author = 3;
-//  string isbn = 4;
-//  string state = 5;
-//}
-//
-//message DTOLoan {
-//  int32 id = 1;
-//  string borrowDate = 2;
-//  string dueDate = 3;
-//  string username = 4;
-//  int32 bookId = 5;
-//}
-//
-//message DTOUser {
-//  string username = 1;
-//}
-//
-//message DTOReserve {
-//  int32 id = 1;
-//  string username = 2;
-//  int32 bookId = 3;
-//  string reserveDate = 4;
-//  int32 queueNumber = 5;
-//}
-//// ========================
-//// Book Service Messages
-//// ========================
-//
-//message GetAllBooksRequest {
-//}
-//
-//message GetAllBooksResponse {
-//  repeated DTOBook books = 1;
-//  bool success = 2;
-//  string message = 3;
-//}
-//
-//message GetBooksByIsbnRequest {
-//  string isbn = 1;
-//}
-//
-//message GetBooksByIsbnResponse {
-//  repeated DTOBook books = 1;
-//  bool success = 2;
-//  string message = 3;
-//}
-//
-//message GetBookByIdRequest {
-//  int32 id = 1;
-//}
-//
-//message GetBookByIdResponse {
-//  DTOBook book = 1;
-//  bool success = 2;
-//  string message = 3;
-//}
-//
-//message UpdateBookStateRequest {
-//  int32 id = 1;
-//  string state = 2;
-//}
-//
-//message UpdateBookStateResponse {
-//  DTOBook book = 1;
-//  bool success = 2;
-//  string message = 3;
-//}
-//
-//// ========================
-//// Loan Service Messages
-//// ========================
-//
-//message CreateLoanRequest {
-//  string borrowDate = 1;
-//  string dueDate = 2;
-//  string username = 3;
-//  int32 bookId = 4;
-//}
-//
-//
-//message CreateLoanResponse {
-//  DTOLoan loan = 1;
-//  bool success = 2;
-//  string message = 3;
-//}
-//
-//// ========================
-//// User Service Messages
-//// ========================
-//
-//message GetUserByUsernameRequest {
-//  string username = 1;
-//}
-//
-//message GetUserByUsernameResponse {
-//  DTOUser user = 1;
-//  bool success = 2;
-//  string message = 3;
-//}
-//
-//// ========================
-//// Reserve Service Messages
-//// ========================
-//
-//message CreateReserveRequest {
-//  string username = 1;
-//  int32 bookId = 2;
-//  string reserveDate = 3;
-//  int32 queueNumber = 4;
-//}
-//
-//message CreateReserveResponse {
-//  DTOReserve reserve = 1;
-//  bool success = 2;
-//  string message = 3;
-//}
-//
-//message GetReservationsByIsbnRequest {
-//  string isbn = 1;
-//}
-//
-//message GetReservationsByIsbnResponse {
-//  repeated DTOReserve reservations = 1;
-//  bool success = 2;
-//  string message = 3;
-//}
-//// ========================
-//// Services
-//// ========================
-//
-//service BookService {
-//  rpc GetAllBooks (GetAllBooksRequest) returns (GetAllBooksResponse);
-//  rpc GetBooksByIsbn (GetBooksByIsbnRequest) returns (GetBooksByIsbnResponse);
-//  rpc GetBookById (GetBookByIdRequest) returns (GetBookByIdResponse);
-//  rpc UpdateBookState (UpdateBookStateRequest) returns (UpdateBookStateResponse);
-//}
-//
-//service LoanService {
-//  rpc CreateLoan (CreateLoanRequest) returns (CreateLoanResponse);
-//}
-//
-//service UserService {
-//  rpc GetUserByUsername (GetUserByUsernameRequest) returns (GetUserByUsernameResponse);
-//}
-//
-//service ReserveService {
-//  rpc CreateReserve (CreateReserveRequest) returns (CreateReserveResponse);
-//  rpc GetReservationsByIsbn (GetReservationsByIsbnRequest) returns (GetReservationsByIsbnResponse);
-//}
-
-
 syntax = "proto3";
 option java_multiple_files = true;
 option csharp_namespace = "GrpcService.Protos";
@@ -187,6 +23,7 @@ message DTOLoan {
   string username = 4;
   bool isReturned = 5;
   int32 bookId = 6;
+  int32 numberOfExtensions = 7;
 }
 
 message DTOUser {
@@ -262,6 +99,29 @@ message CreateLoanResponse {
   string message = 3;
 }
 
+message GetLoanByIdRequest
+{
+  int32 id = 1;
+}
+
+message GetLoanByIdResponse
+{
+  DTOLoan loan = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message ExtendLoanRequest {
+  string username = 1;
+  int32 loanId = 2;
+}
+
+message ExtendLoanResponse {
+  DTOLoan loan = 1;
+  bool success = 2;
+  string message = 3;
+}
+
 // ========================
 // Reservation Service Messages
 // ========================
@@ -326,6 +186,9 @@ service BookService {
 service LoanService {
   rpc CreateLoan (CreateLoanRequest) returns (CreateLoanResponse);
   rpc GetLoansByISBN (GetLoansByISBNRequest) returns (GetLoansByISBNResponse);
+  rpc ExtendLoan (ExtendLoanRequest) returns (ExtendLoanResponse);
+  rpc GetLoanById (GetLoanByIdRequest) returns (GetLoanByIdResponse);
+
 }
 
 service UserService {
