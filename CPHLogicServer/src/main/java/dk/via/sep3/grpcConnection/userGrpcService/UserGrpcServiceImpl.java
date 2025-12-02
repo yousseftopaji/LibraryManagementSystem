@@ -5,7 +5,6 @@ import dk.via.sep3.GetUserByUsernameRequest;
 import dk.via.sep3.GetUserByUsernameResponse;
 import dk.via.sep3.UserServiceGrpc;
 import dk.via.sep3.grpcConnection.loanGrpcService.LoanGrpcService;
-import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

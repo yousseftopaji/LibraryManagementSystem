@@ -41,7 +41,7 @@ public class EfcLoanRepository(LibraryDbContext context) : ILoanRepository
             NumberOfExtensions = loan.NumberOfExtensions
         };
     }
-
+  
     public async Task<LoanDTO> UpdateLoanAsync(Loan loan)
     {
         var existing = await context.Loan.FindAsync(loan.Id);
@@ -72,5 +72,27 @@ public class EfcLoanRepository(LibraryDbContext context) : ILoanRepository
                       where book.ISBN == isbn
                       select loan)
                       .ToListAsync();
+    }
+
+    public async Task<LoanDTO?> GetLoanByIdAsync(int loanId)
+{
+    var loan = await context.Loan.FindAsync(loanId);
+
+    if (loan == null) return null;
+
+    return new LoanDTO
+    {
+        LoanId = loan.Id,
+        BookId = loan.BookId,
+        Username = loan.Username,
+        BorrowDate = loan.BorrowDate,
+        DueDate = loan.DueDate,
+        NumberOfExtensions = loan.NumberOfExtensions
+    };
+}
+   
+    public Task UpdateLoanAsync(LoanDTO loan)
+    {
+        throw new NotImplementedException();
     }
 }

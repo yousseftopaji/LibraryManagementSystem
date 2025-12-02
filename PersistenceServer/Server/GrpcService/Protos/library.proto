@@ -99,9 +99,21 @@ message CreateLoanResponse {
   string message = 3;
 }
 
+message GetLoanByIdRequest
+{
+  int32 id = 1;
+}
+
+message GetLoanByIdResponse
+{
+  DTOLoan loan = 1;
+  bool success = 2;
+  string message = 3;
+}
+
 message ExtendLoanRequest {
   string username = 1;
-  int32 bookId = 2;
+  int32 loanId = 2;
 }
 
 message ExtendLoanResponse {
@@ -175,6 +187,8 @@ service LoanService {
   rpc CreateLoan (CreateLoanRequest) returns (CreateLoanResponse);
   rpc GetLoansByISBN (GetLoansByISBNRequest) returns (GetLoansByISBNResponse);
   rpc ExtendLoan (ExtendLoanRequest) returns (ExtendLoanResponse);
+  rpc GetLoanById (GetLoanByIdRequest) returns (GetLoanByIdResponse);
+
 }
 
 service UserService {
