@@ -7,9 +7,6 @@ namespace GrpcService.Services;
 
 public class LoanServiceImpl(ILoanRepository loanRepository, IBookRepository bookRepository) : LoanService.LoanServiceBase
 {
-    private readonly ILoanRepository _loanRepository = loanRepository;
-    private readonly IBookRepository _bookRepository = bookRepository;
-
     public override async Task<CreateLoanResponse> CreateLoan(CreateLoanRequest request, ServerCallContext context)
     {
         var response = new CreateLoanResponse();
@@ -24,7 +21,7 @@ public class LoanServiceImpl(ILoanRepository loanRepository, IBookRepository boo
                 BookId = request.BookId
             };
             // Create loan using repository
-            var createdLoan = await _loanRepository.CreateLoanAsync(loan);
+            var createdLoan = await loanRepository.CreateLoanAsync(loan);
 
             // Populate response
             response.Loan = new DTOLoan
@@ -53,7 +50,7 @@ public class LoanServiceImpl(ILoanRepository loanRepository, IBookRepository boo
         var response = new ExtendLoanResponse();
         try
         {
-            var book = await _bookRepository.GetBookAsync(request.BookId);
+            var book = await bookRepository.GetBookAsync(request.BookId);
             if (book == null)
             {
                 response.Success = false;
@@ -68,7 +65,7 @@ public class LoanServiceImpl(ILoanRepository loanRepository, IBookRepository boo
                 return response;
             }
 
-            var loanDto = await _loanRepository.GetLoanByUsernameAsync(request.Username, request.BookId);
+            var loanDto = await loanRepository.GetLoanByUsernameAsync(request.Username, request.BookId);
             if (loanDto == null)
             {
                 response.Success = false;
@@ -88,7 +85,7 @@ public class LoanServiceImpl(ILoanRepository loanRepository, IBookRepository boo
                 NumberOfExtensions = loanDto.NumberOfExtensions + 1
             };
 
-            var updated = await _loanRepository.UpdateLoanAsync(loanEntity);
+            var updated = await loanRepository.UpdateLoanAsync(loanEntity);
 
             response.Loan = new DTOLoan
             {

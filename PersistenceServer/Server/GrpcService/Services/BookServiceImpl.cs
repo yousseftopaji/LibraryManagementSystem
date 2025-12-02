@@ -12,7 +12,7 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
         var response = new GetAllBooksResponse();
         response.Books.AddRange(booksFromDb.Select(b => new DTOBook
         {
-            Id = int.Parse(b.BookId ?? throw new InvalidOperationException()),
+            Id = b.BookId,
             Title = b.Title ?? string.Empty,
             Author = b.Author ?? string.Empty,
             Isbn = b.ISBN ?? string.Empty,
@@ -29,7 +29,7 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
         var response = new GetBooksByIsbnResponse();
         response.Books.AddRange(booksFromDb.Select(b => new DTOBook
         {
-            Id = int.Parse(b.BookId ?? throw new InvalidOperationException()),
+            Id = b.BookId,
             Title = b.Title ?? string.Empty,
             Author = b.Author ?? string.Empty,
             Isbn = b.ISBN ?? string.Empty,
@@ -48,7 +48,7 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
         {
             response.Book = new DTOBook
             {
-                Id = int.Parse(bookFromDb.BookId ?? throw new InvalidOperationException()),
+                Id = bookFromDb.BookId,
                 Title = bookFromDb.Title,
                 Author = bookFromDb.Author,
                 Isbn = bookFromDb.ISBN,
@@ -73,10 +73,9 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
         {
             var updatedBook = await bookRepository.UpdateBookStateAsync(request.Id, request.State);
 
-            if (updatedBook.BookId != null)
                 response.Book = new DTOBook
                 {
-                    Id = int.Parse(updatedBook.BookId),
+                    Id = updatedBook.BookId,
                     Title = updatedBook.Title ?? string.Empty,
                     Author = updatedBook.Author ?? string.Empty,
                     Isbn = updatedBook.ISBN ?? string.Empty,
