@@ -28,7 +28,7 @@ public class HttpLoanService : ILoanService
 {
     HttpResponseMessage httpResponse =
         await client.SendAsync(
-            new HttpRequestMessage(HttpMethod.Patch, "loans/id")
+          new HttpRequestMessage(HttpMethod.Put, $"loans/{dto.LoanId}/extensions?username={dto.Username}")
             {
                 Content = JsonContent.Create(dto)
             }

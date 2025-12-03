@@ -78,6 +78,7 @@ private bool isExtending = false;
             };
 
             var loanResponseDto = await LoanService.CreateLoanAsync(createLoanDTO);
+            LoanId = loanResponseDto.LoanId; 
             Console.WriteLine(loanResponseDto);
             message = "Book successfully borrowed!";
             isError = false;
