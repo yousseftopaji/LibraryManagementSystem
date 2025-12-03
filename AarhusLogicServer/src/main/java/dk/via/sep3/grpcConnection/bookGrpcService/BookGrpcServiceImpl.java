@@ -52,7 +52,7 @@ public class BookGrpcServiceImpl implements BookGrpcService
     }
     catch (Exception ex)
     {
-      logger.error("Error fetching book by ISBN: {}", isbn, ex);
+      logger.error(ex.getMessage());
       return new ArrayList<>();
     }
   }

@@ -1,9 +1,7 @@
 package dk.via.sep3.model.books;
 
-import dk.via.sep3.DTOBook;
 import dk.via.sep3.grpcConnection.bookGrpcService.BookGrpcService;
-import dk.via.sep3.shared.book.BookDTO;
-import dk.via.sep3.shared.book.State;
+import dk.via.sep3.model.domain.Book;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,57 +19,50 @@ public class BookServiceImpl implements BookService
     this.bookGrpcService = bookGrpcService;
   }
 
-  @Override public List<BookDTO> getAllBooks()
+  @Override public List<Book> getAllBooks()
   {
-    List<DTOBook> allBooks = bookGrpcService.getAllBooks();
+    List<Book> allBooks = bookGrpcService.getAllBooks();
     return createUniqueBooks(allBooks);
   }
 
-  @Override public BookDTO getBookByIsbn(String isbn)
+  @Override public Book getBookByIsbn(String isbn)
   {
-    List<DTOBook> books = bookGrpcService.getBooksByIsbn(isbn);
+    List<Book> books = bookGrpcService.getBooksByIsbn(isbn);
     return findRepresentativeBook(books);
   }
 
-  private List<BookDTO> createUniqueBooks(List<DTOBook> allBooks)
+private List<Book> createUniqueBooks(List<Book> allBooks)
+{
+  Map<String, Book> uniqueBooksByIsbn = new LinkedHashMap<>();
+  if (allBooks == null || allBooks.isEmpty())
   {
-    Map<String, BookDTO> uniqueBooksByIsbn = new LinkedHashMap<>();
-    for (DTOBook dtoBook : allBooks)
-    {
-      String isbn = dtoBook.getIsbn();
-      if (!uniqueBooksByIsbn.containsKey(isbn))
-      {
-        State initialState = State.valueOf(dtoBook.getState().toUpperCase());
-        BookDTO bookdto = new BookDTO(String.valueOf(dtoBook.getId()),
-            dtoBook.getTitle(), dtoBook.getAuthor(), dtoBook.getIsbn(),
-            initialState);
-        uniqueBooksByIsbn.put(isbn, bookdto);
-      }
-    }
-    return new ArrayList<>(uniqueBooksByIsbn.values());
+    return new ArrayList<>();
   }
+  for (Book book : allBooks)
+  {
+    String isbn = book.getIsbn();
+    if (!uniqueBooksByIsbn.containsKey(isbn))
+    {
+      uniqueBooksByIsbn.put(isbn, book);
+    }
+  }
+  return new ArrayList<>(uniqueBooksByIsbn.values());
+}
 
-  private BookDTO findRepresentativeBook(List<DTOBook> books)
+  private Book findRepresentativeBook(List<Book> books)
   {
     if (books == null || books.isEmpty())
     {
       return null;
     }
-    DTOBook dtoBook = null;
-    for (DTOBook b : books)
+    for (Book b : books)
     {
-      if (b.getState().trim().equalsIgnoreCase("Available"))
+      String state = b.getState().toString();
+      if (state != null && state.trim().equalsIgnoreCase("Available"))
       {
-        dtoBook = b;
-        break;
+        return b;
       }
     }
-    if (dtoBook == null)
-    {
-      dtoBook = books.get(0);
-    }
-    State initialState = State.valueOf(dtoBook.getState().toUpperCase());
-    return new BookDTO(String.valueOf(dtoBook.getId()), dtoBook.getTitle(),
-        dtoBook.getAuthor(), dtoBook.getIsbn(), initialState);
+    return books.get(0);
   }
 }
