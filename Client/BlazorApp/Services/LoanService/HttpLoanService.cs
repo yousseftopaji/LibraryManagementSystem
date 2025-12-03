@@ -24,4 +24,24 @@ public class HttpLoanService : ILoanService
         }
         return JsonSerializer.Deserialize<LoanDTO>(response, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
     }
+    public async Task<LoanDTO> ExtendLoanAsync(ExtendLoanDTO dto)
+{
+    HttpResponseMessage httpResponse =
+        await client.SendAsync(
+            new HttpRequestMessage(HttpMethod.Patch, "loans/id")
+            {
+                Content = JsonContent.Create(dto)
+            }
+        );
+
+    string json = await httpResponse.Content.ReadAsStringAsync();
+
+    if (!httpResponse.IsSuccessStatusCode)
+        throw new Exception($"Error extending loan: {json}");
+
+    return JsonSerializer.Deserialize<LoanDTO>(
+        json,
+        new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+    )!;
+}
 }

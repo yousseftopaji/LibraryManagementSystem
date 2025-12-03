@@ -10,12 +10,28 @@
         }
         Borrow
     </button>
+     <button class="btn btn-warning ms-2"
+            disabled="@isExtending"
+            @onclick="ShowExtendConfirmation">
+        @if (isExtending)
+        {
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        }
+        Extend Loan
+    </button>
 </div>
 
 <ConfirmationDialog IsVisible="@showConfirmDialog" Title="Confirm Borrow"
     Message="Are you sure you want to borrow this book?" ConfirmText="Yes, Borrow" CancelText="Cancel"
     ConfirmButtonClass="btn-success" OnConfirm="HandleBorrow" OnCancel="HideConfirmation" />
-
+<ConfirmationDialog IsVisible="@showExtendDialog"
+    Title="Extend Loan"
+    Message="Do you want to extend this loan?"
+    ConfirmText="Extend"
+    CancelText="Cancel"
+    ConfirmButtonClass="btn-warning"
+    OnConfirm="HandleExtend"
+    OnCancel="HideExtendConfirmation" />
 @if (!string.IsNullOrEmpty(message))
 {
     <div class="alert @(isError ? "alert-danger" : "alert-success") mt-3" role="alert">
@@ -26,15 +42,16 @@
 @code {
     [Parameter]
     public required string ISBN { get; set; }
-
+public required int LoanId { get; set; }
     [Parameter]
     public EventCallback OnBorrowSuccess { get; set; }
-
+public EventCallback OnExtendSuccess { get; set; }
     private bool isProcessing = false;
     private string message = string.Empty;
     private bool isError = false;
     private bool showConfirmDialog = false;
-
+private bool isExtending = false;
+    private bool showExtendDialog = false;
     private void ShowConfirmation()
     {
         showConfirmDialog = true;
@@ -79,4 +96,42 @@
             isProcessing = false;
         }
     }
+     private void ShowExtendConfirmation() => showExtendDialog = true;
+    private void HideExtendConfirmation() => showExtendDialog = false;
+
+    private async Task HandleExtend()
+    {
+        showExtendDialog = false;
+        isExtending = true;
+        isError = false;
+        message = "";
+
+        try
+        {
+            
+            var dto = new ExtendLoanDTO
+            {
+                LoanId=LoanId,
+                Username = "alice123"
+
+            };
+
+            await LoanService.ExtendLoanAsync(dto);
+
+            message = "Loan successfully extended!";
+            isError = false;
+
+            await OnExtendSuccess.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            message = $"Failed to extend loan: {ex.Message}";
+            isError = true;
+        }
+        finally
+        {
+            isExtending = false;
+        }
+    }
+}
 }

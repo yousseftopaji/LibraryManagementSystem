@@ -1,18 +1,208 @@
-@using DTOs
+@page "/books/{ISBN}/reserve"
+@using DTOs.Book
+@using DTOs.Reservation
+@inject BlazorApp.Services.IBookService BookService
+@inject BlazorApp.Services.ReservationService.IReservationService ReservationService
+@inject NavigationManager Navigation
+
+<h3>Reserve Book</h3>
+
+<!-- Buttons toolbar -->
+<div class="mb-3">
+    <button class="btn btn-secondary me-2" @onclick="GoBackToList">← Back to List</button>
+    
+</div>
 
 <div class="mt-3">
-    <button class="btn btn-warning" disabled>
-        Reserve (Coming Soon)
-    </button>
+
+    @if (isLoading)
+    {
+        <button class="btn btn-secondary" disabled>Loading…</button>
+    }
+    else if (book == null)
+    {
+        <div class="alert alert-danger mt-2">Book not found.</div>
+    }
+    else
+    {
+        <button class="btn btn-primary"
+                disabled="@ShouldDisableReserveButton"
+                @onclick="Reserve">
+
+            @if (book.State == "AVAILABLE")
+            {
+                <span>Cannot Reserve (Book Available)</span>
+            }
+            else if (alreadyReserved)
+            {
+                <span>Already Reserved</span>
+            }
+            else if (isReserving)
+            {
+                <span>Reserving…</span>
+            }
+            else
+            {
+                <span>Reserve</span>
+            }
+        </button>
+    }
 </div>
 
-<div class="alert alert-info mt-3" role="alert">
-    <i class="bi bi-info-circle"></i> Book reservation functionality will be available soon.
-</div>
+@if (reservation != null)
+{
+    <div class="alert alert-success mt-3">
+        <strong>Reservation Created!</strong><br />
+        Reservation ID: @reservation.ReservationId<br />
+        Book ID: @reservation.BookId<br />
+        
+        Reserved At: @reservation.ReservationDate.ToLocalTime().ToString("g")
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger mt-3">@errorMessage</div>
+}
 
 @code {
+
     [Parameter]
     public required string ISBN { get; set; }
 
-    // TODO: Implement reservation logic in future
+    private BookDTO? book;
+    private ReservationDTO? reservation;
+    private string? errorMessage;
+    private bool isLoading = true;
+    private bool isReserving = false;
+    private bool alreadyReserved = false;
+
+    private bool ShouldDisableReserveButton =>
+        isReserving || (book != null && book.State == "AVAILABLE") || alreadyReserved;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            book = await BookService.GetBookAsync(ISBN);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load book: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task Reserve()
+    {
+        if (book == null)
+        {
+            errorMessage = "Book not found.";
+            return;
+        }
+
+        errorMessage = null;
+        reservation = null;
+        isReserving = true;
+
+        try
+        {
+            var dto = new CreateReservationDTO
+            {
+                Username = "alice",
+                BookISBN = book.ISBN!
+            };
+
+            reservation = await ReservationService.CreateReservationAsync(dto);
+
+            // Clear any "already reserved" state on success
+            alreadyReserved = false;
+        }
+        catch (Exception ex)
+        {
+            // The service usually throws an exception with the response body.
+            // Try to extract a human-friendly message (server often returns JSON).
+            var msg = TryExtractMessageFromException(ex);
+
+            errorMessage = $"Error creating reservation: {msg}";
+
+            // If the message indicates an existing reservation, mark alreadyReserved
+            if (msg != null && (msg.Contains("already", StringComparison.OrdinalIgnoreCase)
+                                || msg.Contains("existing reservation", StringComparison.OrdinalIgnoreCase)
+                                || msg.Contains("already reserved", StringComparison.OrdinalIgnoreCase)))
+            {
+                alreadyReserved = true;
+            }
+        }
+        finally
+        {
+            isReserving = false;
+        }
+    }
+
+    // Navigate back to the list of books
+    private void GoBackToList()
+    {
+        Navigation.NavigateTo("/books");
+    }
+
+    
+
+    // Try to parse a readable message from the exception (handles JSON error bodies)
+    private static string TryExtractMessageFromException(Exception ex)
+    {
+        if (ex == null) return "Unknown error";
+
+        // If the exception message already looks human, return it
+        if (ex.Message.Length < 300 && !ex.Message.TrimStart().StartsWith("{"))
+            return ex.Message;
+
+        // Try to find a "message" or "error" property inside JSON-like text
+        try
+        {
+            var text = ex.Message;
+
+            // If message contains a JSON body, attempt a quick substring parse (non-strict)
+            // We'll look for common keys: "message", "error", "detail"
+            int idx = text.IndexOf("\"message\"");
+            if (idx >= 0)
+            {
+                int colon = text.IndexOf(':', idx);
+                if (colon > 0)
+                {
+                    int start = text.IndexOf('"', colon + 1);
+                    int end = text.IndexOf('"', start + 1);
+                    if (start >= 0 && end > start)
+                    {
+                        return text.Substring(start + 1, end - start - 1);
+                    }
+                }
+            }
+
+            idx = text.IndexOf("\"error\"");
+            if (idx >= 0)
+            {
+                int colon = text.IndexOf(':', idx);
+                if (colon > 0)
+                {
+                    int start = text.IndexOf('"', colon + 1);
+                    int end = text.IndexOf('"', start + 1);
+                    if (start >= 0 && end > start)
+                    {
+                        return text.Substring(start + 1, end - start - 1);
+                    }
+                }
+            }
+
+            // fallback: return the raw message but truncated
+            return text.Length > 800 ? text.Substring(0, 800) + "..." : text;
+        }
+        catch
+        {
+            return ex.Message;
+        }
+    }
 }

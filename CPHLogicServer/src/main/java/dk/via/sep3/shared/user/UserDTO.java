@@ -1,6 +1,7 @@
 package dk.via.sep3.shared.user;
 
-public class UserDTO
+public class
+UserDTO
 {
     private String username;
     private String fullName;
