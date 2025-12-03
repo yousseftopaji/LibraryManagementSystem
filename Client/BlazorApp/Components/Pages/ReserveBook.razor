@@ -5,7 +5,6 @@
 @inject BlazorApp.Services.ReservationService.IReservationService ReservationService
 @inject NavigationManager Navigation
 
-<h3>Reserve Book</h3>
 
 <!-- Buttons toolbar -->
 <div class="mb-3">
@@ -112,7 +111,7 @@
         {
             var dto = new CreateReservationDTO
             {
-                Username = "alice",
+                Username = "charlie789",
                 BookISBN = book.ISBN!
             };
 
