@@ -1,6 +1,7 @@
 using BlazorApp.Components;
 using BlazorApp.Services;
 using BlazorApp.Services.LoanService;
+using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,7 @@ builder.Services.AddScoped(sp => new HttpClient
 
 builder.Services.AddScoped<IBookService, HttpBookService>();
 builder.Services.AddScoped<ILoanService, HttpLoanService>();
+builder.Services.AddScoped<AuthenticationStateProvider, AuthProvider>();
 
 var app = builder.Build();
 
