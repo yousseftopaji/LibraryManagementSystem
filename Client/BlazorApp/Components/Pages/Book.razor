@@ -16,10 +16,17 @@ else
         <p><strong>Author:</strong> @book.Author</p>
         <p><strong>ISBN:</strong> @book.ISBN</p>
         <p><strong>State:</strong> @book.State</p>
-
+         <p><strong>Genres:</strong> @string.Join(", ", book.Genres ?? [])</p>
         @if (book.State.Equals("Available", StringComparison.OrdinalIgnoreCase))
         {
-            <BorrowBook ISBN="@book.ISBN" OnBorrowSuccess="RefreshBookDetails" />
+            <BorrowBook ISBN="@book.ISBN" LoanId="0" OnBorrowSuccess="RefreshBookDetails" />
+        }
+        else if (book.State.Equals("Loaned", StringComparison.OrdinalIgnoreCase))
+        {
+            <BorrowBook ISBN="@book.ISBN"
+                        LoanId="@(book.LoanId ?? 0)"
+                OnBorrowSuccess="RefreshBookDetails"
+                OnExtendSuccess="RefreshBookDetails" />
         }
         else
         {

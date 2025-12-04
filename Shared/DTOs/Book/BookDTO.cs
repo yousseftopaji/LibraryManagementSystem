@@ -18,6 +18,10 @@ public class BookDTO
 
     [JsonPropertyName("state")]
     public required string State { get; set; }
+
     [JsonPropertyName("loanId")]
-public int? LoanId { get; set; }
+    public int? LoanId { get; set; }
+
+    [JsonPropertyName("genres")]
+public List<string>? Genres { get; set; }
 }
