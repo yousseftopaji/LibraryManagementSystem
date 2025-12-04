@@ -45,12 +45,12 @@ public class LoanServiceImpl implements LoanService {
         List<DTOBook> books = bookGrpcService.getBooksByIsbn(
                 createLoanDTO.getBookISBN());
         DTOBook targetBook = null;
+
         for (DTOBook book : books) {
             if (book.getState().equalsIgnoreCase("AVAILABLE")) {
                 targetBook = book;
                 break;
             }
-            throw new IllegalArgumentException("Book is not available");
         }
 
         if (targetBook == null) {

@@ -12,7 +12,10 @@
         Borrow
     </button>
     }
-    @if (LoanId > 0)
+    
+    
+    @if (LoanId != 0)
+
      {<button class="btn btn-warning ms-2"
             disabled="@isExtending"
             @onclick="ShowExtendConfirmation">
@@ -85,6 +88,8 @@ private bool isExtending = false;
             var loanResponseDto = await LoanService.CreateLoanAsync(createLoanDTO);
             LoanId = loanResponseDto.LoanId; 
             Console.WriteLine(loanResponseDto);
+            Console.WriteLine("LoanId after loan" + loanResponseDto.LoanId);
+
             message = "Book successfully borrowed!";
             isError = false;
 
@@ -102,7 +107,7 @@ private bool isExtending = false;
             isProcessing = false;
         }
     }
-     private void ShowExtendConfirmation() => showExtendDialog = true;
+    private void ShowExtendConfirmation() => showExtendDialog = true;
     private void HideExtendConfirmation() => showExtendDialog = false;
 
     private async Task HandleExtend()
@@ -114,6 +119,7 @@ private bool isExtending = false;
 
         try
         {
+            Console.WriteLine("before extend" + LoanId);
             
             var dto = new ExtendLoanDTO
             {
