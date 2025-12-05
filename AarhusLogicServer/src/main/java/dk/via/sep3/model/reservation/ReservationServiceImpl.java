@@ -22,8 +22,8 @@ import java.time.LocalDate;
   private final ReservationGrpcService reservationGrpcService;
 
   public ReservationServiceImpl(Validator validator,
-      LoanGrpcService loanGrpcService, BookGrpcService bookGrpcService,
-      ReservationGrpcService reservationGrpcService)
+                                LoanGrpcService loanGrpcService, BookGrpcService bookGrpcService,
+                                ReservationGrpcService reservationGrpcService)
   {
     this.validator = validator;
     this.loanGrpcService = loanGrpcService;
@@ -39,7 +39,7 @@ import java.time.LocalDate;
     // -----------------------------
     // Step 1 — Validate user
     // -----------------------------
-    validator.validateUser(username);
+    validator.validate(username);
 
     // -----------------------------
     // Step 2 — Check ISBN availability
