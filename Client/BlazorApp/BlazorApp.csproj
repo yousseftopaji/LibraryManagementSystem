@@ -8,14 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Components\Authentication\Login.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="Components\Authentication\Login.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\Shared\DTOs\DTOs.csproj" />
   </ItemGroup>
 

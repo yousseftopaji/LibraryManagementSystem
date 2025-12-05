@@ -4,6 +4,7 @@ using DTOs;
 using DTOs.User;
 using Microsoft.AspNetCore.Components.Authorization;
 
+
 public class AuthProvider : AuthenticationStateProvider
 {
     private readonly HttpClient client;

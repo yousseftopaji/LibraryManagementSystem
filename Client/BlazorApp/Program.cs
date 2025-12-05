@@ -3,6 +3,7 @@ using BlazorApp.Services;
 using BlazorApp.Services.LoanService;
 using Microsoft.AspNetCore.Components.Authorization;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

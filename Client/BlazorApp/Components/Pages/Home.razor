@@ -1,22 +1,38 @@
 ﻿@page "/" 
 @inject NavigationManager NavMgr 
 
-
 <PageTitle>Home</PageTitle> 
 
-<h1>Reddit Clone</h1> 
-
-<AuthorizeView> 
-
-    <Authorized> 
-        <h3>Hello, @(context.User.Identity?.Name ?? "User")</h3> 
-        
-    </Authorized>
+<div class="container mt-5">
     
-     <NotAuthorized> lol you are not logged in! </NotAuthorized> 
-     
-</AuthorizeView> 
+    <div class="text-center">
 
-Here you can browse interesting posts. 
+        <h1 class="display-4 fw-bold mb-3">Kitabkhana Library</h1>
 
-<button @onclick='() => NavMgr.NavigateTo("login")'>go to login</button>
+        <AuthorizeView>
+            <Authorized>
+                <h3 class="text-secondary">
+                    Hello, @(context.User.Identity?.Name ?? "User") 👋
+                </h3>
+            </Authorized>
+        </AuthorizeView>
+
+        <p class="lead mt-3">
+            To browse interesting books 😊
+        </p>
+
+        <button class="btn btn-primary btn-lg mt-3" @onclick="GoToLogin">
+            Go to Login Page
+        </button>
+    </div>
+
+</div>
+
+
+@code {
+    void GoToLogin()
+    {
+           Console.WriteLine("Click");
+        NavMgr.NavigateTo("/login");
+    }
+}
