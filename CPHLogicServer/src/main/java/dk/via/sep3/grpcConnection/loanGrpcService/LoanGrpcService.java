@@ -1,16 +1,16 @@
 package dk.via.sep3.grpcConnection.loanGrpcService;
 
-import dk.via.sep3.DTOLoan;
+import dk.via.sep3.model.domain.Loan;
 
 import java.util.List;
 
 public interface LoanGrpcService {
-    DTOLoan createLoan(String username, String bookId, String now, String dueDate);
+    Loan createLoan(Loan loan);
 
-    List<DTOLoan> getLoansByISBN(String isbn);
+    List<Loan> getLoansByISBN(String isbn);
 
-    void extendLoan(int bookId, String username);
+    void extendLoan(int bookId);
 
-    DTOLoan getLoanById(int bookId);
+    Loan getLoanById(int bookId);
 
 }

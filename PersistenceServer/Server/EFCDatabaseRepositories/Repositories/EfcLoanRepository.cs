@@ -47,7 +47,7 @@ public class EfcLoanRepository(LibraryDbContext context) : ILoanRepository
         var existing = await context.Loan.FindAsync(loan.Id);
         if (existing == null) throw new ArgumentException("Loan not found");
 
-        // update fields we care about
+        // update fields that can be updated
         existing.DueDate = loan.DueDate;
         existing.NumberOfExtensions = loan.NumberOfExtensions;
 

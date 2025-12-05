@@ -1,7 +1,9 @@
 package dk.via.sep3.controller;
 
 import dk.via.sep3.model.books.BookService;
+import dk.via.sep3.model.domain.Book;
 import dk.via.sep3.shared.book.BookDTO;
+import dk.via.sep3.shared.mapper.bookMapper.BookMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,49 +11,36 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
-@RestController
-@RequestMapping("/books")
-public class BooksController
+@RestController @RequestMapping("/books") public class BooksController
 {
-    private final BookService books;
+  private final BookService books;
+  private final BookMapper bookMapper;
 
-    public BooksController(BookService books)
+  public BooksController(BookService books, BookMapper bookMapper)
+  {
+    this.books = books;
+    this.bookMapper = bookMapper;
+  }
+
+  @GetMapping public ResponseEntity<List<BookDTO>> getAllBooks()
+  {
+    List<Book> uniqueBooks = books.getAllBooks();
+    List<BookDTO> bookDTOs = new ArrayList<>();
+    for(Book book : uniqueBooks)
     {
-        this.books = books;
+      bookDTOs.add(bookMapper.toDto(book));
     }
+    return new ResponseEntity<>(bookDTOs, HttpStatus.OK);
+  }
 
-    @GetMapping
-    public ResponseEntity<List<BookDTO>> getAllBooks()
-    {
-        List<BookDTO> uniqueBooks = books.getAllBooks();
-
-        if(uniqueBooks.isEmpty())
-        {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(uniqueBooks, HttpStatus.OK);
-    }
-
-    @GetMapping("/{isbn}")
-    public ResponseEntity<BookDTO> getBooksByIsbn(@PathVariable String isbn)
-    {
-        BookDTO book = books.getBookByIsbn(isbn);
-        if (book == null)
-        {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        return new ResponseEntity<>(book, HttpStatus.OK);
-    }
-
-    // Alternative endpoint for /books/isbn/{isbn} pattern
-    @GetMapping("/isbn/{isbn}")
-    public ResponseEntity<BookDTO> getBooksByIsbnAlternative(@PathVariable String isbn)
-    {
-        // Delegate to the main method
-        return getBooksByIsbn(isbn);
-    }
-
+  @GetMapping("/{isbn}") public ResponseEntity<BookDTO> getBooksByIsbn(
+      @PathVariable String isbn)
+  {
+    Book book = books.getBookByIsbn(isbn);
+    BookDTO bookDTO = bookMapper.toDto(book);
+    return new ResponseEntity<>(bookDTO, HttpStatus.OK);
+  }
 }
