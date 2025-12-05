@@ -14,5 +14,4 @@ public interface ILoanRepository
     // Update an existing loan (used for extending)
     Task<LoanDTO> UpdateLoanAsync(Loan loan);
     Task<IEnumerable<Loan>> GetLoansByIsbnAsync(string isbn);
-    Task UpdateLoanAsync(LoanDTO loan);
 }

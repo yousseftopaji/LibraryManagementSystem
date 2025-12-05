@@ -1,36 +1,36 @@
 package dk.via.sep3.shared.book;
+import dk.via.sep3.model.domain.Genre;
 
-/**
- * Simple POJO for REST API responses
- * This is separate from the gRPC DTOBook to avoid serialization issues
- */
+import java.util.List;
+
 public class BookDTO
 {
-  private String id;
+  private int id;
   private String title;
   private String author;
   private String isbn;
-  private State state;
+  private String state;
+  private List<GenreDTO> genres;
 
   public BookDTO()
-  {
-  }
+  {}
 
-  public BookDTO(String id, String title, String author, String isbn, State state)
+  public BookDTO(int id, String title, String author, String isbn, String state, List<GenreDTO> genres)
   {
     this.id = id;
     this.title = title;
     this.author = author;
     this.isbn = isbn;
     this.state = state;
+    this.genres = genres;
   }
 
-  public String getId()
+  public int getId()
   {
     return id;
   }
 
-  public void setId(String id)
+  public void setId(int id)
   {
     this.id = id;
   }
@@ -65,14 +65,24 @@ public class BookDTO
     this.isbn = isbn;
   }
 
-  public State getState()
+  public String getState()
   {
     return state;
   }
 
-  public void setState(State state)
+  public void setState(String state)
   {
     this.state = state;
+  }
+
+  public List<GenreDTO> getGenres()
+  {
+    return genres;
+  }
+
+  public void setGenres(List<GenreDTO> genres)
+  {
+    this.genres = genres;
   }
 }
 

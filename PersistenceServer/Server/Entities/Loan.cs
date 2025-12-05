@@ -10,9 +10,8 @@ public class Loan
     public required DateTime DueDate { get; set; }
     public required string Username { get; set; }
     public required int BookId { get; set; }
-
-    // Number of times this loan has been extended
     public int NumberOfExtensions { get; set; }
+    public bool IsReturned { get; set; }
 
     [ForeignKey("Username")]
     public User? User { get; set; }
