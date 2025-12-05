@@ -162,10 +162,10 @@ public override async Task<ExtendLoanResponse> ExtendLoan(ExtendLoanRequest requ
         {
             Id = loanDto.LoanId,
             BorrowDate = loanDto.BorrowDate,
-            DueDate = loanDto.DueDate.AddDays(30), // extend by 30 days
+            DueDate = loanDto.DueDate, // extend by 30 days
             Username = loanDto.Username,
             BookId = loanDto.BookId,
-            NumberOfExtensions = loanDto.NumberOfExtensions + 1
+            NumberOfExtensions = loanDto.NumberOfExtensions
         };
 
         // 5. Update loan via repository

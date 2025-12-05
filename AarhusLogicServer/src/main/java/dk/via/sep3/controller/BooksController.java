@@ -42,13 +42,4 @@ public class BooksController
 
         return new ResponseEntity<>(book, HttpStatus.OK);
     }
-
-    // Alternative endpoint for /books/isbn/{isbn} pattern
-    @GetMapping("/isbn/{isbn}")
-    public ResponseEntity<BookDTO> getBooksByIsbnAlternative(@PathVariable String isbn)
-    {
-        // Delegate to the main method
-        return getBooksByIsbn(isbn);
-    }
-
 }
