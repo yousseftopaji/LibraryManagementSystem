@@ -52,7 +52,7 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
                 Name = g.Name
             }));
             return dto;
-        }) ?? []);
+        }));
         response.Success = booksFromDb.Count > 0;
         response.Message = booksFromDb.Count > 0 ? $"Books with ISBN {request.Isbn} retrieved successfully." : $"No books found with ISBN {request.Isbn}.";
         return response;
@@ -67,14 +67,13 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
             var dto = new DTOBook
             {
                 Id = bookFromDb.BookId,
-                Title = bookFromDb.Title ?? string.Empty,
-                Author = bookFromDb.Author ?? string.Empty,
-                Isbn = bookFromDb.ISBN ?? string.Empty,
-                State = bookFromDb.State ?? string.Empty
+                Title = bookFromDb.Title,
+                Author = bookFromDb.Author,
+                Isbn = bookFromDb.ISBN,
+                State = bookFromDb.State
             };
 
-            if (bookFromDb.Genre != null)
-                dto.Genres.AddRange(bookFromDb.Genre.Select(g => new DTOGenre { Name = g.Name ?? string.Empty }));
+                dto.Genres.AddRange(bookFromDb.Genre.Select(g => new DTOGenre { Name = g.Name}));
 
             response.Book = dto;
             response.Success = true;
@@ -99,14 +98,12 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
             var dto = new DTOBook
             {
                 Id = updatedBook.BookId,
-                Title = updatedBook.Title ?? string.Empty,
-                Author = updatedBook.Author ?? string.Empty,
-                Isbn = updatedBook.ISBN ?? string.Empty,
-                State = updatedBook.State ?? string.Empty
+                Title = updatedBook.Title,
+                Author = updatedBook.Author,
+                Isbn = updatedBook.ISBN,
+                State = updatedBook.State
             };
-
-            if (updatedBook.Genre != null)
-                dto.Genres.AddRange(updatedBook.Genre.Select(g => new DTOGenre { Name = g.Name ?? string.Empty }));
+                dto.Genres.AddRange(updatedBook.Genre.Select(g => new DTOGenre { Name = g.Name }));
 
             response.Book = dto;
             response.Success = true;

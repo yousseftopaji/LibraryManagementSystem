@@ -70,29 +70,29 @@ import java.util.List;
     return loans;
   }
 
-  @Override public void extendLoan(int loanId)
+  @Override public void extendLoan(Loan loan)
   {
     try
     {
-      ExtendLoanRequest request = ExtendLoanRequest.newBuilder()
-          .setLoanId(loanId).build();
-      logger.info("Sending gRPC request to extend loan with ID: {}", loanId);
+      DTOLoan dtoLoan = loanMapper.mapDomainToDTOLoan(loan);
+      ExtendLoanRequest request = ExtendLoanRequest.newBuilder().setLoan(dtoLoan).build();
+      logger.info("Sending gRPC request to extend loan with ID: {}", loan.getLoanId());
       ExtendLoanResponse response = loanStub.extendLoan(request);
       if (response.getSuccess())
       {
-        logger.info("Loan with ID: {} extended successfully", loanId);
+        logger.info("Loan with ID: {} extended successfully", loan.getLoanId());
       }
       else
       {
-        logger.error("Failed to extend loan with ID: {}: {}", loanId,
+        logger.error("Failed to extend loan with ID: {}: {}", loan.getLoanId(),
             response.getMessage());
-        throw new RuntimeException("Failed to extend loan with ID: " + loanId);
+        throw new RuntimeException("Failed to extend loan with ID: " + loan.getLoanId());
       }
     }
     catch (Exception ex)
     {
-      logger.error("Error extending loan with ID: {}", loanId, ex);
-      throw new RuntimeException("Error extending loan with ID: " + loanId, ex);
+      logger.error("Error extending loan with ID: {}", loan.getLoanId(), ex);
+      throw new RuntimeException("Error extending loan with ID: " + loan.getLoanId(), ex);
     }
   }
 

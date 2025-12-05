@@ -10,6 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service public class ReservationGrpcServiceImpl
     implements ReservationGrpcService
 {
@@ -52,6 +55,42 @@ import org.springframework.stereotype.Service;
       logger.error("Error creating reservation", ex);
       throw new GrpcCommunicationException(
           "Reservation creation failed: " + ex.getMessage(), ex);
+    }
+  }
+
+  @Override public List<Reservation> getReservationsByIsbn(String isbn)
+  {
+    try
+    {
+      GetReservationsByIsbnRequest request = GetReservationsByIsbnRequest.newBuilder()
+          .setIsbn(isbn).build();
+      GetReservationsByIsbnResponse response = reservationStub.getReservationsByIsbn(
+          request);
+      if (response.getSuccess())
+      {
+        logger.info("Fetched {} reservations for ISBN {}",
+            response.getReservationsList().size(), isbn);
+        List<Reservation> reservations = new ArrayList<>();
+        for (DTOReservation res : response.getReservationsList())
+        {
+          Reservation reservation = reservationMapper.mapDTOReservationToDomain(res);
+          reservations.add(reservation);
+        }
+        return reservations;
+      }
+      else
+      {
+        logger.error("Failed to fetch reservations for ISBN {}: {}", isbn,
+            response.getMessage());
+        throw new RuntimeException(
+            "Failed to fetch reservations: " + response.getMessage());
+      }
+    }
+    catch (Exception ex)
+    {
+      logger.error("Error fetching reservations for ISBN: {}", isbn, ex);
+      throw new RuntimeException(
+          "Failed to fetch reservations: " + ex.getMessage(), ex);
     }
   }
 

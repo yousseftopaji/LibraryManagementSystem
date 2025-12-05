@@ -5,7 +5,7 @@ using Entities;
 
 namespace GrpcService.Services;
 
-public class LoanServiceImpl(ILoanRepository loanRepository, IBookRepository bookRepository)
+public class LoanServiceImpl(ILoanRepository loanRepository)
     : LoanService.LoanServiceBase
 {
     public override async Task<CreateLoanResponse> CreateLoan(CreateLoanRequest request, ServerCallContext context)
@@ -54,17 +54,31 @@ public override async Task<ExtendLoanResponse> ExtendLoan(ExtendLoanRequest requ
 
     try
     {
-        // 6. Map updated DTO to response
+        //Map DTOLoan to Loan entity
+        var loan = new Loan
+        {
+            Id = request.Loan.Id,
+            BorrowDate = DateTime.Parse(request.Loan.BorrowDate),
+            DueDate = DateTime.Parse(request.Loan.DueDate),
+            Username = request.Loan.Username,
+            BookId = request.Loan.BookId,
+            NumberOfExtensions = request.Loan.NumberOfExtensions,
+            IsReturned = request.Loan.IsReturned
+        };
+        
+        var loanDto = await loanRepository.UpdateLoanAsync(loan);
+        
+        //Map from LoanDTO back to DTOLoan
         response.Loan = new DTOLoan
         {
-            Id = request.LoanId,
-            BorrowDate = request.BorrowDate,
-            DueDate = request.DueDate,
-            Username = request.Username,
-            BookId = request.BookId,
-            NumberOfExtensions = request.NumberOfExtensions
+            Id = loanDto.LoanId,
+            BorrowDate = loanDto.BorrowDate.ToString("yyyy-MM-dd"),
+            DueDate = loanDto.DueDate.ToString("yyyy-MM-dd"),
+            Username = loanDto.Username,
+            BookId = loanDto.BookId,
+            NumberOfExtensions = loanDto.NumberOfExtensions,
+            IsReturned = loanDto.IsReturned
         };
-
         response.Success = true;
         response.Message = "Loan extended successfully.";
     }
@@ -131,7 +145,7 @@ public override async Task<GetLoanByIdResponse> GetLoanById(GetLoanByIdRequest r
             Username = loanDto.Username,
             BookId = loanDto.BookId,
             NumberOfExtensions = loanDto.NumberOfExtensions,
-            // IsReturned = loanDto.IsReturned
+            IsReturned = loanDto.IsReturned
         };
 
         response.Success = true;
@@ -144,6 +158,5 @@ public override async Task<GetLoanByIdResponse> GetLoanById(GetLoanByIdRequest r
     }
 
     return response;
-}
-
+    }
 }

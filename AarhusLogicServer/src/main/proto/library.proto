@@ -147,12 +147,22 @@ message GetReservationCountByIsbnResponse {
   string message = 3;
 }
 
+message GetReservationsByIsbnRequest {
+  string isbn = 1;
+}
+
+message GetReservationsByIsbnResponse {
+  repeated DTOReservation reservations = 1;
+  bool success = 2;
+  string message = 3;
+}
+
 // ========================
 // Extension Service Messages
 // ========================
 
 message ExtendLoanRequest {
-  DTOLoan loanId = 1;
+  DTOLoan loan = 1;
 }
 
 message ExtendLoanResponse {
@@ -211,4 +221,5 @@ service UserService {
 service ReservationService {
   rpc CreateReservation (CreateReservationRequest) returns (CreateReservationResponse);
   rpc GetReservationCountByIsbn (GetReservationCountByIsbnRequest) returns (GetReservationCountByIsbnResponse);
+  rpc GetReservationsByIsbn (GetReservationsByIsbnRequest) returns (GetReservationsByIsbnResponse);
 }

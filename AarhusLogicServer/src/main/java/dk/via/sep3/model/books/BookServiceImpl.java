@@ -12,7 +12,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-@Service public class BookServiceImpl implements BookService
+@Service
+public class BookServiceImpl implements BookService
 {
   private static final Logger logger = LoggerFactory.getLogger(
       BookServiceImpl.class);

@@ -124,9 +124,15 @@ import java.util.List;
     // Business rule: only borrower can extend
     //TODO: Implement authentication to get current username
 
-    logger.info("extendLoan called for book: {}", loan.getBookId());
+    //Modify due date and number of extensions
+    Date newDueDate = Date.valueOf(
+        loan.getDueDate().toLocalDate().plusDays(30));
+    loan.setDueDate(newDueDate);
+    loan.setNumberOfExtensions(loan.getNumberOfExtensions() + 1);
+    logger.info("Loan {} due date extended to {}", loanId, newDueDate);
+
     // Everything valid — call gRPC
-    loanGrpcService.extendLoan(loanId);
+    loanGrpcService.extendLoan(loan);
   }
 
   private Book bookFinder(List<Book> books)
