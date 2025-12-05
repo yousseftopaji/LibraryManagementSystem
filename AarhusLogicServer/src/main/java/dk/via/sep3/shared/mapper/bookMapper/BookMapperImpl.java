@@ -1,4 +1,4 @@
-package dk.via.sep3.shared.mapper;
+package dk.via.sep3.shared.mapper.bookMapper;
 
 import dk.via.sep3.DTOBook;
 import dk.via.sep3.DTOGenre;
@@ -25,7 +25,7 @@ public class BookMapperImpl implements BookMapper
   @Override
   public Book toDomain(BookDTO bookDTO)
   {
-    State state = State.valueOf(bookDTO.getState());
+    State state = State.valueOf(bookDTO.getState().toUpperCase());
     Book book = new Book();
     book.setId(bookDTO.getId());
     book.setIsbn(bookDTO.getIsbn());
@@ -40,7 +40,7 @@ public class BookMapperImpl implements BookMapper
   public Book toDomain(DTOBook dtoBook)
   {
     return new Book(dtoBook.getId(), dtoBook.getIsbn(), dtoBook.getTitle(),
-        dtoBook.getAuthor(), State.valueOf(dtoBook.getState()),
+        dtoBook.getAuthor(), State.valueOf(dtoBook.getState().toUpperCase()),
         mapDTOGenreToDomain(dtoBook.getGenresList()));
   }
 
@@ -59,7 +59,7 @@ public class BookMapperImpl implements BookMapper
     List<GenreDTO> genreDTOs = new ArrayList<>();
     for (Genre genre : genres)
     {
-      genreDTOs.add(new GenreDTO(genre.getId(), genre.getName()));
+      genreDTOs.add(new GenreDTO(genre.getName()));
     }
     return genreDTOs;
   }
@@ -69,7 +69,7 @@ public class BookMapperImpl implements BookMapper
     List<Genre> genres = new ArrayList<>();
     for (DTOGenre dtoGenre : dtoGenres)
     {
-      genres.add(new Genre(dtoGenre.getId(), dtoGenre.getName()));
+      genres.add(new Genre(dtoGenre.getName()));
     }
     return genres;
   }
@@ -79,7 +79,7 @@ public class BookMapperImpl implements BookMapper
     List<DTOGenre> dtoGenres = new ArrayList<>();
     for (Genre genre : genres)
     {
-      DTOGenre dtoGenre = DTOGenre.newBuilder().setId(genre.getId())
+      DTOGenre dtoGenre = DTOGenre.newBuilder()
           .setName(genre.getName()).build();
       dtoGenres.add(dtoGenre);
     }
@@ -91,7 +91,7 @@ public class BookMapperImpl implements BookMapper
     List<Genre> genres = new ArrayList<>();
     for (GenreDTO genreDTO : genreDTOs)
     {
-      genres.add(new Genre(genreDTO.getId(), genreDTO.getName()));
+      genres.add(new Genre(genreDTO.getName()));
     }
     return genres;
   }

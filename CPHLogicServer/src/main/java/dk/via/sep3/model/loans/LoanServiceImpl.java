@@ -1,14 +1,13 @@
 package dk.via.sep3.model.loans;
 
 import dk.via.sep3.*;
-import dk.via.sep3.DTOBook;
-import dk.via.sep3.DTOUser;
 import dk.via.sep3.grpcConnection.bookGrpcService.BookGrpcService;
 import dk.via.sep3.grpcConnection.loanGrpcService.LoanGrpcService;
-import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
+import dk.via.sep3.model.domain.Book;
+import dk.via.sep3.model.domain.Loan;
 import dk.via.sep3.model.utils.validation.Validator;
-import dk.via.sep3.shared.loan.CreateLoanDTO;
-import dk.via.sep3.shared.loan.LoanDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -16,111 +15,121 @@ import java.util.List;
 
 @Service public class LoanServiceImpl implements LoanService
 {
+  private static final Logger logger = LoggerFactory.getLogger(
+      LoanServiceImpl.class);
   private final BookGrpcService bookGrpcService;
   private final LoanGrpcService loanGrpcService;
-  private final UserGrpcService userGrpcService;
   private final Validator validator;
 
   public LoanServiceImpl(BookGrpcService bookGrpcService,
-      LoanGrpcService loanGrpcService, UserGrpcService userGrpcService,
-      Validator validator)
+      LoanGrpcService loanGrpcService, Validator validator)
   {
     this.bookGrpcService = bookGrpcService;
     this.loanGrpcService = loanGrpcService;
-    this.userGrpcService = userGrpcService;
-
     this.validator = validator;
   }
 
-  @Override public LoanDTO createLoan(CreateLoanDTO createLoanDTO)
+  @Override public Loan createLoan(Loan loan)
   {
     // Validate USER exists
-    DTOUser user = userGrpcService.getUserByUsername(
-        createLoanDTO.getUsername());
-    if (user == null)
-    {
-      throw new IllegalArgumentException(
-          "User not found with username: " + createLoanDTO.getUsername());
-    }
+    validator.validateUser(loan.getUsername());
 
-    // Validate BOOK exists and is available
-    List<DTOBook> books = bookGrpcService.getBooksByIsbn(
-        createLoanDTO.getBookISBN());
-    DTOBook targetBook = null;
-    System.out.println(books.size());
-    for (DTOBook book : books)
+    // Prevent same user borrowing same ISBN while they have an active loan
+    List<Loan> existingLoansForIsbn = loanGrpcService.getLoansByISBN(loan.getBookISBN());
+    for (Loan existing : existingLoansForIsbn)
     {
-      if (book.getState().equalsIgnoreCase("AVAILABLE"))
+      if (existing.getUsername().equalsIgnoreCase(loan.getUsername()) && !existing.isReturned())
       {
-        targetBook = book;
-        System.out.println("Found available book: " + book.getId());
-        break;
+        logger.error("User {} already has an active loan for ISBN {}", loan.getUsername(), loan.getBookISBN());
+        throw new IllegalStateException("User already has an active loan for this book");
       }
     }
 
-    if (targetBook == null)
+    // Validate BOOK exists and is available
+    List<Book> books = bookGrpcService.getBooksByIsbn(loan.getBookISBN());
+
+    // Find an available book from the list
+    Book targetBook = bookFinder(books);
+
+    // Create LOAN
+    Loan toBeCreatedLoan = loanCreator(loan.getUsername(), targetBook);
+    Loan grpcLoan = loanGrpcService.createLoan(toBeCreatedLoan);
+
+    if (grpcLoan == null || grpcLoan.getLoanId() <= 0)
     {
-      throw new IllegalArgumentException(
-          "Book not found with ID: " + createLoanDTO.getBookISBN());
-    }
-
-    // Create a variable of today's date, that I can save in the db as a borrow date yyyy-mm-dd
-    Date today = new Date(System.currentTimeMillis());
-    Date borrowDate = Date.valueOf(today.toLocalDate());
-    Date dueDate = Date.valueOf(today.toLocalDate().plusDays(30));
-
-    // All validations passed, create the loan via gRPC
-    DTOLoan grpcLoan = loanGrpcService.createLoan(createLoanDTO.getUsername(),
-        String.valueOf(targetBook.getId()), borrowDate.toString(),
-        dueDate.toString());
-
-    if (grpcLoan == null || grpcLoan.getId() <= 0)
-    {
+      logger.error("Failed to create loan via gRPC for user: {}, bookId: {}",
+          loan.getUsername(), targetBook.getId());
       throw new RuntimeException(
           "Failed to create loan - received invalid response from server");
     }
 
-    bookGrpcService.updateBookStatus(String.valueOf(targetBook.getId()),
-        "Borrowed");
-    // Convert DTOLoan to LoanDTO and return
-    return new LoanDTO(String.valueOf(grpcLoan.getId()),
-        grpcLoan.getBorrowDate(), grpcLoan.getDueDate(), false,
-        // isReturned - new loans are not returned
-        0,     // numberOfExtensions - new loans have 0 extensions
-        grpcLoan.getUsername(), String.valueOf(grpcLoan.getBookId()));
+    bookGrpcService.updateBookStatus(targetBook.getId(), "Borrowed");
+
+    logger.info("createLoan called for book: {}", targetBook.getId());
+
+    return grpcLoan;
   }
 
-  @Override public void extendLoan(int loanId, String username)
+  @Override public void extendLoan(int loanId)
   {
-    // Validate USER exists
-    DTOUser user = userGrpcService.getUserByUsername(username);
-    if (user == null)
-    {
-      throw new IllegalArgumentException("User not found: " + username);
-    }
-
     // Get LOAN by loanId
-    DTOLoan loan = loanGrpcService.getLoanById(loanId);
+    logger.info("extendLoan called for book: {}", loanId);
+    Loan loan = loanGrpcService.getLoanById(loanId);
     if (loan == null)
     {
+      logger.error("extendLoan called for loan: {} not found", loanId);
       throw new IllegalArgumentException("Loan not found with ID: " + loanId);
     }
 
     // Max 12 extensions
     if (loan.getNumberOfExtensions() >= 12)
     {
+      logger.error("extendLoan called for loan: {} has reached max extensions",
+          loanId);
       throw new IllegalStateException(
           "Loan has reached the maximum number of extensions.");
     }
 
     // Business rule: only borrower can extend
-    if (!loan.getUsername().equals(username))
+    //TODO: Implement authentication to get current username
+
+    logger.info("extendLoan called for book: {}", loan.getBookId());
+    // Everything valid — call gRPC
+    loanGrpcService.extendLoan(loanId);
+  }
+
+  private Book bookFinder(List<Book> books)
+  {
+    Book targetBook = null;
+    for (Book book : books)
     {
-      throw new IllegalStateException("User is not the owner of the loan");
+      if (book.getState().toString().equalsIgnoreCase("AVAILABLE"))
+      {
+        targetBook = book;
+        break;
+      }
     }
 
-    // Everything valid — call gRPC
-    loanGrpcService.extendLoan(loanId, username);
+    if (targetBook == null)
+    {
+      logger.error("createLoan called - book not found");
+      throw new IllegalArgumentException("Book not found");
+    }
+    return targetBook;
+  }
+
+  private Loan loanCreator(String username, Book targetBook)
+  {
+    Date today = new Date(System.currentTimeMillis());
+    Date borrowDate = Date.valueOf(today.toLocalDate());
+    Date dueDate = Date.valueOf(today.toLocalDate().plusDays(30));
+
+    Loan toBeCreatedLoan = new Loan();
+    toBeCreatedLoan.setUsername(username);
+    toBeCreatedLoan.setBookId(targetBook.getId());
+    toBeCreatedLoan.setBorrowDate(borrowDate);
+    toBeCreatedLoan.setDueDate(dueDate);
+
+    return toBeCreatedLoan;
   }
 }
-

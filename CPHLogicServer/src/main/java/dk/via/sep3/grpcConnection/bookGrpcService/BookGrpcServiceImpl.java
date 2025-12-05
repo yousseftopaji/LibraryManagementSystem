@@ -3,16 +3,14 @@ package dk.via.sep3.grpcConnection.bookGrpcService;
 
 import dk.via.sep3.*;
 import dk.via.sep3.controller.exceptionHandler.GrpcCommunicationException;
-import dk.via.sep3.controller.exceptionHandler.ResourceNotFoundException;
 import dk.via.sep3.model.domain.Book;
-import dk.via.sep3.shared.mapper.BookMapper;
+import dk.via.sep3.shared.mapper.bookMapper.BookMapper;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service public class BookGrpcServiceImpl implements BookGrpcService
@@ -56,33 +54,35 @@ import java.util.List;
   {
     try
     {
-      GetAllBooksRequest request = GetAllBooksRequest.newBuilder().build();
-      logger.info("Sending gRPC request to get all books with ISBN: {}", isbn);
-      GetAllBooksResponse response = bookStub.getAllBooks(request);
-      logger.info("Received gRPC response with all books for ISBN: {}", isbn);
+      // Use the dedicated GetBooksByIsbn RPC and pass the isbn in the request
+      GetBooksByIsbnRequest request = GetBooksByIsbnRequest.newBuilder()
+          .setIsbn(isbn)
+          .build();
+      logger.info("Sending gRPC request to get books with ISBN: {}", isbn);
+      GetBooksByIsbnResponse response = bookStub.getBooksByIsbn(request);
+      logger.info("Received gRPC response with books for ISBN: {}", isbn);
       return response.getBooksList().stream().map(bookMapper::toDomain)
           .toList();
     }
     catch (StatusRuntimeException ex)
     {
-      logger.error("gRPC error fetching all books", ex);
-      throw new GrpcCommunicationException("Failed to fetch all books");
+      logger.error("gRPC error fetching books by ISBN: {}", isbn, ex);
+      throw new GrpcCommunicationException("Failed to fetch books by ISBN", ex);
     }
     catch (Exception ex)
     {
-      logger.error("Unexpected error fetching all books", ex);
+      logger.error("Unexpected error fetching books by ISBN: {}", isbn, ex);
       throw new GrpcCommunicationException(
-          "Unexpected error fetching all books");
+          "Unexpected error fetching books by ISBN", ex);
     }
   }
 
-  @Override public Book getBookById(String bookId)
+  @Override public Book getBookById(int bookId)
   {
     try
     {
-      int bookIdInt = Integer.parseInt(bookId);
       GetBookByIdRequest request = GetBookByIdRequest.newBuilder()
-          .setId(bookIdInt).build();
+          .setId(bookId).build();
       logger.info("Sending gRPC request to get book by ID: {}", bookId);
       GetBookByIdResponse response = bookStub.getBookById(request);
       logger.info("Received gRPC response GetBookById for ID: {}", bookId);
@@ -100,32 +100,29 @@ import java.util.List;
     }
   }
 
-  @Override public Book updateBookStatus(String bookId, String status)
+  @Override public void updateBookStatus(int bookId, String status)
   {
     try
     {
-      int bookIdInt = Integer.parseInt(bookId);
       UpdateBookStateRequest request = UpdateBookStateRequest.newBuilder()
-          .setId(bookIdInt).setState(status).build();
+          .setId(bookId).setState(status).build();
       logger.info(
           "Sending gRPC request to update book status. ID: {}, Status: {}",
           bookId, status);
 
       UpdateBookStateResponse response = bookStub.updateBookState(request);
       logger.info("Received gRPC response");
-      return bookMapper.toDomain(response.getBook());
+      bookMapper.toDomain(response.getBook());
 
     }
     catch (NumberFormatException ex)
     {
       logger.error("Invalid bookId format: {}", bookId, ex);
-      return null;
     }
     catch (Exception ex)
     {
       logger.error("Error updating book status. ID: {}, Status: {}", bookId,
           status, ex);
-      return null;
     }
   }
 }

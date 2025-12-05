@@ -3,7 +3,7 @@ package dk.via.sep3.controller;
 import dk.via.sep3.model.books.BookService;
 import dk.via.sep3.model.domain.Book;
 import dk.via.sep3.shared.book.BookDTO;
-import dk.via.sep3.shared.mapper.BookMapper;
+import dk.via.sep3.shared.mapper.bookMapper.BookMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,12 +33,6 @@ import java.util.List;
     {
       bookDTOs.add(bookMapper.toDto(book));
     }
-
-    if (uniqueBooks.isEmpty())
-    {
-      return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
     return new ResponseEntity<>(bookDTOs, HttpStatus.OK);
   }
 
@@ -46,14 +40,7 @@ import java.util.List;
       @PathVariable String isbn)
   {
     Book book = books.getBookByIsbn(isbn);
-
     BookDTO bookDTO = bookMapper.toDto(book);
-
-    if (book == null)
-    {
-      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
-
     return new ResponseEntity<>(bookDTO, HttpStatus.OK);
   }
 }

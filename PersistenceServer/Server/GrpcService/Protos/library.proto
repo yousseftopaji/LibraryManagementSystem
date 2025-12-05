@@ -8,12 +8,17 @@ package dk.via.sep3;
 // Shared DTOs
 // ========================
 
+message DTOGenre {
+  string name = 2;
+}
+
 message DTOBook {
   int32 id = 1;
   string title = 2;
   string author = 3;
   string isbn = 4;
   string state = 5;
+  repeated DTOGenre genres = 6;
 }
 
 message DTOLoan {
@@ -28,7 +33,11 @@ message DTOLoan {
 
 message DTOUser {
   string username = 1;
-}
+  string name = 2;
+  string password = 3;
+  string role = 4;
+  string email = 5;
+  string phoneNumber = 6;}
 
 message DTOReservation {
   int32 id = 1;
@@ -112,8 +121,7 @@ message GetLoanByIdResponse
 }
 
 message ExtendLoanRequest {
-  string username = 1;
-  int32 loanId = 2;
+  int32 loanId = 1;
 }
 
 message ExtendLoanResponse {

@@ -1,52 +1,49 @@
 package dk.via.sep3.grpcConnection.loanGrpcService;
 
 import dk.via.sep3.*;
+import dk.via.sep3.model.domain.Loan;
+import dk.via.sep3.shared.mapper.loanMapper.LoanMapper;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service public class LoanGrpcServiceImpl implements LoanGrpcService
 {
   private static final Logger logger = LoggerFactory.getLogger(
-      LoanGrpcService.class);
+      LoanGrpcServiceImpl.class);
   private final LoanServiceGrpc.LoanServiceBlockingStub loanStub;
-
-  public LoanGrpcServiceImpl(ManagedChannel channel)
+  private final LoanMapper loanMapper;
+  public LoanGrpcServiceImpl(ManagedChannel channel, LoanMapper loanMapper)
   {
     this.loanStub = LoanServiceGrpc.newBlockingStub(channel);
+    this.loanMapper = loanMapper;
   }
 
-  @Override public DTOLoan createLoan(String username, String bookId,
-      String now, String dueDate)
+  @Override public Loan createLoan(Loan loan)
   {
     try
     {
-      int bookIdInt = Integer.parseInt(bookId);
       CreateLoanRequest request = CreateLoanRequest.newBuilder()
-          .setUsername(username).setBookId(bookIdInt).setBorrowDate(now)
-          .setDueDate(dueDate).build();
+          .setUsername(loan.getUsername()).setBookId(loan.getBookId()).setBorrowDate(loan.getBorrowDate().toString())
+          .setDueDate(loan.getDueDate().toString()).build();
       logger.info(
           "Sending gRPC request to create loan for user: {}, bookId: {}, dates: {} to {}",
-          username, bookId, now, dueDate);
+          loan.getUsername(), loan.getBookId(), loan.getBorrowDate(), loan.getDueDate());
       CreateLoanResponse response = loanStub.createLoan(request);
       if (response.getSuccess())
       {
         logger.info("Loan created successfully: {}", response.getLoan());
-        return response.getLoan();
+        return loanMapper.mapDTOLoanToDomain(response.getLoan());
       }
       else
       {
         logger.error("Failed to create loan: {}", response.getMessage());
         return null;
       }
-    }
-    catch (NumberFormatException ex)
-    {
-      logger.error("Invalid bookId format: {}", bookId, ex);
-      return null;
     }
     catch (Exception ex)
     {
@@ -55,7 +52,7 @@ import java.util.List;
     }
   }
 
-  @Override public List<DTOLoan> getLoansByISBN(String isbn)
+  @Override public List<Loan> getLoansByISBN(String isbn)
   {
     GetLoansByISBNRequest request = GetLoansByISBNRequest.newBuilder()
         .setIsbn(isbn).build();
@@ -65,10 +62,15 @@ import java.util.List;
 
     logger.info("Received {} loans for ISBN: {}", response.getLoansCount(),
         isbn);
-    return response.getLoansList();
+    List<Loan> loans = new ArrayList<>();
+    for (DTOLoan l : response.getLoansList())
+    {
+      loans.add(loanMapper.mapDTOLoanToDomain(l));
+    }
+    return loans;
   }
 
-  @Override public void extendLoan(int loanId, String username)
+  @Override public void extendLoan(int loanId)
   {
     try
     {
@@ -94,7 +96,7 @@ import java.util.List;
     }
   }
 
-  @Override public DTOLoan getLoanById(int bookId)
+  @Override public Loan getLoanById(int bookId)
   {
     try
     {
@@ -106,7 +108,7 @@ import java.util.List;
       if (response.getSuccess())
       {
         logger.info("Retrieved loan with ID: {}", bookId);
-        return response.getLoan();
+        return loanMapper.mapDTOLoanToDomain(response.getLoan());
       }
       else
       {

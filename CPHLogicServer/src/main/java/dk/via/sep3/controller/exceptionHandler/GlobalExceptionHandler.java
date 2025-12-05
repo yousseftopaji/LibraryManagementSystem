@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.Instant;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -16,7 +18,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
     logger.warn("Resource not found: {}", ex.getMessage());
     return new ResponseEntity<>(
-        new ErrorResponse(ex.getMessage(), "RESOURCE_NOT_FOUND"),
+        new ErrorResponse("Resource not found", "RESOURCE_NOT_FOUND", Instant.now().toString(), ex.getMessage()),
         HttpStatus.NOT_FOUND
     );
   }
@@ -25,7 +27,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleBusinessRuleViolation(BusinessRuleViolationException ex) {
     logger.warn("Business rule violation: {}", ex.getMessage());
     return new ResponseEntity<>(
-        new ErrorResponse(ex.getMessage(), "BUSINESS_RULE_VIOLATION"),
+        new ErrorResponse("Business rule violated", "BUSINESS_RULE_VIOLATION", Instant.now().toString(), ex.getMessage()),
         HttpStatus.CONFLICT
     );
   }
@@ -34,8 +36,17 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
     logger.warn("Invalid argument: {}", ex.getMessage());
     return new ResponseEntity<>(
-        new ErrorResponse(ex.getMessage(), "INVALID_INPUT"),
+        new ErrorResponse("Invalid input provided", "INVALID_INPUT", Instant.now().toString(), ex.getMessage()),
         HttpStatus.BAD_REQUEST
+    );
+  }
+
+  @ExceptionHandler(IllegalStateException.class)
+  public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex) {
+    logger.warn("Illegal state: {}", ex.getMessage());
+    return new ResponseEntity<>(
+        new ErrorResponse("Business constraint violated", "BUSINESS_CONSTRAINT", Instant.now().toString(), ex.getMessage()),
+        HttpStatus.CONFLICT
     );
   }
 
@@ -43,7 +54,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleGrpcCommunication(GrpcCommunicationException ex) {
     logger.error("gRPC communication error: {}", ex.getMessage(), ex);
     return new ResponseEntity<>(
-        new ErrorResponse("Service temporarily unavailable", "SERVICE_UNAVAILABLE"),
+        new ErrorResponse("Service temporarily unavailable", "SERVICE_UNAVAILABLE", Instant.now().toString(), ex.getMessage()),
         HttpStatus.SERVICE_UNAVAILABLE
     );
   }
@@ -52,10 +63,10 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
     logger.error("Unexpected error: {}", ex.getMessage(), ex);
     return new ResponseEntity<>(
-        new ErrorResponse("An unexpected error occurred", "INTERNAL_ERROR"),
+        new ErrorResponse("An unexpected error occurred", "INTERNAL_ERROR", Instant.now().toString(), ex.getMessage()),
         HttpStatus.INTERNAL_SERVER_ERROR
     );
   }
 
-  public record ErrorResponse(String message, String errorCode){}
+  public record ErrorResponse(String message, String errorCode, String timestamp, String details){}
 }

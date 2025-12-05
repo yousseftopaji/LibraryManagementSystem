@@ -1,10 +1,10 @@
 package dk.via.sep3.grpcConnection.userGrpcService;
 
-import dk.via.sep3.DTOUser;
 import dk.via.sep3.GetUserByUsernameRequest;
 import dk.via.sep3.GetUserByUsernameResponse;
 import dk.via.sep3.UserServiceGrpc;
-import dk.via.sep3.grpcConnection.loanGrpcService.LoanGrpcService;
+import dk.via.sep3.model.domain.User;
+import dk.via.sep3.shared.mapper.userMapper.UserMapper;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,15 +14,16 @@ import org.springframework.stereotype.Service;
 public class UserGrpcServiceImpl implements UserGrpcService
 {
   private static final Logger logger = LoggerFactory.getLogger(
-      LoanGrpcService.class);
-  private UserServiceGrpc.UserServiceBlockingStub userStub;
-
-  public UserGrpcServiceImpl(ManagedChannel channel)
+      UserGrpcServiceImpl.class);
+  private final UserServiceGrpc.UserServiceBlockingStub userStub;
+  private final UserMapper userMapper;
+  public UserGrpcServiceImpl(ManagedChannel channel, UserMapper userMapper)
   {
     this.userStub = UserServiceGrpc.newBlockingStub(channel);
+    this.userMapper = userMapper;
   }
 
-  @Override public DTOUser getUserByUsername(String username)
+  @Override public User getUserByUsername(String username)
   {
     logger.info("Validating if user exists with username: {}", username);
     try
@@ -34,7 +35,8 @@ public class UserGrpcServiceImpl implements UserGrpcService
           .getUserByUsername(request);
 
       logger.info("User found: {}", response.getUser());
-      return response.getUser();
+
+      return userMapper.mapDTOUserToDomain(response.getUser());
     }
     catch (Exception ex)
     {

@@ -9,7 +9,6 @@ package dk.via.sep3;
 // ========================
 
 message DTOGenre {
-  int32 id = 1;
   string name = 2;
 }
 
@@ -38,6 +37,7 @@ message DTOUser {
   string password = 3;
   string role = 4;
   string email = 5;
+  string phoneNumber = 6;
 }
 
 message DTOReservation {
