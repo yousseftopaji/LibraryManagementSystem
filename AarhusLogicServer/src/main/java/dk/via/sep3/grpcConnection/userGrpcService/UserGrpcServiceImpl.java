@@ -4,9 +4,6 @@ import dk.via.sep3.*;
 import dk.via.sep3.controller.exceptionHandler.GrpcCommunicationException;
 import dk.via.sep3.model.domain.User;
 import dk.via.sep3.shared.mapper.userMapper.UserMapper;
-import dk.via.sep3.shared.registration.RegistrationDTO;
-import dk.via.sep3.shared.user.UserDTO;
-import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -18,8 +15,8 @@ public class UserGrpcServiceImpl implements UserGrpcService {
     private final UserServiceGrpc.UserServiceBlockingStub userStub;
     private final UserMapper userMapper;
 
-    public UserGrpcServiceImpl(ManagedChannel channel, UserMapper userMapper) {
-        this.userStub = UserServiceGrpc.newBlockingStub(channel);
+    public UserGrpcServiceImpl(UserServiceGrpc.UserServiceBlockingStub userStub, UserMapper userMapper) {
+        this.userStub = userStub;
         this.userMapper = userMapper;
     }
 

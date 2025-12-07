@@ -187,6 +187,28 @@ message GetUserByUsernameResponse {
   string message = 3;
 }
 
+// Added: username check and login messages used by the Logic Server
+message UsernameCheckRequest {
+  string username = 1;
+}
+
+message UsernameCheckResponse {
+  bool exists = 1;
+  string message = 2;
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+  bool success = 2;
+  string message = 3;
+  DTOUser user = 4; // optional: populated when login succeeds
+}
+
 message GetLoansByISBNRequest {
   string isbn = 1;
 }
