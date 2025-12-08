@@ -173,6 +173,39 @@ message GetLoansByISBNResponse {
 }
 
 // ========================
+// User Registration Messages
+// ========================
+
+message RegisterRequest {
+  string fullName = 1;
+  string email = 2;
+  string phoneNumber = 3;
+  string username = 4;
+  string password = 5;
+}
+
+message RegisterResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// ========================
+// User Login Messages
+// ========================
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  bool success = 1;
+  string message = 2;
+  string token = 3;
+}
+
+
+// ========================
 // Services
 // ========================
 
@@ -198,4 +231,12 @@ service UserService {
 service ReservationService {
   rpc CreateReservation (CreateReservationRequest) returns (CreateReservationResponse);
   rpc GetReservationCountByIsbn (GetReservationCountByIsbnRequest) returns (GetReservationCountByIsbnResponse);
+}
+
+service RegistrationService {
+  rpc Register (RegisterRequest) returns (RegisterResponse);
+}
+
+service AuthenticationService {
+  rpc Login (LoginRequest) returns (LoginResponse);
 }

@@ -1,11 +1,11 @@
 package dk.via.sep3.grpcConnection.loanPersistenceService;
 
-import dk.via.sep3.DTOLoan;
+import dk.via.sep3.shared.loan.LoanDTO;
 
 import java.util.List;
 
 public interface LoanPersistenceService
 {
-    DTOLoan createLoan(String username, String bookId, String now, String dueDate);
-    List<DTOLoan> getLoansByISBN(String isbn);
+    LoanDTO createLoan(String username, String bookId, String now, String dueDate);
+    List<LoanDTO> getLoansByISBN(String isbn);
 }
