@@ -27,7 +27,7 @@ public class AuthProvider : AuthenticationStateProvider
             Password = password
         };
 
-        var response = await client.PostAsJsonAsync("api/auth/register", request);
+        var response = await client.PostAsJsonAsync("auth/register", request);
 
         if (!response.IsSuccessStatusCode)
             throw new Exception(await response.Content.ReadAsStringAsync());
