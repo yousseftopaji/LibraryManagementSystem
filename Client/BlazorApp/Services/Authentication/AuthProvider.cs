@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 using DTOs;
+using DTOs.Auth;
 using DTOs.User;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -15,6 +16,23 @@ public class AuthProvider : AuthenticationStateProvider
         this.client = client;
     }
 
+    public async Task Register(string fullName, string phone, string userName, string email, string password)
+    {
+        var request = new RegisterRequest()
+        {
+            FullName = fullName,
+            Phone = phone,
+            UserName = userName,
+            Email = email,
+            Password = password
+        };
+
+        var response = await client.PostAsJsonAsync("api/auth/register", request);
+
+        if (!response.IsSuccessStatusCode)
+            throw new Exception(await response.Content.ReadAsStringAsync());
+    }
+  
     public async Task Login(string username, string password)
     {
         HttpResponseMessage response = await client.PostAsJsonAsync(
@@ -47,6 +65,7 @@ public class AuthProvider : AuthenticationStateProvider
             Task.FromResult(new AuthenticationState(currentClaimsPrincipal))
         );
     }
+   
     public override Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         return Task.FromResult(new AuthenticationState(currentClaimsPrincipal ?? new()));

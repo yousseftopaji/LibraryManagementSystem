@@ -4,8 +4,8 @@
 @inject Services.IBookService BookService
 @inject NavigationManager NavigationManager
 
-<AuthorizeView>
-    <Authorized>
+@* <AuthorizeView>
+    <Authorized> *@
         <h3>Books</h3>
 
         @if (!string.IsNullOrEmpty(errorMessage))
@@ -45,7 +45,7 @@
                 </tbody>
             </table>
         }
-    </Authorized>
+    @* </Authorized>
 
     <NotAuthorized>
         <div class="alert alert-danger text-center">
@@ -53,7 +53,7 @@
             <button class="btn btn-primary mt-2" @onclick="@(() => NavigationManager.NavigateTo("/login"))">Go to Login</button>
         </div>
     </NotAuthorized>
-</AuthorizeView>
+</AuthorizeView> *@
 
 @code {
     private List<BookDTO>? books;

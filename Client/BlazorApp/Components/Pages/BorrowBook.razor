@@ -57,7 +57,7 @@
             var createLoanDTO = new CreateLoanDTO
             {
                 BookISBN = ISBN,
-                Username = "alice123" // TODO: Replace with actual logged-in username
+                Username = "alice" // TODO: Replace with actual logged-in username
             };
 
             var loanResponseDto = await LoanService.CreateLoanAsync(createLoanDTO);
