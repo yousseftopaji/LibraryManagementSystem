@@ -1,6 +1,5 @@
 package dk.via.sep3.model.loans;
 
-import dk.via.sep3.*;
 import dk.via.sep3.grpcConnection.bookGrpcService.BookGrpcService;
 import dk.via.sep3.grpcConnection.loanGrpcService.LoanGrpcService;
 import dk.via.sep3.model.domain.Book;
@@ -33,7 +32,7 @@ import java.util.List;
   @Override public Loan createLoan(Loan loan)
   {
     // Validate USER exists
-    validator.validateUser(loan.getUsername());
+    validator.validate(loan.getUsername());
 
     // Prevent same user borrowing same ISBN while they have an active loan
     List<Loan> existingLoansForIsbn = loanGrpcService.getLoansByISBN(
