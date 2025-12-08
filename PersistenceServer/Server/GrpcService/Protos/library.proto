@@ -8,12 +8,17 @@ package dk.via.sep3;
 // Shared DTOs
 // ========================
 
+message DTOGenre {
+  string name = 2;
+}
+
 message DTOBook {
   int32 id = 1;
   string title = 2;
   string author = 3;
   string isbn = 4;
   string state = 5;
+  repeated DTOGenre genres = 6;
 }
 
 message DTOLoan {
@@ -28,6 +33,11 @@ message DTOLoan {
 
 message DTOUser {
   string username = 1;
+  string name = 2;
+  string password = 3;
+  string role = 4;
+  string email = 5;
+  string phoneNumber = 6;
 }
 
 message DTOReservation {
@@ -111,17 +121,6 @@ message GetLoanByIdResponse
   string message = 3;
 }
 
-message ExtendLoanRequest {
-  string username = 1;
-  int32 loanId = 2;
-}
-
-message ExtendLoanResponse {
-  DTOLoan loan = 1;
-  bool success = 2;
-  string message = 3;
-}
-
 // ========================
 // Reservation Service Messages
 // ========================
@@ -147,6 +146,31 @@ message GetReservationCountByIsbnResponse {
   bool success = 2;
   string message = 3;
 }
+
+message GetReservationsByIsbnRequest {
+  string isbn = 1;
+}
+
+message GetReservationsByIsbnResponse {
+  repeated DTOReservation reservations = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+// ========================
+// Extension Service Messages
+// ========================
+
+message ExtendLoanRequest {
+  DTOLoan loan = 1;
+}
+
+message ExtendLoanResponse {
+  DTOLoan loan = 1;
+  bool success = 2;
+  string message = 3;
+}
+
 
 // ========================
 // User Service Messages
@@ -188,7 +212,6 @@ service LoanService {
   rpc GetLoansByISBN (GetLoansByISBNRequest) returns (GetLoansByISBNResponse);
   rpc ExtendLoan (ExtendLoanRequest) returns (ExtendLoanResponse);
   rpc GetLoanById (GetLoanByIdRequest) returns (GetLoanByIdResponse);
-
 }
 
 service UserService {
@@ -198,4 +221,5 @@ service UserService {
 service ReservationService {
   rpc CreateReservation (CreateReservationRequest) returns (CreateReservationResponse);
   rpc GetReservationCountByIsbn (GetReservationCountByIsbnRequest) returns (GetReservationCountByIsbnResponse);
+  rpc GetReservationsByIsbn (GetReservationsByIsbnRequest) returns (GetReservationsByIsbnResponse);
 }

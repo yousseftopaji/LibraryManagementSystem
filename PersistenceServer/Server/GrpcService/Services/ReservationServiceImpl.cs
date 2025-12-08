@@ -65,5 +65,34 @@ public class ReservationServiceImpl(IReservationRepository reservationRepository
 
         return response;
     }
+    
+    public override async Task<GetReservationsByIsbnResponse> GetReservationsByIsbn(GetReservationsByIsbnRequest request, ServerCallContext context)
+    {
+        var response = new GetReservationsByIsbnResponse();
+
+        try
+        {
+            var reservations = await reservationRepository.GetReservationsByIsbnAsync(request.Isbn);
+
+            response.Reservations.AddRange(reservations.Select(r => new DTOReservation
+            {
+                Id = r.ReservationId,
+                ReservationDate = r.ReservationDate.ToString("yyyy-MM-dd"),
+                Username = r.Username,
+                BookId = r.BookId
+            }));
+
+            response.Success = true;
+            response.Message = "Reservations retrieved successfully.";
+        }
+        catch (Exception ex)
+        {
+            response.Reservations.Clear();
+            response.Success = false;
+            response.Message = $"Error getting reservations: {ex.Message}";
+        }
+
+        return response;
+    }
 }
 

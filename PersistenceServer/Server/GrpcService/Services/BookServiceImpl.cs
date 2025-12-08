@@ -10,13 +10,22 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
     {
         var booksFromDb = (await bookRepository.GetAllBooksAsync()).ToList();
         var response = new GetAllBooksResponse();
-        response.Books.AddRange(booksFromDb.Select(b => new DTOBook
+
+        response.Books.AddRange(booksFromDb.Select(b =>
         {
-            Id = int.Parse(b.BookId ?? throw new InvalidOperationException()),
-            Title = b.Title ?? string.Empty,
-            Author = b.Author ?? string.Empty,
-            Isbn = b.ISBN ?? string.Empty,
-            State = b.State
+            var dto = new DTOBook
+            {
+                Id = b.BookId,
+                Title = b.Title,
+                Author = b.Author,
+                Isbn = b.ISBN,
+                State = b.State,
+            };
+            dto.Genres.AddRange(b.Genre.Select(g => new DTOGenre
+            {
+                Name = g.Name
+            }));
+            return dto;
         }));
         response.Success = booksFromDb.Count > 0;
         response.Message = booksFromDb.Count > 0 ? "Books retrieved successfully." : "No books found.";
@@ -27,13 +36,22 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
     {
         var booksFromDb = (await bookRepository.GetBooksByIsbnAsync(request.Isbn)).ToList();
         var response = new GetBooksByIsbnResponse();
-        response.Books.AddRange(booksFromDb.Select(b => new DTOBook
+        response.Books.AddRange(booksFromDb.Select(b =>
         {
-            Id = int.Parse(b.BookId ?? throw new InvalidOperationException()),
-            Title = b.Title ?? string.Empty,
-            Author = b.Author ?? string.Empty,
-            Isbn = b.ISBN ?? string.Empty,
-            State = b.State
+            var dto = new DTOBook
+            {
+                Id = b.BookId,
+                Title = b.Title,
+                Author = b.Author,
+                Isbn = b.ISBN,
+                State = b.State,
+            };
+            
+            dto.Genres.AddRange(b.Genre.Select(g => new DTOGenre
+            {
+                Name = g.Name
+            }));
+            return dto;
         }));
         response.Success = booksFromDb.Count > 0;
         response.Message = booksFromDb.Count > 0 ? $"Books with ISBN {request.Isbn} retrieved successfully." : $"No books found with ISBN {request.Isbn}.";
@@ -46,14 +64,18 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
         var response = new GetBookByIdResponse();
         if (bookFromDb != null)
         {
-            response.Book = new DTOBook
+            var dto = new DTOBook
             {
-                Id = int.Parse(bookFromDb.BookId ?? throw new InvalidOperationException()),
+                Id = bookFromDb.BookId,
                 Title = bookFromDb.Title,
                 Author = bookFromDb.Author,
                 Isbn = bookFromDb.ISBN,
                 State = bookFromDb.State
             };
+
+                dto.Genres.AddRange(bookFromDb.Genre.Select(g => new DTOGenre { Name = g.Name}));
+
+            response.Book = dto;
             response.Success = true;
             response.Message = $"Book with ID {request.Id} retrieved successfully.";
         }
@@ -73,17 +95,19 @@ public class BookServiceImpl(IBookRepository bookRepository) : BookService.BookS
         {
             var updatedBook = await bookRepository.UpdateBookStateAsync(request.Id, request.State);
 
-            if (updatedBook.BookId != null)
-                response.Book = new DTOBook
-                {
-                    Id = int.Parse(updatedBook.BookId),
-                    Title = updatedBook.Title ?? string.Empty,
-                    Author = updatedBook.Author ?? string.Empty,
-                    Isbn = updatedBook.ISBN ?? string.Empty,
-                    State = updatedBook.State
-                };
+            var dto = new DTOBook
+            {
+                Id = updatedBook.BookId,
+                Title = updatedBook.Title,
+                Author = updatedBook.Author,
+                Isbn = updatedBook.ISBN,
+                State = updatedBook.State
+            };
+                dto.Genres.AddRange(updatedBook.Genre.Select(g => new DTOGenre { Name = g.Name }));
+
+            response.Book = dto;
             response.Success = true;
-                response.Message = $"Book state updated successfully for ID {request.Id}.";
+            response.Message = $"Book state updated successfully for ID {request.Id}.";
         }
         catch (Exception ex)
         {
