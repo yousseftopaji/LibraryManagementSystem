@@ -8,12 +8,17 @@ package dk.via.sep3;
 // Shared DTOs
 // ========================
 
+message DTOGenre {
+  string name = 2;
+}
+
 message DTOBook {
   int32 id = 1;
   string title = 2;
   string author = 3;
   string isbn = 4;
   string state = 5;
+  repeated DTOGenre genres = 6;
 }
 
 message DTOLoan {
@@ -21,11 +26,25 @@ message DTOLoan {
   string borrowDate = 2;
   string dueDate = 3;
   string username = 4;
-  int32 bookId = 5;
+  bool isReturned = 5;
+  int32 bookId = 6;
+  int32 numberOfExtensions = 7;
 }
 
 message DTOUser {
   string username = 1;
+  string name = 2;
+  string password = 3;
+  string role = 4;
+  string email = 5;
+  string phoneNumber = 6;
+}
+
+message DTOReservation {
+  int32 id = 1;
+  string reservationDate = 2;
+  string username = 3;
+  int32 bookId = 4;
 }
 
 // ========================
@@ -90,6 +109,69 @@ message CreateLoanResponse {
   string message = 3;
 }
 
+message GetLoanByIdRequest
+{
+  int32 id = 1;
+}
+
+message GetLoanByIdResponse
+{
+  DTOLoan loan = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+// ========================
+// Reservation Service Messages
+// ========================
+
+message CreateReservationRequest {
+  string reservationDate = 1;
+  string username = 2;
+  int32 bookId = 3;
+}
+
+message CreateReservationResponse {
+  DTOReservation reservation = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message GetReservationCountByIsbnRequest {
+  string isbn = 1;
+}
+
+message GetReservationCountByIsbnResponse {
+  int32 numberOfReservations = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message GetReservationsByIsbnRequest {
+  string isbn = 1;
+}
+
+message GetReservationsByIsbnResponse {
+  repeated DTOReservation reservations = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+// ========================
+// Extension Service Messages
+// ========================
+
+message ExtendLoanRequest {
+  DTOLoan loan = 1;
+}
+
+message ExtendLoanResponse {
+  DTOLoan loan = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+
 // ========================
 // User Service Messages
 // ========================
@@ -104,6 +186,15 @@ message GetUserByUsernameResponse {
   string message = 3;
 }
 
+message GetLoansByISBNRequest {
+  string isbn = 1;
+}
+
+message GetLoansByISBNResponse {
+  repeated DTOLoan loans = 1;
+  bool success = 2;
+  string message = 3;
+}
 
 // ========================
 // Services
@@ -118,8 +209,17 @@ service BookService {
 
 service LoanService {
   rpc CreateLoan (CreateLoanRequest) returns (CreateLoanResponse);
+  rpc GetLoansByISBN (GetLoansByISBNRequest) returns (GetLoansByISBNResponse);
+  rpc ExtendLoan (ExtendLoanRequest) returns (ExtendLoanResponse);
+  rpc GetLoanById (GetLoanByIdRequest) returns (GetLoanByIdResponse);
 }
 
 service UserService {
   rpc GetUserByUsername (GetUserByUsernameRequest) returns (GetUserByUsernameResponse);
+}
+
+service ReservationService {
+  rpc CreateReservation (CreateReservationRequest) returns (CreateReservationResponse);
+  rpc GetReservationCountByIsbn (GetReservationCountByIsbnRequest) returns (GetReservationCountByIsbnResponse);
+  rpc GetReservationsByIsbn (GetReservationsByIsbnRequest) returns (GetReservationsByIsbnResponse);
 }

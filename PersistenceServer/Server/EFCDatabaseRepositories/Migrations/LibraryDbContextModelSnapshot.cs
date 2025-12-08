@@ -19,13 +19,13 @@ namespace EFCDatabaseRepositories.Migrations
 
             modelBuilder.Entity("BookGenre", b =>
                 {
-                    b.Property<int>("BooksId")
+                    b.Property<int>("BookId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("GenreName")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("BooksId", "GenreName");
+                    b.HasKey("BookId", "GenreName");
 
                     b.HasIndex("GenreName");
 
@@ -84,6 +84,9 @@ namespace EFCDatabaseRepositories.Migrations
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsReturned")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("NumberOfExtensions")
                         .HasColumnType("INTEGER");
 
@@ -130,6 +133,10 @@ namespace EFCDatabaseRepositories.Migrations
                     b.Property<string>("Username")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -155,7 +162,7 @@ namespace EFCDatabaseRepositories.Migrations
                 {
                     b.HasOne("Entities.Book", null)
                         .WithMany()
-                        .HasForeignKey("BooksId")
+                        .HasForeignKey("BookId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

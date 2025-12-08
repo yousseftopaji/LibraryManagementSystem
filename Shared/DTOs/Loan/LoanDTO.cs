@@ -16,7 +16,7 @@ public class LoanDTO
     public DateTime DueDate { get; set; }
 
     [JsonPropertyName("username")]
-    public string? Username { get; set; }
+    public required string Username { get; set; }
 
     [JsonPropertyName("bookId")]
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
@@ -24,4 +24,7 @@ public class LoanDTO
 
     [JsonPropertyName("numberOfExtensions")]
     public int NumberOfExtensions { get; set; }
+    
+    [JsonPropertyName("isReturned")]
+    public bool IsReturned { get; set; }
 }
