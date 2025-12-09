@@ -15,8 +15,8 @@ public class PasswordValidator implements Validator<String> {
     public void validate(String password) {
         if (password == null ||
         password.length() < 8 ||
-        !UPPER.matcher(password).matches() ||
-                !DIGIT.matcher(password).matches()) {
+        !UPPER.matcher(password).find() ||
+                !DIGIT.matcher(password).find()) {
             throw new BusinessRuleViolationException(
                     "Password must be at least 8 characters and contain an uppercase and a digit."
             );

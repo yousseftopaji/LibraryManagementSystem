@@ -6,7 +6,6 @@ import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
 import dk.via.sep3.model.domain.User;
 import dk.via.sep3.model.utils.validation.RegistrationValidator;
 import dk.via.sep3.security.PasswordService;
-import dk.via.sep3.shared.registration.RegistrationDTO;
 import org.springframework.stereotype.Service;
 
 

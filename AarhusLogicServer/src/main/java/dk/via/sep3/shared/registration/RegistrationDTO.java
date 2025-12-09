@@ -57,4 +57,5 @@ public class RegistrationDTO {
     public void setPassword(String password) {
         this.password = password;
     }
+
 }
