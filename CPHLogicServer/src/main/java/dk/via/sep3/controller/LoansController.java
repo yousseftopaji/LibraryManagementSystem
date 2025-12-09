@@ -23,9 +23,6 @@ import org.springframework.web.bind.annotation.*;
   @PostMapping public ResponseEntity<LoanDTO> createLoan(
       @RequestBody CreateLoanDTO request)
   {
-    System.out.println(
-        "Received loan creation request for user: " + request.getUsername()
-            + " and book ISBN: " + request.getBookISBN());
     Loan loan = loanMapper.mapCreateLoanDTOToDomain(request);
     Loan createdLoan = loanService.createLoan(loan);
     LoanDTO loanDTO = loanMapper.mapDomainToLoanDTO(createdLoan);

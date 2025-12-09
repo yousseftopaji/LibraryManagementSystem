@@ -15,18 +15,15 @@ public class AuthenticationGrpcServiceImpl implements AuthenticationGrpcService
 {
   private static final Logger logger = LoggerFactory.getLogger(AuthenticationGrpcService.class);
   private final AuthenticationServiceGrpc.AuthenticationServiceBlockingStub authStub;
-  private final JwtTokenProvider jwtTokenProvider;
-  private final PasswordEncoderService passwordEncoderService;
 
-  public AuthenticationGrpcServiceImpl(ManagedChannel channel, JwtTokenProvider jwtTokenProvider, PasswordEncoderService passwordEncoderService)
+  public AuthenticationGrpcServiceImpl(ManagedChannel channel)
   {
     this.authStub = AuthenticationServiceGrpc.newBlockingStub(channel);
-    this.jwtTokenProvider = jwtTokenProvider;
-    this.passwordEncoderService = passwordEncoderService;
   }
 
   @Override
   public String login(String username, String password) {
+    // should receive a domain (user) object, map to proto DTO
     try {
       LoginRequest request = LoginRequest.newBuilder()
           .setUsername(username)
@@ -35,7 +32,7 @@ public class AuthenticationGrpcServiceImpl implements AuthenticationGrpcService
 
       logger.info("Sending gRPC request to login user: {}", username);
       LoginResponse response = authStub.login(request);
-
+      // got a response (proto dto), map back to domain object
       if (response.getSuccess()) {
         logger.info("User logged in successfully: {}", username);
         return response.getToken();

@@ -1,5 +1,6 @@
 package dk.via.sep3.model.utils.validation;
 
+import dk.via.sep3.controller.exceptionHandler.BusinessRuleViolationException;
 import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ public class ValidatorImpl implements Validator
   @Override
   public void validateFullName(String fullName) {
     if (fullName == null || fullName.trim().isEmpty()) {
-      throw new IllegalArgumentException("Full name cannot be empty");
+      throw new BusinessRuleViolationException("Full name cannot be empty");
     }
     if (fullName.length() < 2) {
       throw new IllegalArgumentException("Full name must be at least 2 characters");
@@ -74,6 +75,4 @@ public class ValidatorImpl implements Validator
       throw new IllegalArgumentException("Password must be at least 8 characters");
     }
   }
-
-
 }

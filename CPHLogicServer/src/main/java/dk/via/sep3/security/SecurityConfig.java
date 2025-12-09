@@ -26,7 +26,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
     http.csrf(AbstractHttpConfigurer::disable).sessionManagement(
         session -> session.sessionCreationPolicy(
             SessionCreationPolicy.STATELESS)).authorizeHttpRequests(
-        authz -> authz.requestMatchers("/api/auth/**").permitAll().anyRequest()
+        authz -> authz.requestMatchers("/auth/**").permitAll().anyRequest()
             .authenticated()).addFilterBefore(jwtAuthenticationFilter,
         UsernamePasswordAuthenticationFilter.class);
 

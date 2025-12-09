@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/registration")
+@RequestMapping("/auth")
 public class RegistrationController {
   private final RegistrationService registrationService;
 
@@ -16,7 +16,7 @@ public class RegistrationController {
     this.registrationService = registrationService;
   }
 
-  @PostMapping
+  @PostMapping("/register")
   public ResponseEntity<RegisterDTO> register(@RequestBody CreateRegisterDTO createRegisterDTO) {
     try {
       RegisterDTO registerDTO = registrationService.register(createRegisterDTO);
