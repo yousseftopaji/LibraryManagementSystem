@@ -17,7 +17,7 @@ public class AuthProvider : AuthenticationStateProvider
         this.client = client;
     }
 
-    public async Task Register(string fullName, string phone, string userName, string email, string password)
+    public async Task Register(string fullName, string phone, string userName, string email, string password, string confirmPassword)
     {
         var request = new RegisterRequest()
         {
@@ -25,7 +25,8 @@ public class AuthProvider : AuthenticationStateProvider
             Phone = phone,
             UserName = userName,
             Email = email,
-            Password = password
+            Password = password,
+            ConfirmPassword = confirmPassword
         };
     Console.WriteLine(JsonSerializer.Serialize(request));
         var response = await client.PostAsJsonAsync("auth/register", request);

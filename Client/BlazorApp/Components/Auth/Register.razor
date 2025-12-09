@@ -78,7 +78,7 @@
         
         try
         {
-            await ((AuthProvider)AuthProvider).Register(fullName, phone, userName, email, password);
+            await ((AuthProvider)AuthProvider).Register(fullName, phone, userName, email, password, confirmPassword);
             navMgr.NavigateTo("/login");
         }
         catch (Exception e)
