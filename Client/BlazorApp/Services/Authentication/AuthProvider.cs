@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
+using BlazorApp.Components.Auth;
 using DTOs;
 using DTOs.Auth;
 using DTOs.User;
@@ -26,7 +27,7 @@ public class AuthProvider : AuthenticationStateProvider
             Email = email,
             Password = password
         };
-
+    Console.WriteLine(JsonSerializer.Serialize(request));
         var response = await client.PostAsJsonAsync("auth/register", request);
 
         if (!response.IsSuccessStatusCode)
@@ -46,16 +47,20 @@ public class AuthProvider : AuthenticationStateProvider
             throw new Exception(content);
         }
 
-        UserDTO userDTO = JsonSerializer.Deserialize<UserDTO>(content, new JsonSerializerOptions
+        var loginResponse = JsonSerializer.Deserialize<LoginResponse>(content, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         })!;
 
+
+    // Save JWT locally (in memory for now)
+        var token = loginResponse.Token;
+
         List<Claim> claims = new List<Claim>()
         {
-            new Claim(ClaimTypes.Name, userDTO.Username),
-            new Claim("Password", userDTO.PasswordHash),
-            new Claim("Role", userDTO.Role)
+            new Claim(ClaimTypes.Name, loginResponse.Username),
+            // new Claim("Password", loginResponse.Password),
+            new Claim("Role", loginResponse.Role)
         };
 
         ClaimsIdentity identity = new ClaimsIdentity(claims, "apiauth");
