@@ -33,10 +33,6 @@
                 <input type="password" class="form-control" @bind="password" placeholder="Enter password">
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Confirm Password</label>
-                <input type="password" class="form-control" @bind="confirmPassword" placeholder="Confirm password">
-            </div>
 
             @if (!string.IsNullOrEmpty(errorLabel))
             {
@@ -58,7 +54,6 @@
     private string userName = "";
     private string email = "";
     private string password = "";
-    private string confirmPassword = "";
     private string? errorLabel;
 
     private async Task RegisterAsync()
@@ -69,8 +64,7 @@
             string.IsNullOrWhiteSpace(phone) ||
             string.IsNullOrWhiteSpace(userName) ||
             string.IsNullOrWhiteSpace(email) ||
-            string.IsNullOrWhiteSpace(password) ||
-            string.IsNullOrWhiteSpace(confirmPassword))
+            string.IsNullOrWhiteSpace(password))
         {
             errorLabel = "All fields are required.";
             return;
