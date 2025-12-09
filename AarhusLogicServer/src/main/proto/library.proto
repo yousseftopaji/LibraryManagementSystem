@@ -38,6 +38,7 @@ message DTOUser {
   string role = 4;
   string email = 5;
   string phoneNumber = 6;
+  string confirmpassword =7;
 }
 
 message DTOReservation {

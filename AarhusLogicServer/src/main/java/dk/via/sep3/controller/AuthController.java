@@ -8,33 +8,63 @@ import dk.via.sep3.shared.registration.RegistrationDTO;
 import dk.via.sep3.model.register.RegisterService;
 import dk.via.sep3.shared.user.UserDTO;
 import dk.via.sep3.model.utils.validation.Validator;
+import dk.via.sep3.controller.exceptionHandler.BusinessRuleViolationException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     private final UserMapper userMapper;
     private final RegisterService registerService;
     private final JwtUtil jwtUtil;
-    private final Validator<RegistrationDTO> passwordsMatchValidator;
+    private final Validator<String> passwordValidator;
 
     public AuthController(UserMapper userMapper,
                           RegisterService registerService,
                           JwtUtil jwtUtil,
-                          @Qualifier("passwordsMatchValidator") Validator<RegistrationDTO> passwordsMatchValidator) {
+                          @Qualifier("passwordValidator") Validator<String> passwordValidator) {
         this.userMapper = userMapper;
         this.registerService = registerService;
         this.jwtUtil = jwtUtil;
-        this.passwordsMatchValidator = passwordsMatchValidator;
+        this.passwordValidator = passwordValidator;
     }
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDTO> register(@RequestBody RegistrationDTO req) {
         // 0. Validate passwords match + password policy
-        passwordsMatchValidator.validate(req);
+        if (req == null) throw new BusinessRuleViolationException("Registration cannot be null");
+
+        // Null-safe and trimmed comparison to avoid common client-side issues (missing field, whitespace)
+        String pw = req.getPassword() != null ? req.getPassword().trim() : null;
+        String confirm = req.getConfirmPassword() != null ? req.getConfirmPassword().trim() : null;
+
+        if (pw == null || pw.isEmpty()) {
+            throw new BusinessRuleViolationException("Password must not be empty");
+        }
+        if (confirm == null || confirm.isEmpty()) {
+            throw new BusinessRuleViolationException("Confirm password must not be empty");
+        }
+
+        if (!Objects.equals(pw, confirm)) {
+            // Log values length for debugging (never log actual passwords)
+            logger.info("Registration failed: password and confirmPassword lengths: pw={}, confirm={}", pw.length(), confirm.length());
+            throw new BusinessRuleViolationException("Passwords do not match");
+        }
+
+        // Use the trimmed values for downstream mapping/persistence so everyone uses the same normalized password
+        req.setPassword(pw);
+        req.setConfirmPassword(confirm);
+
+        // Delegate to existing password policy validator
+        passwordValidator.validate(pw);
 
         // 1. Map incoming DTO to domain
         User user = userMapper.mapRegistrationDTOToDomain(req);
