@@ -1,5 +1,6 @@
 package dk.via.sep3.shared.mapper.userMapper;
 
+import dk.via.sep3.DTOUser;
 import dk.via.sep3.model.domain.User;
 import dk.via.sep3.shared.auth.AuthResponseDTO;
 import dk.via.sep3.shared.registration.RegistrationDTO;
@@ -15,6 +16,11 @@ public interface UserMapper {
 
     User mapDTOUserToDomain(UserDTO dto);
 
+    // Overloaded method to map generated proto DTOUser -> domain User
+    User mapDTOUserToDomain(DTOUser dto);
+
     // Domain User + JWT -> Auth response for client
     AuthResponseDTO mapDomainToAuthResponse(User user, String jwtToken);
+
+    DTOUser mapDomainToDTOUser(User user);
 }

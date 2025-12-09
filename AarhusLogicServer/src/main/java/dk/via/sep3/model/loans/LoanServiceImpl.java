@@ -7,6 +7,7 @@ import dk.via.sep3.model.domain.Loan;
 import dk.via.sep3.model.utils.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 
@@ -22,7 +23,7 @@ import java.util.List;
   private final Validator validator;
 
   public LoanServiceImpl(BookGrpcService bookGrpcService,
-      LoanGrpcService loanGrpcService, Validator validator)
+                         LoanGrpcService loanGrpcService, @Qualifier("userValidator") Validator validator)
   {
     this.bookGrpcService = bookGrpcService;
     this.loanGrpcService = loanGrpcService;

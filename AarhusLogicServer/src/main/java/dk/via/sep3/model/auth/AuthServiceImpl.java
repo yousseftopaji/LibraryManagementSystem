@@ -4,8 +4,8 @@ import dk.via.sep3.model.domain.User;
 import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
 import dk.via.sep3.security.PasswordService;
 import dk.via.sep3.security.JwtUtil;
-import dk.via.sep3.shared.auth.LoginRequest;
-import dk.via.sep3.shared.auth.LoginResponse;
+import dk.via.sep3.shared.login.LoginRequest;
+import dk.via.sep3.shared.login.LoginResponse;
 import dk.via.sep3.shared.user.UserDTO;
 import org.springframework.stereotype.Service;
 

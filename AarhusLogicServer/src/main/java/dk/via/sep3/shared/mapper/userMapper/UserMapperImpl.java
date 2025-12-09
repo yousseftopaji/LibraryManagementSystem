@@ -1,5 +1,6 @@
 package dk.via.sep3.shared.mapper.userMapper;
 
+import dk.via.sep3.DTOUser;
 import dk.via.sep3.model.domain.User;
 import dk.via.sep3.shared.auth.AuthResponseDTO;
 import dk.via.sep3.shared.registration.RegistrationDTO;
@@ -53,6 +54,21 @@ public class UserMapperImpl implements UserMapper {
         return user;
     }
 
+    // New overload to map generated proto DTOUser -> domain User
+    @Override
+    public User mapDTOUserToDomain(DTOUser dto) {
+        if (dto == null) return null;
+
+        User user = new User();
+        user.setName(dto.getName());
+        user.setUsername(dto.getUsername());
+        user.setPassword(dto.getPassword());
+        user.setEmail(dto.getEmail());
+        user.setPhoneNumber(dto.getPhoneNumber());
+        user.setRole(dto.getRole());
+        return user;
+    }
+
     @Override
     public AuthResponseDTO mapDomainToAuthResponse(User user, String jwtToken) {
         if (user == null) return null;
@@ -65,5 +81,19 @@ public class UserMapperImpl implements UserMapper {
                 user.getPhoneNumber(),
                 user.getRole()
         );
+    }
+
+    @Override
+    public DTOUser mapDomainToDTOUser(User user) {
+        if (user == null) return null;
+
+        DTOUser.Builder builder = DTOUser.newBuilder();
+        if (user.getUsername() != null) builder.setUsername(user.getUsername());
+        if (user.getPassword() != null) builder.setPassword(user.getPassword());
+        if (user.getRole() != null) builder.setRole(user.getRole());
+        if (user.getName() != null) builder.setName(user.getName());
+        if (user.getPhoneNumber() != null) builder.setPhoneNumber(user.getPhoneNumber());
+        if (user.getEmail() != null) builder.setEmail(user.getEmail());
+        return builder.build();
     }
 }

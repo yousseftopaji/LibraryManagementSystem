@@ -1,4 +1,4 @@
-package dk.via.sep3.shared.auth;
+package dk.via.sep3.shared.login;
 
 import dk.via.sep3.shared.user.UserDTO;
 

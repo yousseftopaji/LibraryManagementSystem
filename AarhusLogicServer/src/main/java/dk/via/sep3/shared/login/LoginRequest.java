@@ -1,4 +1,4 @@
-package dk.via.sep3.shared.auth;
+package dk.via.sep3.shared.login;
 
 public class LoginRequest {
     private String username;

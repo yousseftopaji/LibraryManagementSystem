@@ -1,5 +1,8 @@
 package dk.via.sep3.shared.auth;
 
+import dk.via.sep3.shared.user.UserDTO;
+
+@SuppressWarnings("unused")
 public class AuthResponseDTO {
     private String token;
     private String username;
@@ -23,6 +26,18 @@ public class AuthResponseDTO {
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.role = role;
+    }
+
+    // Convenience constructor used by AuthController
+    public AuthResponseDTO(String token, UserDTO user) {
+        this.token = token;
+        if (user != null) {
+            this.username = user.getUsername();
+            this.name = user.getName();
+            this.email = user.getEmail();
+            this.phoneNumber = user.getPhoneNumber();
+            this.role = user.getRole();
+        }
     }
 
     public String getToken() {
