@@ -35,8 +35,6 @@ public class RegisterServiceImpl implements RegisterService {
         // Hash password
         String hashedPassword = passwordService.hash(user.getPassword());
         user.setPassword(hashedPassword);
-        // Ensure confirmPassword equals hashed password so the receiving service sees matching fields
-        user.setConfirmPassword(hashedPassword);
 
         // Persist user
         try {

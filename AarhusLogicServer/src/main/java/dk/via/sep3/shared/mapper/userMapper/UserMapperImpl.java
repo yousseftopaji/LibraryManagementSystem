@@ -18,7 +18,6 @@ public class UserMapperImpl implements UserMapper {
         user.setName(dto.getFullName());
         user.setUsername(dto.getUsername());
         user.setPassword(dto.getPassword());
-        user.setConfirmPassword(dto.getConfirmPassword());
         user.setEmail(dto.getEmail());
         user.setPhoneNumber(dto.getPhone());
         // If you always register readers, you can hard-code here:
@@ -91,16 +90,6 @@ public class UserMapperImpl implements UserMapper {
         DTOUser.Builder builder = DTOUser.newBuilder();
         if (user.getUsername() != null) builder.setUsername(user.getUsername());
         if (user.getPassword() != null) builder.setPassword(user.getPassword());
-        if (user.getConfirmPassword() != null) {
-            // Use reflection to set confirmpassword on the generated builder. This avoids a hard
-            // compile-time dependency on generated sources being present in the IDE checker.
-            try {
-                java.lang.reflect.Method m = DTOUser.Builder.class.getMethod("setConfirmpassword", String.class);
-                m.invoke(builder, user.getConfirmPassword());
-            } catch (Exception ignored) {
-                // If reflection fails (builder doesn't have the method), we silently ignore and continue.
-            }
-        }
         if (user.getRole() != null) builder.setRole(user.getRole());
         if (user.getName() != null) builder.setName(user.getName());
         if (user.getPhoneNumber() != null) builder.setPhoneNumber(user.getPhoneNumber());
