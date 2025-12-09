@@ -1,114 +1,126 @@
 package dk.via.sep3.grpcConnection.loanGrpcService;
 
 import dk.via.sep3.*;
+import dk.via.sep3.model.domain.Loan;
+import dk.via.sep3.shared.mapper.loanMapper.LoanMapper;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
-@Service
-public class LoanGrpcServiceImpl implements LoanGrpcService {
-    private static final Logger logger = LoggerFactory.getLogger(LoanGrpcService.class);
-    private final LoanServiceGrpc.LoanServiceBlockingStub loanStub;
+@Service public class LoanGrpcServiceImpl implements LoanGrpcService
+{
+  private static final Logger logger = LoggerFactory.getLogger(
+      LoanGrpcServiceImpl.class);
+  private final LoanServiceGrpc.LoanServiceBlockingStub loanStub;
+  private final LoanMapper loanMapper;
+  public LoanGrpcServiceImpl(ManagedChannel channel, LoanMapper loanMapper)
+  {
+    this.loanStub = LoanServiceGrpc.newBlockingStub(channel);
+    this.loanMapper = loanMapper;
+  }
 
-    public LoanGrpcServiceImpl(ManagedChannel channel) {
-        this.loanStub = LoanServiceGrpc.newBlockingStub(channel);
+  @Override public Loan createLoan(Loan loan)
+  {
+    try
+    {
+      CreateLoanRequest request = CreateLoanRequest.newBuilder()
+          .setUsername(loan.getUsername()).setBookId(loan.getBookId()).setBorrowDate(loan.getBorrowDate().toString())
+          .setDueDate(loan.getDueDate().toString()).build();
+      logger.info(
+          "Sending gRPC request to create loan for user: {}, bookId: {}, dates: {} to {}",
+          loan.getUsername(), loan.getBookId(), loan.getBorrowDate(), loan.getDueDate());
+      CreateLoanResponse response = loanStub.createLoan(request);
+      if (response.getSuccess())
+      {
+        logger.info("Loan created successfully: {}", response.getLoan());
+        return loanMapper.mapDTOLoanToDomain(response.getLoan());
+      }
+      else
+      {
+        logger.error("Failed to create loan: {}", response.getMessage());
+        return null;
+      }
     }
-
-    @Override
-    public DTOLoan createLoan(String username, String bookId, String now, String dueDate) {
-        try {
-            int bookIdInt = Integer.parseInt(bookId);
-            CreateLoanRequest request = CreateLoanRequest.newBuilder()
-                    .setUsername(username)
-                    .setBookId(bookIdInt)
-                    .setBorrowDate(now)
-                    .setDueDate(dueDate)
-                    .build();
-            logger.info(
-                    "Sending gRPC request to create loan for user: {}, bookId: {}, dates: {} to {}",
-                    username, bookId, now, dueDate);
-            CreateLoanResponse response = loanStub.createLoan(request);
-            if (response.getSuccess()) {
-                logger.info("Loan created successfully: {}", response.getLoan());
-                return response.getLoan();
-            } else {
-                logger.error("Failed to create loan: {}", response.getMessage());
-                return null;
-            }
-        } catch (NumberFormatException ex) {
-            logger.error("Invalid bookId format: {}", bookId, ex);
-            return null;
-        } catch (Exception ex) {
-            logger.error("Error creating loan", ex);
-            return null;
-        }
+    catch (Exception ex)
+    {
+      logger.error("Error creating loan", ex);
+      return null;
     }
+  }
 
-    @Override
-    public List<DTOLoan> getLoansByISBN(String isbn) {
-        GetLoansByISBNRequest request = GetLoansByISBNRequest
-                .newBuilder()
-                .setIsbn(isbn)
-                .build();
+  @Override public List<Loan> getLoansByISBN(String isbn)
+  {
+    GetLoansByISBNRequest request = GetLoansByISBNRequest.newBuilder()
+        .setIsbn(isbn).build();
 
-        logger.info("Sending gRPC request to get loans for ISBN: {}", isbn);
-        GetLoansByISBNResponse response = loanStub.getLoansByISBN(request);
+    logger.info("Sending gRPC request to get loans for ISBN: {}", isbn);
+    GetLoansByISBNResponse response = loanStub.getLoansByISBN(request);
 
-        logger.info("Received {} loans for ISBN: {}", response.getLoansCount(), isbn);
-        return response.getLoansList();
+    logger.info("Received {} loans for ISBN: {}", response.getLoansCount(),
+        isbn);
+    List<Loan> loans = new ArrayList<>();
+    for (DTOLoan l : response.getLoansList())
+    {
+      loans.add(loanMapper.mapDTOLoanToDomain(l));
     }
+    return loans;
+  }
 
-    @Override
-    public void extendLoan(int loanId, String username) {
-        try {
-            ExtendLoanRequest request = ExtendLoanRequest.newBuilder()
-                    .setLoanId(loanId)
-                    .setUsername(username)
-                    .build();
-            logger.info("Sending gRPC request to extend loan with ID: {}", loanId);
-            ExtendLoanResponse response = loanStub.extendLoan(request);
-            if (response.getSuccess()) {
-                logger.info("Loan with ID: {} extended successfully", loanId);
-            } else {
-                logger.error("Failed to extend loan with ID: {}: {}", loanId, response.getMessage());
-                throw new RuntimeException("Failed to extend loan with ID: " + loanId);
-            }
-        } catch (Exception ex) {
-            logger.error("Error extending loan with ID: {}", loanId, ex);
-            throw new RuntimeException("Error extending loan with ID: " + loanId, ex);
-        }
+  @Override public void extendLoan(int loanId)
+  {
+    try
+    {
+      ExtendLoanRequest request = ExtendLoanRequest.newBuilder()
+          .setLoanId(loanId).build();
+      logger.info("Sending gRPC request to extend loan with ID: {}", loanId);
+      ExtendLoanResponse response = loanStub.extendLoan(request);
+      if (response.getSuccess())
+      {
+        logger.info("Loan with ID: {} extended successfully", loanId);
+      }
+      else
+      {
+        logger.error("Failed to extend loan with ID: {}: {}", loanId,
+            response.getMessage());
+        throw new RuntimeException("Failed to extend loan with ID: " + loanId);
+      }
     }
-
-    @Override
-    public DTOLoan getLoanById(int bookId) {
-        try {
-            GetLoanByIdRequest request = GetLoanByIdRequest.newBuilder().setId(bookId).build();
-
-            logger.info("Sending gRPC request to get loan with ID: {}", bookId);
-            GetLoanByIdResponse response = loanStub.getLoanById(request);
-            if (response.getSuccess()) {
-                logger.info("Retrieved loan with ID: {}", bookId);
-                return response.getLoan();
-            } else {
-                logger.error("Failed to retrieve loan with ID: {}: {}", bookId, response.getMessage());
-                return null;
-            }
-        } catch (Exception ex) {
-            logger.error("Error retrieving loan with ID: {}", bookId, ex);
-            return null;
-        }
+    catch (Exception ex)
+    {
+      logger.error("Error extending loan with ID: {}", loanId, ex);
+      throw new RuntimeException("Error extending loan with ID: " + loanId, ex);
     }
+  }
 
-    private DTOLoan handleResponse(CreateLoanResponse response) {
-        if (response.getSuccess()) {
-            logger.info("Loan created successfully: {}", response.getLoan());
-            return response.getLoan();
-        } else {
-            logger.error("Failed to create loan: {}", response.getMessage());
-            return null;
-        }
+  @Override public Loan getLoanById(int bookId)
+  {
+    try
+    {
+      GetLoanByIdRequest request = GetLoanByIdRequest.newBuilder().setId(bookId)
+          .build();
+
+      logger.info("Sending gRPC request to get loan with ID: {}", bookId);
+      GetLoanByIdResponse response = loanStub.getLoanById(request);
+      if (response.getSuccess())
+      {
+        logger.info("Retrieved loan with ID: {}", bookId);
+        return loanMapper.mapDTOLoanToDomain(response.getLoan());
+      }
+      else
+      {
+        logger.error("Failed to retrieve loan with ID: {}: {}", bookId,
+            response.getMessage());
+        return null;
+      }
     }
+    catch (Exception ex)
+    {
+      logger.error("Error retrieving loan with ID: {}", bookId, ex);
+      return null;
+    }
+  }
 }

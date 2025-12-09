@@ -4,24 +4,23 @@ namespace DTOs.Book;
 
 public class BookDTO
 {
+    
     [JsonPropertyName("id")]
-    public string? BookId { get; set; }
+    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
+    public int BookId { get; set; }
 
     [JsonPropertyName("title")]
-    public string? Title { get; set; }
+    public required string Title { get; set; }
 
     [JsonPropertyName("author")]
-    public string? Author { get; set; }
+    public required string Author { get; set; }
 
     [JsonPropertyName("isbn")]
-    public string? ISBN { get; set; }
+    public required string ISBN { get; set; }
 
     [JsonPropertyName("state")]
     public required string State { get; set; }
-
-    [JsonPropertyName("loanId")]
-    public int? LoanId { get; set; }
-
+    
     [JsonPropertyName("genres")]
-public List<string>? Genres { get; set; }
+    public required List<GenreDTO> Genre { get; set; }
 }

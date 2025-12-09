@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EFCDatabaseRepositories.Migrations
 {
     /// <inheritdoc />
-    public partial class AddEntities : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -46,7 +46,8 @@ namespace EFCDatabaseRepositories.Migrations
                     PasswordHash = table.Column<string>(type: "TEXT", nullable: false),
                     Role = table.Column<string>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "TEXT", nullable: false)
+                    PhoneNumber = table.Column<string>(type: "TEXT", nullable: false),
+                    Email = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -57,15 +58,15 @@ namespace EFCDatabaseRepositories.Migrations
                 name: "BookGenre",
                 columns: table => new
                 {
-                    BooksId = table.Column<int>(type: "INTEGER", nullable: false),
+                    BookId = table.Column<int>(type: "INTEGER", nullable: false),
                     GenreName = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BookGenre", x => new { x.BooksId, x.GenreName });
+                    table.PrimaryKey("PK_BookGenre", x => new { x.BookId, x.GenreName });
                     table.ForeignKey(
-                        name: "FK_BookGenre_Book_BooksId",
-                        column: x => x.BooksId,
+                        name: "FK_BookGenre_Book_BookId",
+                        column: x => x.BookId,
                         principalTable: "Book",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -87,7 +88,8 @@ namespace EFCDatabaseRepositories.Migrations
                     DueDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Username = table.Column<string>(type: "TEXT", nullable: false),
                     BookId = table.Column<int>(type: "INTEGER", nullable: false),
-                    NumberOfExtensions = table.Column<int>(type: "INTEGER", nullable: false)
+                    NumberOfExtensions = table.Column<int>(type: "INTEGER", nullable: false),
+                    IsReturned = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {

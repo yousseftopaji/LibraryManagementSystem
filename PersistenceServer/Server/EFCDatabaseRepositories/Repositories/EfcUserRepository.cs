@@ -20,7 +20,8 @@ public class EfcUserRepository(LibraryDbContext context) : IUserRepository
             PasswordHash = user.PasswordHash,
             Role = user.Role,
             Name = user.Name,
-            PhoneNumber = user.PhoneNumber
+            PhoneNumber = user.PhoneNumber,
+            Email = user.Email
         };
     }
 }

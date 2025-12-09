@@ -1,8 +1,8 @@
 package dk.via.sep3.grpcConnection.userGrpcService;
 
-import dk.via.sep3.DTOUser;
+import dk.via.sep3.model.domain.User;
 
 public interface UserGrpcService
 {
-  DTOUser getUserByUsername(String username);
+  User getUserByUsername(String username);
 }

@@ -30,5 +30,21 @@ public class EfcReservationRepository(LibraryDbContext context) : IReservationRe
         
         return count;
     }
+
+    public Task<List<ReservationDTO>> GetReservationsByIsbnAsync(string isbn)
+    {
+        var reservations = context.Reservation
+            .Where(r => r.Book != null && r.Book.ISBN == isbn)
+            .Select(r => new ReservationDTO
+            {
+                ReservationId = r.Id,
+                BookId = r.BookId,
+                Username = r.Username,
+                ReservationDate = r.ReservationDate
+            })
+            .ToListAsync();
+
+        return reservations;
+    }
 }
 

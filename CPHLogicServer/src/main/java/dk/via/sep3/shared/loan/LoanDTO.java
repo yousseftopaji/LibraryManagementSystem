@@ -8,14 +8,14 @@ public class LoanDTO
   private boolean isReturned;
   private int numberOfExtensions;
   private String username;
-  private String bookId;
+  private int bookId;
 
   public LoanDTO()
   {
   }
 
   public LoanDTO(String id, String borrowDate, String dueDate, boolean isReturned,
-                 int numberOfExtensions, String username, String bookId)
+                 int numberOfExtensions, String username, int bookId)
   {
     this.id = id;
     this.borrowDate = borrowDate;
@@ -86,12 +86,12 @@ public class LoanDTO
     this.username = username;
   }
 
-  public String getBookId()
+  public int getBookId()
   {
     return bookId;
   }
 
-  public void setBookId(String bookId)
+  public void setBookId(int bookId)
   {
     this.bookId = bookId;
   }
