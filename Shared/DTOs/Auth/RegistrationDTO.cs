@@ -19,7 +19,4 @@ public class RegisterRequest
     
     [JsonPropertyName("password")]
     public required string Password { get; set; }
-
-    [JsonPropertyName("confirmpassword")]
-    public required string ConfirmPassword { get; set; }
 }
