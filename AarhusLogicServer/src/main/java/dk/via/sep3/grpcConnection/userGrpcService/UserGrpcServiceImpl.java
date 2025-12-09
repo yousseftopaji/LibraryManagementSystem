@@ -4,7 +4,7 @@ import dk.via.sep3.GetUserByUsernameRequest;
 import dk.via.sep3.GetUserByUsernameResponse;
 import dk.via.sep3.UserServiceGrpc;
 import dk.via.sep3.model.domain.User;
-import dk.via.sep3.shared.mapper.userMapper.UserMapper;
+import dk.via.sep3.mapper.userMapper.UserMapper;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
