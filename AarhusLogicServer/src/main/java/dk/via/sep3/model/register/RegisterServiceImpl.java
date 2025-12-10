@@ -34,7 +34,7 @@ public class RegisterServiceImpl implements RegisterService {
         // Hash password
         String hashedPassword = passwordService.hash(user.getPassword());
         user.setPassword(hashedPassword);
-
+        user.setRole("Reader");
         // Persist user
         try {
             User created = userGrpcService.createUser(user);

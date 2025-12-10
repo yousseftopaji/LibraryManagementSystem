@@ -3,6 +3,7 @@ package dk.via.sep3.shared.mapper.userMapper;
 import dk.via.sep3.DTOUser;
 import dk.via.sep3.model.domain.User;
 import dk.via.sep3.shared.auth.AuthResponseDTO;
+import dk.via.sep3.shared.login.LoginRequestDTO;
 import dk.via.sep3.shared.registration.RegistrationDTO;
 import dk.via.sep3.shared.user.UserDTO;
 import org.springframework.stereotype.Component;
@@ -58,7 +59,6 @@ public class UserMapperImpl implements UserMapper {
     @Override
     public User mapDTOUserToDomain(DTOUser dto) {
         if (dto == null) return null;
-
         User user = new User();
         user.setName(dto.getName());
         user.setUsername(dto.getUsername());
@@ -70,11 +70,10 @@ public class UserMapperImpl implements UserMapper {
     }
 
     @Override
-    public AuthResponseDTO mapDomainToAuthResponse(User user, String jwtToken) {
+    public AuthResponseDTO mapDomainToAuthResponse(User user) {
         if (user == null) return null;
 
         return new AuthResponseDTO(
-                jwtToken,
                 user.getUsername(),
                 user.getName(),
                 user.getEmail(),
@@ -95,5 +94,13 @@ public class UserMapperImpl implements UserMapper {
         if (user.getPhoneNumber() != null) builder.setPhoneNumber(user.getPhoneNumber());
         if (user.getEmail() != null) builder.setEmail(user.getEmail());
         return builder.build();
+    }
+
+    @Override
+    public User mapLoginRequestToDomain(LoginRequestDTO request) {
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(request.getPassword());
+        return user;
     }
 }

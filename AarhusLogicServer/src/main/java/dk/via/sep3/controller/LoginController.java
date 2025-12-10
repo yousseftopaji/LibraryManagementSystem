@@ -1,8 +1,12 @@
 package dk.via.sep3.controller;
 
 import dk.via.sep3.model.auth.AuthService;
-import dk.via.sep3.shared.login.LoginRequest;
-import dk.via.sep3.shared.login.LoginResponse;
+import dk.via.sep3.model.domain.User;
+import dk.via.sep3.security.JwtUtil;
+import dk.via.sep3.shared.login.LoginRequestDTO;
+import dk.via.sep3.shared.login.LoginResponseDTO;
+import dk.via.sep3.shared.mapper.userMapper.UserMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,33 +14,23 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class LoginController {
     private final AuthService authService;
-
-    public LoginController(AuthService authService) {
+    private final UserMapper userMapper;
+    private final JwtUtil jwtUtil;
+    public LoginController(AuthService authService, UserMapper userMapper, JwtUtil jwtUtil) {
         this.authService = authService;
+        this.userMapper = userMapper;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        try {
-            if (request == null || request.getUsername() == null || request.getPassword() == null) {
-                return ResponseEntity.badRequest().body(new LoginResponse(null, false, "Invalid request", null));
-            }
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
+       User user = userMapper.mapLoginRequestToDomain(request);
 
-            LoginResponse response = authService.login(request);
-
-            if (response == null) {
-                // Auth service had an unexpected error
-                return ResponseEntity.status(500).body(new LoginResponse(null, false, "Authentication service error", null));
-            }
-
-            if (!response.isSuccess()) {
-                return ResponseEntity.status(401).body(response);
-            }
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            // Log the exception in real code (omitted here to keep example concise)
-            return ResponseEntity.status(500).body(new LoginResponse(null, false, "Internal server error", null));
-        }
+       authService.login(user);
+       String token = jwtUtil.generateToken(user.getUsername(),  user.getRole());
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
+        loginResponseDTO.setToken(token);
+        loginResponseDTO.setUsername(user.getUsername());
+        return  new ResponseEntity<>(loginResponseDTO, HttpStatus.OK);
     }
 }

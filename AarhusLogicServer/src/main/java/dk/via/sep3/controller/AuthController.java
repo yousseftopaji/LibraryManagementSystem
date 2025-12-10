@@ -46,15 +46,12 @@ public class AuthController {
         // 2. Delegate to model layer: validation, hashing, persistence
         User registeredUser = registerService.register(user);
 
-        // 3. Generate JWT for the registered user
-        String token = jwtUtil.generateToken(registeredUser.getUsername());
-
         // 4. Map domain user → DTO to avoid password and other internals
         UserDTO userDTO = userMapper.mapDomainToUserDTO(registeredUser);
 
         // 5. Wrap in AuthResponseDTO using explicit fields to avoid constructor resolution issues
         AuthResponseDTO response = new AuthResponseDTO(
-                token,
+
                 userDTO != null ? userDTO.getUsername() : null,
                 userDTO != null ? userDTO.getName() : null,
                 userDTO != null ? userDTO.getEmail() : null,

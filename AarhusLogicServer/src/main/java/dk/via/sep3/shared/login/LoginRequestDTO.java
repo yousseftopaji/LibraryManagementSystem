@@ -1,12 +1,12 @@
 package dk.via.sep3.shared.login;
 
-public class LoginRequest {
+public class LoginRequestDTO {
     private String username;
     private String password;
 
-    public LoginRequest() {}
+    public LoginRequestDTO() {}
 
-    public LoginRequest(String username, String password) {
+    public LoginRequestDTO(String username, String password) {
         this.username = username;
         this.password = password;
     }

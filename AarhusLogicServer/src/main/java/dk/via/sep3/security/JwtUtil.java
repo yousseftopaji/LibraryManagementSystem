@@ -28,19 +28,26 @@ public class JwtUtil {
         verifier = JWT.require(algorithm).build();
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String username, String role) {
         Date now = new Date();
         Date exp = new Date(now.getTime() + expirationMs);
         return JWT.create()
                 .withSubject(username)
+                .withClaim("role",role)
                 .withIssuedAt(now)
                 .withExpiresAt(exp)
                 .sign(algorithm);
+
     }
 
     public String extractUsername(String token) {
         DecodedJWT decoded = verifier.verify(token);
         return decoded.getSubject();
+    }
+
+    public String extractRole(String token) {
+        DecodedJWT decoded = verifier.verify(token);
+        return decoded.getClaim("role").toString();
     }
 
     public boolean validateToken(String token) {
