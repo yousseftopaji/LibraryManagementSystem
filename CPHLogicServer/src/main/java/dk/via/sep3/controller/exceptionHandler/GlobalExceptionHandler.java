@@ -41,6 +41,15 @@ public class GlobalExceptionHandler {
     );
   }
 
+  @ExceptionHandler(AuthenticationFailedException.class)
+  public ResponseEntity<ErrorResponse> handleAuthenticationFailed(AuthenticationFailedException ex) {
+    logger.warn("Authentication failed: {}", ex.getMessage());
+    return new ResponseEntity<>(
+        new ErrorResponse("Authentication failed", "AUTHENTICATION_FAILED", Instant.now().toString(), ex.getMessage()),
+        HttpStatus.UNAUTHORIZED
+    );
+  }
+
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
     logger.warn("Invalid argument: {}", ex.getMessage());

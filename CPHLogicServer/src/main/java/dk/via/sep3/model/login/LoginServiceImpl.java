@@ -22,11 +22,6 @@ public class LoginServiceImpl implements LoginService {
     validator.validatePassword(loginDTO.getPassword());
 
     String token = authenticationGrpcService.login(loginDTO.getUsername(), loginDTO.getPassword());
-
-    if (token != null && !token.isEmpty()) {
-      return new LoginResponseDTO(true, "Login successful", token);
-    } else {
-      return new LoginResponseDTO(false, "Invalid username or password", null);
-    }
+    return new LoginResponseDTO(token);
   }
 }

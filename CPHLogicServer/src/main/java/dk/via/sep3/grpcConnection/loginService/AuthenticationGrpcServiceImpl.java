@@ -3,8 +3,8 @@ package dk.via.sep3.grpcConnection.loginService;
 import dk.via.sep3.LoginRequest;
 import dk.via.sep3.LoginResponse;
 import dk.via.sep3.AuthenticationServiceGrpc;
-import dk.via.sep3.security.JwtTokenProvider;
-import dk.via.sep3.security.PasswordEncoderService;
+import dk.via.sep3.controller.exceptionHandler.AuthenticationFailedException;
+import dk.via.sep3.controller.exceptionHandler.GrpcCommunicationException;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,11 +38,13 @@ public class AuthenticationGrpcServiceImpl implements AuthenticationGrpcService
         return response.getToken();
       } else {
         logger.error("Failed to login user: {}", response.getMessage());
-        return null;
+        throw new AuthenticationFailedException("Invalid username or password");
       }
+    } catch (AuthenticationFailedException ex) {
+      throw ex;
     } catch (Exception ex) {
       logger.error("Error logging in user: {}", username, ex);
-      return null;
+      throw new GrpcCommunicationException("Failed to communicate with authentication service", ex);
     }
   }
 }
