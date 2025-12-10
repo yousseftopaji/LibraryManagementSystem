@@ -13,7 +13,15 @@ public class UserServiceImpl(IUserRepository userRepository) : UserService.UserS
             var user = await userRepository.GetUserAsync(request.Username);
             var response = new GetUserByUsernameResponse
             {
-                User = new DTOUser { Username = user.Username },
+                User = new DTOUser
+                {
+                    Username = user.Username, 
+                    Password = user.PasswordHash,
+                    PhoneNumber = user.PhoneNumber,
+                    Email = user.Email,
+                    Name = user.Name,
+                    Role = user.Role
+                },
                 Success = true,
                 Message = "User retrieved successfully."
             };
