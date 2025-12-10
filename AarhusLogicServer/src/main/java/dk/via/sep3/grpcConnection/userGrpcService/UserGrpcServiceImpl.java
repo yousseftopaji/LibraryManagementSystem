@@ -51,8 +51,14 @@ public class UserGrpcServiceImpl implements UserGrpcService {
 
             if (response.getSuccess())
             {logger.info(response.getMessage());
-}
-            return userMapper.mapDTOUserToDomain(response.getUser());
+                return userMapper.mapDTOUserToDomain(response.getUser());
+            }
+
+            // If the response indicates failure or the returned user is empty,
+            // treat it as "not found" and return null so higher-level validators
+            // won't assume the username exists.
+            logger.info("User not found for username: {}. Response message: {}", username, response.getMessage());
+            return null;
         } catch (Exception ex) {
             logger.error("Error fetching user by username: {}", username, ex);
             throw new GrpcCommunicationException(ex.getMessage());

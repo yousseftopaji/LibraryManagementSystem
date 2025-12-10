@@ -29,7 +29,6 @@ public class RegisterServiceImpl implements RegisterService {
         if (user == null)
             throw new BusinessRuleViolationException("Registration cannot be null");
 
-        // Delegate **all field validation** to your validators
         registrationValidator.validate(user);
 
         // Hash password

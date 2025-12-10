@@ -20,7 +20,6 @@ public class AuthServiceImpl implements AuthService {
         this.passwordService = passwordService;
         this.jwtUtil = jwtUtil;
     }
-
     @Override
     public LoginResponse login(LoginRequest request) {
         // validate inputs
