@@ -1,7 +1,9 @@
 ﻿@page "/books/{ISBN}"
 @using DTOs.Book
+
 @rendermode InteractiveServer
 @inject Services.IBookService BookService
+
 
 <h3>Book Details</h3>
 @if (book == null)
@@ -23,7 +25,8 @@ else
         }
         else
         {
-            <ReserveBook ISBN="@book.ISBN" />
+            <ReserveBook ISBN="@book.ISBN" OnReserveSuccess="RefreshBookDetails" />
+
         }
     </div>
 }

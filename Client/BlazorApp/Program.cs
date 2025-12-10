@@ -1,6 +1,7 @@
 using BlazorApp.Components;
 using BlazorApp.Services;
 using BlazorApp.Services.LoanService;
+using BlazorApp.Services.ReservationService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +16,7 @@ builder.Services.AddScoped(sp => new HttpClient
 
 builder.Services.AddScoped<IBookService, HttpBookService>();
 builder.Services.AddScoped<ILoanService, HttpLoanService>();
-
+builder.Services.AddScoped<IReservationService, HttpReservationService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
