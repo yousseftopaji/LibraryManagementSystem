@@ -7,12 +7,12 @@ namespace EFCDatabaseRepositories.Repositories;
 
 public class EfcUserRepository(LibraryDbContext context) : IUserRepository
 {
-    public async Task<UserDTO> GetUserAsync(string username)
+    public async Task<UserDTO?> GetUserAsync(string username)
     {
         var user = await context.User.FindAsync(username);
         if (user == null)
         {
-            throw new Exception($"User with username {username} not found.");
+            return null;
         }
         
         return new UserDTO()

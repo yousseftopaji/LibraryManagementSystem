@@ -1,4 +1,5 @@
-﻿using GrpcService.Protos;
+﻿using DTOs.User;
+using GrpcService.Protos;
 using Grpc.Core;
 using RepositoryContracts;
 
@@ -10,12 +11,21 @@ public class UserServiceImpl(IUserRepository userRepository) : UserService.UserS
     {
         try
         {
-            var user = await userRepository.GetUserAsync(request.Username);
+            UserDTO? user = await userRepository.GetUserAsync(request.Username);
+            if (user == null)
+            {
+                return new GetUserByUsernameResponse
+                {
+                    Success = false,
+                    Message = "User not found."
+                };
+            }
+
             var response = new GetUserByUsernameResponse
             {
                 User = new DTOUser
                 {
-                    Username = user.Username, 
+                    Username = user.Username,
                     Password = user.PasswordHash,
                     PhoneNumber = user.PhoneNumber,
                     Email = user.Email,
@@ -27,12 +37,12 @@ public class UserServiceImpl(IUserRepository userRepository) : UserService.UserS
             };
             return response;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return new GetUserByUsernameResponse
             {
                 Success = false,
-                Message = ex.Message
+                Message = "An internal error occurred while retrieving the user."
             };
         }
     }
