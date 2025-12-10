@@ -1,30 +1,18 @@
-using System;
-using System.Net.Http.Headers;
-using Microsoft.JSInterop;
-
-
-namespace BlazorApp.Services.Auth;
-
 public class JwtAuthMessageHandler : DelegatingHandler
 {
-    private readonly IJSRuntime js;
+    private readonly AuthProvider authProvider;
 
-    public JwtAuthMessageHandler(IJSRuntime js)
+    public JwtAuthMessageHandler(AuthProvider authProvider)
     {
-        this.js = js;
+        this.authProvider = authProvider;
     }
 
-    protected override async Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request,
-        CancellationToken cancellationToken)
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        // Read token from local storage
-        string? token = await js.InvokeAsync<string>("localStorage.getItem", "authToken");
-
+        var token = authProvider.GetToken();
         if (!string.IsNullOrEmpty(token))
         {
-            request.Headers.Authorization =
-                new AuthenticationHeaderValue("Bearer", token);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
         }
 
         return await base.SendAsync(request, cancellationToken);

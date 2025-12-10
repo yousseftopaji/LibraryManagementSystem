@@ -1,7 +1,9 @@
 ﻿@page "/login"
 
-@inject AuthenticationStateProvider AuthProvider
+@inject AuthProvider AuthProvider
 @inject NavigationManager navMgr
+@inject HttpClient client
+
 
 <div class="container d-flex justify-content-center align-items-center vh-100">
     <div class="card p-4 shadow-sm" style="max-width: 400px; width: 100%;">
@@ -53,7 +55,8 @@
         errorLabel = "";
         try
         {
-            await ((AuthProvider)AuthProvider).Login(userName, password);
+            await AuthProvider.Login(userName, password);
+            AuthProvider.AttachToken(client);
             navMgr.NavigateTo("/");
         }
         catch (Exception e)

@@ -2,21 +2,18 @@ using System.Security.Claims;
 using System.Text.Json;
 using DTOs;
 using DTOs.Auth;
-using DTOs.User;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.JSInterop;
 
 
 public class AuthProvider : AuthenticationStateProvider
 {
     private readonly HttpClient client;
+    private string? jwtToken;
     private ClaimsPrincipal? currentClaimsPrincipal;
-    private readonly IJSRuntime js;
 
-    public AuthProvider(HttpClient client, IJSRuntime js)
+    public AuthProvider(HttpClient client)
     {
         this.client = client;
-        this.js = js;
     }
 
     public async Task Register(string fullName, string phone, string userName, string email, string password)
@@ -55,8 +52,7 @@ public class AuthProvider : AuthenticationStateProvider
         })!;
 
 
-    // Save JWT to local storage
-     await js.InvokeVoidAsync("localStorage.setItem","authToken", loginResponse.Token);
+        jwtToken = loginResponse.Token;
 
         List<Claim> claims = new List<Claim>()
         {
@@ -75,6 +71,8 @@ public class AuthProvider : AuthenticationStateProvider
         );
     }
    
+    public string? GetToken() => jwtToken;
+
     public override Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         return Task.FromResult(new AuthenticationState(currentClaimsPrincipal ?? new()));
@@ -85,4 +83,13 @@ public class AuthProvider : AuthenticationStateProvider
         currentClaimsPrincipal = new();
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(currentClaimsPrincipal)));
     }
+
+    public void AttachToken(HttpClient client)
+{
+    if (!string.IsNullOrEmpty(jwtToken))
+    {
+        client.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+    }
+}
 }

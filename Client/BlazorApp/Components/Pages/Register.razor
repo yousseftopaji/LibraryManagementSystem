@@ -82,6 +82,12 @@
             await ((AuthProvider)AuthProvider).Register(fullName, phone, userName, email, password);
             
             showSuccess = true;
+            // Clear the form fields
+            fullName = "";
+            phone = "";
+            userName = "";
+            email = "";
+            password = "";
         }
         catch (Exception e)
         {
