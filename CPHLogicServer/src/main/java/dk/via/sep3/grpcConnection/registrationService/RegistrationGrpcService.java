@@ -4,5 +4,5 @@ import dk.via.sep3.shared.registration.CreateRegisterDTO;
 
 public interface RegistrationGrpcService
 {
-  boolean register(CreateRegisterDTO createRegisterDTO);
+  void register(CreateRegisterDTO createRegisterDTO);
 }

@@ -32,6 +32,15 @@ public class GlobalExceptionHandler {
     );
   }
 
+  @ExceptionHandler(UserAlreadyExistsException.class)
+  public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException ex) {
+    logger.warn("User already exists: {}", ex.getMessage());
+    return new ResponseEntity<>(
+        new ErrorResponse("User already exists", "USER_ALREADY_EXISTS", Instant.now().toString(), ex.getMessage()),
+        HttpStatus.CONFLICT
+    );
+  }
+
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
     logger.warn("Invalid argument: {}", ex.getMessage());

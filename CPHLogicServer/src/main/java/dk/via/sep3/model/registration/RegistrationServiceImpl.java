@@ -4,7 +4,6 @@ import dk.via.sep3.controller.exceptionHandler.BusinessRuleViolationException;
 import dk.via.sep3.grpcConnection.registrationService.RegistrationGrpcService;
 import dk.via.sep3.model.utils.validation.Validator;
 import dk.via.sep3.shared.registration.CreateRegisterDTO;
-import dk.via.sep3.shared.registration.RegisterDTO;
 import org.springframework.stereotype.Service;
 
 @Service public class RegistrationServiceImpl implements RegistrationService
@@ -19,7 +18,7 @@ import org.springframework.stereotype.Service;
     this.validator = validator;
   }
 
-  @Override public RegisterDTO register(CreateRegisterDTO createRegisterDTO)
+  @Override public void register(CreateRegisterDTO createRegisterDTO)
   {
     // Validate all fields
     try
@@ -34,17 +33,7 @@ import org.springframework.stereotype.Service;
     {
       throw new BusinessRuleViolationException(e.getMessage());
     }
-    // Call gRPC service to register
-    boolean success = registrationGrpcService.register(createRegisterDTO);
-
-    if (success)
-    {
-      return new RegisterDTO(true,
-          "Registration successful. You may now log in.");
-    }
-    else
-    {
-      return new RegisterDTO(false, "Username already in use.");
-    }
+    // Call gRPC service to register - will throw exception if fails
+    registrationGrpcService.register(createRegisterDTO);
   }
 }

@@ -3,6 +3,8 @@ package dk.via.sep3.grpcConnection.registrationService;
 import dk.via.sep3.RegisterRequest;
 import dk.via.sep3.RegisterResponse;
 import dk.via.sep3.RegistrationServiceGrpc;
+import dk.via.sep3.controller.exceptionHandler.GrpcCommunicationException;
+import dk.via.sep3.controller.exceptionHandler.UserAlreadyExistsException;
 import dk.via.sep3.security.PasswordEncoderService;
 import dk.via.sep3.shared.registration.CreateRegisterDTO;
 import io.grpc.ManagedChannel;
@@ -24,7 +26,7 @@ public class RegistrationGrpcServiceImpl implements RegistrationGrpcService
   }
 
   @Override
-  public boolean register(CreateRegisterDTO createRegisterDTO) {
+  public void register(CreateRegisterDTO createRegisterDTO) {
     try {
       String hashedPassword = passwordEncoderService.encode(createRegisterDTO.getPassword());
 
@@ -41,14 +43,15 @@ public class RegistrationGrpcServiceImpl implements RegistrationGrpcService
 
       if (response.getSuccess()) {
         logger.info("User registered successfully: {}", createRegisterDTO.getUsername());
-        return true;
       } else {
         logger.error("Failed to register user: {}", response.getMessage());
-        return false;
+        throw new UserAlreadyExistsException("Username already in use");
       }
+    } catch (UserAlreadyExistsException ex) {
+      throw ex;
     } catch (Exception ex) {
       logger.error("Error registering user: {}", createRegisterDTO.getUsername(), ex);
-      return false;
+      throw new GrpcCommunicationException("Failed to communicate with registration service", ex);
     }
   }
 }
