@@ -44,6 +44,14 @@
             <div class="text-center mt-3">
                 <a href="/login">Already have an account? Login</a>
             </div>
+
+            @if (showSuccess)
+            {
+                <div class="alert alert-success mt-3" role="alert">
+                    🎉 Registration successful! You can now log in.
+                </div>
+            }
+
         </div>
     </div>
 </div>
@@ -55,7 +63,7 @@
     private string email = "";
     private string password = "";
     private string? errorLabel;
-
+    private bool showSuccess = false;
     private async Task RegisterAsync()
     {
         errorLabel = "";
@@ -73,7 +81,8 @@
         try
         {
             await ((AuthProvider)AuthProvider).Register(fullName, phone, userName, email, password);
-            navMgr.NavigateTo("/login");
+            
+            showSuccess = true;
         }
         catch (Exception e)
         {

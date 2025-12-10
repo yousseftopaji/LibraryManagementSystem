@@ -27,7 +27,7 @@ public class AuthProvider : AuthenticationStateProvider
             Email = email,
             Password = password
         };
-    Console.WriteLine(JsonSerializer.Serialize(request));
+     
         var response = await client.PostAsJsonAsync("auth/register", request);
 
         if (!response.IsSuccessStatusCode)
@@ -58,12 +58,14 @@ public class AuthProvider : AuthenticationStateProvider
 
         List<Claim> claims = new List<Claim>()
         {
-            new Claim(ClaimTypes.Name, loginResponse.Username),
-            // new Claim("Password", loginResponse.Password),
-            new Claim("Role", loginResponse.Role)
+        new Claim(ClaimTypes.Name, loginResponse.User.Username),
+        new Claim(ClaimTypes.Role, loginResponse.User.Role),
+        new Claim("FullName", loginResponse.User.Name),
+        new Claim("Email", loginResponse.User.Email),
+        new Claim("PhoneNumber", loginResponse.User.PhoneNumber)
         };
 
-        ClaimsIdentity identity = new ClaimsIdentity(claims, "apiauth");
+        ClaimsIdentity identity = new ClaimsIdentity(claims, "auth");
         currentClaimsPrincipal = new ClaimsPrincipal(identity);
 
         NotifyAuthenticationStateChanged(
