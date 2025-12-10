@@ -1,6 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using BlazorApp.Components
 
 <CascadingAuthenticationState>
+ <AuthenticationInitializer /> 
     <Router AppAssembly="typeof(Program).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData = "@routeData" DefaultLayout="typeof(Layout.MainLayout)">

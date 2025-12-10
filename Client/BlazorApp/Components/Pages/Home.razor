@@ -15,24 +15,25 @@
                     Hello, @(context.User.Identity?.Name ?? "User") 👋
                 </h3>
             </Authorized>
+            <NotAuthorized>
+
+                <p class="lead mt-3">
+                    To browse interesting books 😊
+                </p>
+                
+                <button class="btn btn-primary btn-lg mt-3" @onclick="GoToLogin">
+                    Go to Login Page
+                </button>
+            </NotAuthorized>
         </AuthorizeView>
 
-        <p class="lead mt-3">
-            To browse interesting books 😊
-        </p>
-
-        <button class="btn btn-primary btn-lg mt-3" @onclick="GoToLogin">
-            Go to Login Page
-        </button>
     </div>
 
 </div>
 
-
 @code {
     void GoToLogin()
     {
-           Console.WriteLine("Click");
         NavMgr.NavigateTo("/login");
     }
 }
