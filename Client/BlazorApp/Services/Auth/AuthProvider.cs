@@ -1,20 +1,22 @@
 using System.Security.Claims;
 using System.Text.Json;
-using BlazorApp.Components.Auth;
 using DTOs;
 using DTOs.Auth;
 using DTOs.User;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.JSInterop;
 
 
 public class AuthProvider : AuthenticationStateProvider
 {
     private readonly HttpClient client;
     private ClaimsPrincipal? currentClaimsPrincipal;
+    private readonly IJSRuntime js;
 
-    public AuthProvider(HttpClient client)
+    public AuthProvider(HttpClient client, IJSRuntime js)
     {
         this.client = client;
+        this.js = js;
     }
 
     public async Task Register(string fullName, string phone, string userName, string email, string password)
@@ -53,8 +55,8 @@ public class AuthProvider : AuthenticationStateProvider
         })!;
 
 
-    // Save JWT locally (in memory for now)
-        var token = loginResponse.Token;
+    // Save JWT to local storage
+     await js.InvokeVoidAsync("localStorage.setItem","authToken", loginResponse.Token);
 
         List<Claim> claims = new List<Claim>()
         {
