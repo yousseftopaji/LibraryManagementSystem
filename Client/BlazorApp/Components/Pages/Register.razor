@@ -97,12 +97,12 @@
     try
     {
         // Try to parse server JSON error
-        var errorResponse = JsonSerializer.Deserialize<ErrorResponseDTO>(e.Message, new JsonSerializerOptions
+        ErrorResponseDTO? errorResponse = JsonSerializer.Deserialize<ErrorResponseDTO>(e.Message, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         });
 
-        errorLabel = errorResponse?.Message ?? "An unknown error occurred.";
+        errorLabel = errorResponse?.Details ?? "An unknown error occurred.";
     }
     catch
     {
