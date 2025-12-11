@@ -20,20 +20,20 @@ import java.util.List;
       LoanServiceImpl.class);
   private final BookGrpcService bookGrpcService;
   private final LoanGrpcService loanGrpcService;
-    private final Validator<String> userValidator;
+  private final Validator validator;
 
   public LoanServiceImpl(BookGrpcService bookGrpcService,
-      LoanGrpcService loanGrpcService,  @Qualifier("userValidator") Validator<String> userValidator)
+                         LoanGrpcService loanGrpcService, @Qualifier("userValidator") Validator validator)
   {
     this.bookGrpcService = bookGrpcService;
     this.loanGrpcService = loanGrpcService;
-      this.userValidator = userValidator;
+    this.validator = validator;
   }
 
   @Override public Loan createLoan(Loan loan)
   {
     // Validate USER exists
-      userValidator.validate(loan.getUsername());
+    validator.validate(loan.getUsername());
 
     // Prevent same user borrowing same ISBN while they have an active loan
     List<Loan> existingLoansForIsbn = loanGrpcService.getLoansByISBN(

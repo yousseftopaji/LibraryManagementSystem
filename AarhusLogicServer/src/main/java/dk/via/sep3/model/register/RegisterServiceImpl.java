@@ -6,7 +6,6 @@ import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
 import dk.via.sep3.model.domain.User;
 import dk.via.sep3.model.utils.validation.RegistrationValidator;
 import dk.via.sep3.security.PasswordService;
-import dk.via.sep3.shared.registration.RegistrationDTO;
 import org.springframework.stereotype.Service;
 
 
@@ -30,13 +29,12 @@ public class RegisterServiceImpl implements RegisterService {
         if (user == null)
             throw new BusinessRuleViolationException("Registration cannot be null");
 
-        // Delegate **all field validation** to your validators
         registrationValidator.validate(user);
 
         // Hash password
         String hashedPassword = passwordService.hash(user.getPassword());
         user.setPassword(hashedPassword);
-
+        user.setRole("Reader");
         // Persist user
         try {
             User created = userGrpcService.createUser(user);

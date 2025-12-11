@@ -1,8 +1,12 @@
 package dk.via.sep3.controller;
 
 import dk.via.sep3.model.auth.AuthService;
-import dk.via.sep3.shared.auth.LoginRequest;
-import dk.via.sep3.shared.auth.LoginResponse;
+import dk.via.sep3.model.domain.User;
+import dk.via.sep3.security.JwtUtil;
+import dk.via.sep3.shared.login.LoginRequestDTO;
+import dk.via.sep3.shared.login.LoginResponseDTO;
+import dk.via.sep3.shared.mapper.userMapper.UserMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,18 +14,23 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class LoginController {
     private final AuthService authService;
-
-    public LoginController(AuthService authService) {
+    private final UserMapper userMapper;
+    private final JwtUtil jwtUtil;
+    public LoginController(AuthService authService, UserMapper userMapper, JwtUtil jwtUtil) {
         this.authService = authService;
+        this.userMapper = userMapper;
+        this.jwtUtil = jwtUtil;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        LoginResponse response = authService.login(request);
-        if (!response.isSuccess()) {
-            return ResponseEntity.status(401).body(response);
-        }
-        return ResponseEntity.ok(response);
+    @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
+       User user = userMapper.mapLoginRequestToDomain(request);
+
+       authService.login(user);
+       String token = jwtUtil.generateToken(user.getUsername(),  user.getRole());
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
+        loginResponseDTO.setToken(token);
+        loginResponseDTO.setUsername(user.getUsername());
+        return  new ResponseEntity<>(loginResponseDTO, HttpStatus.OK);
     }
 }
-

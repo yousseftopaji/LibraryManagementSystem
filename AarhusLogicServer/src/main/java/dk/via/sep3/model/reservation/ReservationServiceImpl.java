@@ -17,16 +17,16 @@ import java.time.LocalDate;
 
 @Service public class ReservationServiceImpl implements ReservationService
 {
-  private final Validator<String> userValidator;
+  private final Validator validator;
   private final LoanGrpcService loanGrpcService;
   private final BookGrpcService bookGrpcService;
   private final ReservationGrpcService reservationGrpcService;
 
-  public ReservationServiceImpl(    @Qualifier("userValidator") Validator<String> userValidator,
+  public ReservationServiceImpl(@Qualifier("userValidator") Validator validator,
                                 LoanGrpcService loanGrpcService, BookGrpcService bookGrpcService,
                                 ReservationGrpcService reservationGrpcService)
   {
-      this.userValidator = userValidator;
+    this.validator = validator;
     this.loanGrpcService = loanGrpcService;
     this.bookGrpcService = bookGrpcService;
     this.reservationGrpcService = reservationGrpcService;
@@ -40,7 +40,7 @@ import java.time.LocalDate;
     // -----------------------------
     // Step 1 — Validate user
     // -----------------------------
-      userValidator.validate(username);
+    validator.validate(username);
 
     // -----------------------------
     // Step 2 — Check ISBN availability
