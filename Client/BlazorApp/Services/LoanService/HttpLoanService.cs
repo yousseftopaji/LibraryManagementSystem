@@ -28,7 +28,7 @@ public class HttpLoanService : ILoanService
     }
 
  public async Task<bool> ExtendLoanAsync(int loanId)
-    {
+    {authProvider.AttachToken(client);
         HttpResponseMessage httpResponse = await client.PatchAsync($"loans/{loanId}", null);
 
         if (httpResponse.IsSuccessStatusCode)

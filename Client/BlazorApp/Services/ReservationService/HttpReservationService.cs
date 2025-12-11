@@ -8,13 +8,17 @@ public class HttpReservationService : IReservationService
 {
     private readonly HttpClient client;
 
-    public HttpReservationService(HttpClient client)
+    
+    private readonly AuthProvider authProvider;
+    public HttpReservationService(HttpClient  client, AuthProvider authProvider)
     {
         this.client = client;
+        this.authProvider = authProvider;
     }
+    
 
     public async Task<ReservationDTO> ReserveBookAsync(CreateReservationDTO createReservationDto)
-    {
+    {authProvider.AttachToken(client);
         HttpResponseMessage httpResponse = await client.PostAsJsonAsync("reservations", createReservationDto);
         string response = await httpResponse.Content.ReadAsStringAsync();
 
