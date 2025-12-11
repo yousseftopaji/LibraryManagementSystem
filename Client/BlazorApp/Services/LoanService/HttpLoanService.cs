@@ -9,9 +9,13 @@ public class HttpLoanService : ILoanService
 {
     private readonly HttpClient client;
 
-   public HttpLoanService(IHttpClientFactory  httpClientFactory)
+//    public HttpLoanService(IHttpClientFactory  httpClientFactory)
+//     {
+//         client = httpClientFactory.CreateClient("AuthorizedClient");
+//     }
+     public HttpLoanService(HttpClient  client)
     {
-        client = httpClientFactory.CreateClient("AuthorizedClient");
+        this.client = client;
     }
     public async Task<LoanDTO> CreateLoanAsync(CreateLoanDTO createLoanDto)
     {
