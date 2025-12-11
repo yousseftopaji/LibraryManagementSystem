@@ -1,44 +1,62 @@
 ﻿@page "/books"
 @using DTOs.Book
-@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Authorization
 @inject Services.IBookService BookService
 @inject NavigationManager NavigationManager
 
-<h3>Books</h3>
+<AuthorizeView>
+    <Authorized>
+        <div class="container mt-5">
+            <h2 class="text-center mb-4">Available Books</h2>
 
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <div class="alert alert-warning" role="alert">
-        @errorMessage
-    </div>
-}
-
-@if (books == null)
-{
-    <p class="text-muted fst-italic">Loading books...</p>
-}
-else
-{
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Author</th>
-                <th>ISBN</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var book in books)
+            @if (!string.IsNullOrEmpty(errorMessage))
             {
-                <tr style="cursor: pointer;" @onclick="@(() => NavigateToBook(book.ISBN))">
-                    <td>@book.Title</td>
-                    <td>@book.Author</td>
-                    <td>@book.ISBN</td>
-                </tr>
+                <div class="alert alert-warning text-center" role="alert">
+                    @errorMessage
+                </div>
             }
-        </tbody>
-    </table>
-}
+
+            @if (books == null)
+            {
+                <div class="text-center text-muted fst-italic">
+                    Loading books...
+                </div>
+            }
+            else if (books.Count == 0)
+            {
+                <div class="text-center text-muted fst-italic">
+                    No books available.
+                </div>
+            }
+            else
+            {
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    @foreach (var book in books)
+                    {
+                        <div class="col">
+                            <div class="card h-100 shadow-sm book-card" @onclick="@(() => NavigateToBook(book.ISBN))" style="cursor:pointer; transition: transform 0.2s;">
+                                <div class="card-body">
+                                    <h5 class="card-title">@book.Title</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">@book.Author</h6>
+                                    <p class="card-text"><strong>ISBN:</strong> @book.ISBN</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </Authorized>
+
+    <NotAuthorized>
+        <div class="container mt-5">
+            <div class="alert alert-danger text-center">
+                <h5>You must be logged in to view books.</h5>
+                <button class="btn btn-primary mt-3" @onclick="@(() => NavigationManager.NavigateTo("/login"))">Go to Login</button>
+            </div>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     private List<BookDTO>? books;
@@ -54,21 +72,18 @@ else
         try
         {
             books = await BookService.GetBooksAsync();
-            
             errorMessage = null;
         }
         catch (Exception)
         {
             errorMessage = "Unable to connect to server. Please try again later.";
-            books = []; // Initialize empty list to show empty table
+            books = new List<BookDTO>();
         }
     }
 
     private void NavigateToBook(string? isbn)
     {
         if (!string.IsNullOrEmpty(isbn))
-        {
             NavigationManager.NavigateTo($"/books/{isbn}");
-        }
     }
 }
