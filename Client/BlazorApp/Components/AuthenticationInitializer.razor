@@ -8,7 +8,7 @@
         if (firstRender && !_initialized)
         {
             _initialized = true;
-            await AuthProvider.InitializeAsync(); // JS interop safe here
+            await AuthProvider.RestoreFromTokenAsync();
             StateHasChanged(); // update UI after initialization
         }
     }

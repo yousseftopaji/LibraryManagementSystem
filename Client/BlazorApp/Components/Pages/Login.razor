@@ -2,7 +2,6 @@
 
 @inject AuthProvider AuthProvider
 @inject NavigationManager navMgr
-@inject HttpClient client
 
 
 <div class="container d-flex justify-content-center align-items-center vh-100">
@@ -56,7 +55,6 @@
         try
         {
             await AuthProvider.Login(userName, password);
-            AuthProvider.AttachToken(client);
             navMgr.NavigateTo("/");
         }
         catch (Exception e)

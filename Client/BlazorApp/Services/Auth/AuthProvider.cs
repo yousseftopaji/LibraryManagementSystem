@@ -60,6 +60,7 @@ public class AuthProvider : AuthenticationStateProvider
             throw new Exception("Invalid username.");
 
         await SaveTokenAsync(loginResponse.Token);
+        AttachToken(client);
 
         // Build claims
         var claims = new List<Claim>()
@@ -84,24 +85,55 @@ public class AuthProvider : AuthenticationStateProvider
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(currentClaimsPrincipal)));
     }
 
-    // Initialize authentication state from localStorage
-    public async Task InitializeAsync()
-    {
-       currentClaimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity());
-    NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(currentClaimsPrincipal)));
 
-    jwtToken = await js.InvokeAsync<string>("localStorage.getItem", "jwtToken");
-
-    if (!string.IsNullOrEmpty(jwtToken))
+// method to restore authentication from stored JWT
+    public async Task RestoreFromTokenAsync()
     {
-        // ... parse token and set claims
-    }
-    else
-    {
-        currentClaimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity());
-    }
+        var storedToken = await js.InvokeAsync<string>("localStorage.getItem", "jwtToken");
 
-    NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(currentClaimsPrincipal)));
+        if (!string.IsNullOrEmpty(storedToken))
+        {
+            try
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var jwt = handler.ReadJwtToken(storedToken);
+
+                if (jwt.ValidTo > DateTime.UtcNow)
+                {
+                    jwtToken = storedToken;
+
+                    // Map server-sent username to ClaimTypes.Name
+                    var claims = new List<Claim>();
+                    var username = jwt.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+                    if (!string.IsNullOrEmpty(username))
+                        claims.Add(new Claim(ClaimTypes.Name, username));
+
+                    // Add all other claims (except "username" to avoid duplicates)
+                    claims.AddRange(jwt.Claims.Where(c => c.Type != "sub"));
+
+                    currentClaimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(claims, "jwt"));
+                }
+                else
+                {
+                    // Token expired, remove it
+                    await js.InvokeVoidAsync("localStorage.removeItem", "jwtToken");
+                    currentClaimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity());
+                }
+            }
+            catch
+            {
+                // Invalid token
+                await js.InvokeVoidAsync("localStorage.removeItem", "jwtToken");
+                currentClaimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity());
+            }
+        }
+        else
+        {
+            // No token found
+            currentClaimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity());
+        }
+
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(currentClaimsPrincipal)));
     }
 
     public override Task<AuthenticationState> GetAuthenticationStateAsync()
