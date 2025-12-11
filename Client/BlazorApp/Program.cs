@@ -29,20 +29,6 @@ builder.Services.AddHttpClient("AuthorizedClient", client =>
 })
 .AddHttpMessageHandler<JwtAuthMessageHandler>();
 
-
-// Services that require JWT
-builder.Services.AddScoped<IBookService, HttpBookService>(sp =>
-{
-    var factory = sp.GetRequiredService<IHttpClientFactory>();
-    return new HttpBookService(factory.CreateClient("AuthorizedClient"));
-});
-
-builder.Services.AddScoped<ILoanService, HttpLoanService>(sp =>
-{
-    var factory = sp.GetRequiredService<IHttpClientFactory>();
-    return new HttpLoanService(factory.CreateClient("AuthorizedClient"));
-});
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
