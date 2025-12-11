@@ -86,20 +86,27 @@
         catch (Exception e)
         {
            try
-            {
-                // Try to parse server JSON error
-                ErrorResponseDTO? errorResponse = JsonSerializer.Deserialize<ErrorResponseDTO>(e.Message, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
+    {
+        // Extract JSON part from the message
+        string jsonPart = e.Message;
 
-                message = errorResponse?.Details ?? "An unknown error occurred.";
-            }
-            catch
-            {
-                // Fallback if JSON parsing fails
-                message = $"Error: {e.Message}";
-            }
+        int startIndex = jsonPart.IndexOf('{');
+        if (startIndex > 0)
+        {
+            jsonPart = jsonPart[startIndex..];
+        }
+
+        ErrorResponseDTO? errorResponse = JsonSerializer.Deserialize<ErrorResponseDTO>(jsonPart,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        message = errorResponse?.Details ?? "An unknown error occurred.";
+    }
+    catch
+    {
+        message = e.Message;  // Fallback
+    }
+
+    isError = true;
         }
         finally
         {
