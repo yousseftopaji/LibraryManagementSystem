@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth/login")
+@RequestMapping("/auth")
 public class LoginController
 {
   private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
@@ -27,21 +27,21 @@ public class LoginController
     this.jwtTokenProvider = jwtTokenProvider;
   }
 
-  @PostMapping
+  @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
   public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginDTO loginDTO)
   {
     logger.info("Login attempt for user: {}", loginDTO.getUsername());
 
     // Map DTO to domain
-    User userReq = loginMapper.mapLoginDTOToDomain(loginDTO);
+    User user = loginMapper.mapLoginDTOToDomain(loginDTO);
 
-    // Perform login - returns authenticated user
-    User authenticatedUser = loginService.login(userReq);
+    // Perform login (validates credentials and returns user from DB)
+    User authenticatedUser = loginService.login(user);
 
     // Generate JWT token
     String token = jwtTokenProvider.generateToken(authenticatedUser.getUsername(), authenticatedUser.getRole());
 
-    // Build response DTO using mapper
+    // Build response
     LoginResponseDTO response = loginMapper.mapDomainToLoginResponse(token, authenticatedUser);
 
     logger.info("User logged in successfully: {}", response.getUsername());

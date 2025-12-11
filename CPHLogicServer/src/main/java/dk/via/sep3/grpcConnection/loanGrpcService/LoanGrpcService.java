@@ -9,7 +9,7 @@ public interface LoanGrpcService {
 
     List<Loan> getLoansByISBN(String isbn);
 
-    void extendLoan(int bookId);
+    void extendLoan(Loan loan);
 
     Loan getLoanById(int bookId);
 

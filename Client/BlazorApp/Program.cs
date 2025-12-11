@@ -19,7 +19,7 @@ builder.Services.AddScoped<JwtAuthMessageHandler>();
 // Named HttpClient with JWT handler for authorized requests
 builder.Services.AddHttpClient("AuthorizedClient", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:8080/");
+    client.BaseAddress = new Uri("http://localhost:8081/");
 })
 .AddHttpMessageHandler<JwtAuthMessageHandler>();
 
@@ -36,12 +36,13 @@ builder.Services.AddScoped<ILoanService, HttpLoanService>(sp =>
     return new HttpLoanService(factory);
 });
 
+
 // Optional: a plain HttpClient if you need unauthenticated calls
 builder.Services.AddScoped(sp =>
 {
     var client = new HttpClient
     {
-        BaseAddress = new Uri("http://localhost:8080/")
+        BaseAddress = new Uri("http://localhost:8081/")
     };
     return client;
 });
@@ -54,6 +55,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
+
 
 app.UseStatusCodePagesWithReExecute("/not-found");
 app.UseHttpsRedirection();

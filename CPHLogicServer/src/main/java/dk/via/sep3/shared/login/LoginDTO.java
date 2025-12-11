@@ -1,13 +1,8 @@
 package dk.via.sep3.shared.login;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class LoginDTO
 {
-  @JsonProperty(value = "username")
   private String username;
-
-  @JsonProperty(value = "password")
   private String password;
 
   public LoginDTO() {
@@ -29,13 +24,5 @@ public class LoginDTO
   }
   public void setPassword(String password) {
     this.password = password;
-  }
-
-  @Override
-  public String toString() {
-    return "LoginDTO{" +
-        "username='" + username + '\'' +
-        ", password='" + (password != null ? "***" : "null") + '\'' +
-        '}';
   }
 }
