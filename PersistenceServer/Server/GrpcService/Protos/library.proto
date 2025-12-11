@@ -186,6 +186,17 @@ message GetUserByUsernameResponse {
   string message = 3;
 }
 
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  DTOUser user = 1;
+  bool success = 2;
+  string message = 3;
+}
+
 message GetLoansByISBNRequest {
   string isbn = 1;
 }
@@ -195,6 +206,16 @@ message GetLoansByISBNResponse {
   bool success = 2;
   string message = 3;
 }
+
+message CreateUserRequest {
+  DTOUser user = 1;
+}
+message CreateUserResponse {
+  DTOUser user = 1;
+  bool success = 2;
+  string message = 3;
+}
+
 
 // ========================
 // Services
@@ -216,6 +237,11 @@ service LoanService {
 
 service UserService {
   rpc GetUserByUsername (GetUserByUsernameRequest) returns (GetUserByUsernameResponse);
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
+}
+
+service Auth {
+  rpc Login (LoginRequest) returns (LoginResponse);
 }
 
 service ReservationService {

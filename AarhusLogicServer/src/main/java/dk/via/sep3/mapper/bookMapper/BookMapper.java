@@ -1,4 +1,4 @@
-package dk.via.sep3.shared.mapper.bookMapper;
+package dk.via.sep3.mapper.bookMapper;
 
 import dk.via.sep3.DTOBook;
 import dk.via.sep3.model.domain.Book;

@@ -1,4 +1,4 @@
-package dk.via.sep3.controller.exceptionHandler;
+package dk.via.sep3.exceptionHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

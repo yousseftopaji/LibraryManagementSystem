@@ -1,4 +1,4 @@
-package dk.via.sep3.shared.mapper.ReservationMapper;
+package dk.via.sep3.mapper.ReservationMapper;
 
 import dk.via.sep3.DTOReservation;
 import dk.via.sep3.model.domain.Reservation;

@@ -1,4 +1,4 @@
-package dk.via.sep3.controller.exceptionHandler;
+package dk.via.sep3.exceptionHandler;
 
 public class BusinessRuleViolationException extends RuntimeException
 {
