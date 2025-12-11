@@ -8,11 +8,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Components\Pages\extension.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Components\Pages\extension.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Shared\DTOs\DTOs.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\ReservationService\" />
   </ItemGroup>
 
 </Project>
