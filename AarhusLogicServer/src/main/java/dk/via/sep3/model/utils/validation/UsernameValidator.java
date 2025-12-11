@@ -1,5 +1,6 @@
 package dk.via.sep3.model.utils.validation;
 
+import dk.via.sep3.controller.exceptionHandler.BusinessRuleViolationException;
 import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
 import dk.via.sep3.model.domain.User;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,7 @@ public class UsernameValidator implements Validator<String>{
         //check whether the username already exists in the system
        User user = userGrpcService.getUserByUsername(username);
          if(user != null) {
-                throw new IllegalArgumentException("Username already exists");
+                throw new BusinessRuleViolationException("Username already exists");
          }
     }
 }
