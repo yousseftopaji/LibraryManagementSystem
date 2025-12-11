@@ -1,0 +1,8 @@
+package dk.via.sep3.security;
+
+public interface IJwtTokenProvider
+{
+  String generateToken(String username, String role);
+  String getUsernameFromToken(String token);
+  boolean validateToken(String token);
+}

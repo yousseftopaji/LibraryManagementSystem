@@ -11,7 +11,7 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Service
-public class JwtTokenProvider {
+public class JwtTokenProvider implements IJwtTokenProvider {
 
   @Value("${jwt.secret:your-secret-key-change-this-in-properties}")
   private String jwtSecret;
@@ -23,12 +23,13 @@ public class JwtTokenProvider {
     return Keys.hmacShaKeyFor(jwtSecret.getBytes());
   }
 
-  public String generateToken(String username) {
+  public String generateToken(String username, String role) {
     Date now = new Date();
     Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
 
     return Jwts.builder()
         .setSubject(username)
+        .claim("role", role)
         .setIssuedAt(now)
         .setExpiration(expiryDate)
         .signWith(getSigningKey(), SignatureAlgorithm.HS512)

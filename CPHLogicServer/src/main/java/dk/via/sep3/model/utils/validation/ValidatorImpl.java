@@ -2,11 +2,15 @@ package dk.via.sep3.model.utils.validation;
 
 import dk.via.sep3.controller.exceptionHandler.BusinessRuleViolationException;
 import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
+import dk.via.sep3.model.domain.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ValidatorImpl implements Validator
 {
+  private static final Logger logger = LoggerFactory.getLogger(ValidatorImpl.class);
     private final UserGrpcService userGrpcService;
 
     public ValidatorImpl(UserGrpcService userGrpcService)
@@ -44,10 +48,12 @@ public class ValidatorImpl implements Validator
 
   @Override
   public void validatePhoneNumber(String phoneNumber) {
+    logger.info("Validating phone number: '{}'", phoneNumber);
     if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
       throw new IllegalArgumentException("Phone number cannot be empty");
     }
     if (!phoneNumber.matches("^\\d{8,}$")) {
+      logger.warn("Phone number validation failed for: '{}'. Pattern requires 8+ digits only.", phoneNumber);
       throw new IllegalArgumentException("Phone number must contain at least 8 digits");
     }
   }
@@ -61,7 +67,10 @@ public class ValidatorImpl implements Validator
       throw new IllegalArgumentException("Username must be at least 3 characters");
     }
     // Check if username already exists
-    if (userGrpcService.getUserByUsername(username) != null) {
+    User user = userGrpcService.getUserByUsername(username);
+
+    if (user != null) {
+      System.out.println("User found with username: " + username);
       throw new IllegalArgumentException("Username already in use");
     }
   }

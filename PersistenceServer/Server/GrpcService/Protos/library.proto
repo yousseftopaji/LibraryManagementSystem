@@ -186,12 +186,12 @@ message GetUserByUsernameResponse {
   string message = 3;
 }
 
-message GetLoansByISBNRequest {
-  string isbn = 1;
+message CreateUserRequest {
+  DTOUser user = 1;
 }
 
-message GetLoansByISBNResponse {
-  repeated DTOLoan loans = 1;
+message CreateUserResponse {
+  DTOUser user = 1;
   bool success = 2;
   string message = 3;
 }

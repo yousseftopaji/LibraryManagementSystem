@@ -1,9 +1,8 @@
 package dk.via.sep3.model.registration;
 
-import dk.via.sep3.shared.registration.CreateRegisterDTO;
-import dk.via.sep3.shared.registration.RegisterDTO;
+import dk.via.sep3.model.domain.User;
 
 public interface RegistrationService
 {
-  RegisterDTO register(CreateRegisterDTO createRegisterDTO);
+  User register(User user);
 }
