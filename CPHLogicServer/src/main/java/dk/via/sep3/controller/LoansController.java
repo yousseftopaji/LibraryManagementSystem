@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,6 +30,7 @@ public class LoansController
     this.jwtTokenProvider = jwtTokenProvider;
   }
 
+  @PreAuthorize("hasRole('READER')")
   @PostMapping
   public ResponseEntity<LoanDTO> createLoan(@RequestBody CreateLoanDTO request)
   {
@@ -43,7 +45,8 @@ public class LoansController
     return new ResponseEntity<>(loanDTO, HttpStatus.CREATED);
   }
 
-  @PatchMapping("/{id}")
+  @PreAuthorize("hasRole('READER')")
+  @PatchMapping("/extensions")
   public ResponseEntity extendLoan(
       @PathVariable String id,
       @RequestBody CreateExtensionDTO request)

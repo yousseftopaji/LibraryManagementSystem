@@ -45,6 +45,15 @@ public class JwtTokenProvider implements IJwtTokenProvider {
     return claims.getSubject();
   }
 
+  public String getRoleFromToken(String token) {
+    Claims claims = Jwts.parser()
+        .setSigningKey(getSigningKey())
+        .build()
+        .parseClaimsJws(token)
+        .getBody();
+    return claims.get("role", String.class);
+  }
+
   public boolean validateToken(String token) {
     try {
       Jwts.parser()
