@@ -62,20 +62,20 @@
         catch (Exception e)
         {
            try
-    {
-        // Try to parse server JSON error
-        ErrorResponseDTO? errorResponse = JsonSerializer.Deserialize<ErrorResponseDTO>(e.Message, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        });
+            {
+                // Try to parse server JSON error
+                ErrorResponseDTO? errorResponse = JsonSerializer.Deserialize<ErrorResponseDTO>(e.Message, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
 
-        errorLabel = errorResponse?.Details ?? "An unknown error occurred.";
-    }
-    catch
-    {
-        // Fallback if JSON parsing fails
-        errorLabel = $"Error: {e.Message}";
-    }
+                errorLabel = errorResponse?.Details ?? "An unknown error occurred.";
+            }
+            catch
+            {
+                // Fallback if JSON parsing fails
+                errorLabel = $"Error: {e.Message}";
+            }
         }
     }
 

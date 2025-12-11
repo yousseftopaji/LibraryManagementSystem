@@ -136,6 +136,28 @@ public class AuthProvider : AuthenticationStateProvider
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(currentClaimsPrincipal)));
     }
 
+    public string? ExtractUsernameFromJwt()
+{
+    if (string.IsNullOrEmpty(jwtToken))
+        return null;
+
+    try
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwt = handler.ReadJwtToken(jwtToken);
+
+        // Server usually sends username in "sub" or "unique_name" claim
+        var username =
+            jwt.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ??
+            jwt.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+        return username;
+    }
+    catch
+    {
+        return null;
+    }
+}
     public override Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         return Task.FromResult(new AuthenticationState(currentClaimsPrincipal));

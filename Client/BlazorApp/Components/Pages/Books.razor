@@ -1,6 +1,8 @@
 ﻿@page "/books"
 @using DTOs.Book
+@using DTOs.Error_Handler
 @using Microsoft.AspNetCore.Components.Authorization
+@using System.Text.Json
 @inject Services.IBookService BookService
 @inject NavigationManager NavigationManager
 
@@ -74,10 +76,23 @@
             books = await BookService.GetBooksAsync();
             errorMessage = null;
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            errorMessage = "Unable to connect to server. Please try again later.";
-            books = new List<BookDTO>();
+          try
+            {
+                // Try to parse server JSON error
+                ErrorResponseDTO? errorResponse = JsonSerializer.Deserialize<ErrorResponseDTO>(e.Message, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                errorMessage = errorResponse?.Details ?? "An unknown error occurred.";
+            }
+            catch
+            {
+                // Fallback if JSON parsing fails
+                errorMessage = $"Error: {e.Message}";
+            }
         }
     }
 

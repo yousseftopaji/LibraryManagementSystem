@@ -1,5 +1,7 @@
 ﻿@page "/books/{ISBN}"
 @using DTOs.Book
+@using DTOs.Error_Handler
+@using System.Text.Json
 @rendermode InteractiveServer
 @inject Services.IBookService BookService
 
@@ -60,9 +62,23 @@
         {
             book = await BookService.GetBookAsync(ISBN);
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Console.WriteLine($"Error loading book details: {ex}");
+           try
+            {
+                // Try to parse server JSON error
+                ErrorResponseDTO? errorResponse = JsonSerializer.Deserialize<ErrorResponseDTO>(e.Message, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                @* errorLabel = errorResponse?.Details ?? "An unknown error occurred."; *@
+            }
+            catch
+            {
+                // Fallback if JSON parsing fails
+                @* errorLabel = $"Error: {e.Message}"; *@
+            }
         }
     }
 
