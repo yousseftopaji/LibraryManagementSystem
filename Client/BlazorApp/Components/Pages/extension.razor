@@ -1,8 +1,84 @@
-using System;
+@using DTOs.Loan
+@inject BlazorApp.Services.LoanService.ILoanService LoanService
 
-namespace BlazorApp.Components.Pages;
+<div class="mt-2">
+    <button class="btn btn-warning"
+            @onclick="ShowConfirmation"
+            disabled="@(!CanExtend)">
+        @if (isProcessing)
+        {
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+        }
+        Extend Loan
+    </button>
+</div>
 
-public class extension.razor
+<ConfirmationDialog IsVisible="@showConfirmDialog" Title="Extend Loan"
+                    Message="Do you want to extend this loan?"
+                    ConfirmText="Yes, Extend"
+                    CancelText="Cancel"
+                    ConfirmButtonClass="btn-warning"
+                    OnConfirm="HandleExtend"
+                    OnCancel="HideConfirmation" />
+
+@if (!string.IsNullOrEmpty(message))
 {
+    <div class="alert @(isError ? "alert-danger" : "alert-success") mt-3">
+        @message
+    </div>
+}
 
+@code {
+    [Parameter] public required int LoanId { get; set; }
+    [Parameter] public EventCallback OnExtendSuccess { get; set; }
+
+    
+    [Parameter] public  required string LoggedInUsername { get; set; }
+    [Parameter] public  required string LoanUsername { get; set; }
+
+    
+    private bool isProcessing = false;
+    private string message = string.Empty;
+    private bool isError = false;
+    private bool showConfirmDialog = false;
+
+    // Only allow extend if SAME USER
+    private bool CanExtend => LoggedInUsername == LoanUsername && !isProcessing;
+
+    private void ShowConfirmation() => showConfirmDialog = true;
+    private void HideConfirmation() => showConfirmDialog = false;
+
+    private async Task HandleExtend()
+    {
+        showConfirmDialog = false;
+        isProcessing = true;
+        message = "";
+        isError = false;
+
+        try
+        {
+            bool ok = await LoanService.ExtendLoanAsync(LoanId);
+
+            if (ok)
+            {
+                message = " Loan extended successfully!";
+                isError = false;
+                await OnExtendSuccess.InvokeAsync();
+            }
+            else
+            {
+                message = " Failed to extend the loan.";
+                isError = true;
+            }
+        }
+        catch
+        {
+            message = " Error occurred while extending. Try again.";
+            isError = true;
+        }
+        finally
+        {
+            isProcessing = false;
+        }
+    }
 }

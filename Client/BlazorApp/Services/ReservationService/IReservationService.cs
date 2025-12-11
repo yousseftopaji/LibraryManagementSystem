@@ -1,8 +1,10 @@
 using System;
+using DTOs.Reservation;
+
 
 namespace BlazorApp.Services.ReservationService;
 
-public class IReservationService
+public interface IReservationService
 {
-
+ public Task<ReservationDTO> ReserveBookAsync(CreateReservationDTO createReservationDto);
 }

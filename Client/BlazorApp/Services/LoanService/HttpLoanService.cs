@@ -27,4 +27,18 @@ public class HttpLoanService : ILoanService
         }
         return JsonSerializer.Deserialize<LoanDTO>(response, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
     }
+
+ public async Task<bool> ExtendLoanAsync(int loanId)
+    {
+        HttpResponseMessage httpResponse = await client.PatchAsync($"loans/{loanId}", null);
+
+        if (httpResponse.IsSuccessStatusCode)
+            return true;
+
+        // Optional error message for UI:
+        string error = await httpResponse.Content.ReadAsStringAsync();
+        Console.WriteLine($"Error extending loan: {error}");
+
+        return false;
+    }
 }
