@@ -1,6 +1,7 @@
 using BlazorApp.Components;
 using BlazorApp.Services;
 using BlazorApp.Services.LoanService;
+using BlazorApp.Services.ReservationService;
 using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,7 @@ builder.Services.AddScoped(sp => new HttpClient
 
 builder.Services.AddScoped<IBookService, HttpBookService>();
 builder.Services.AddScoped<ILoanService, HttpLoanService>();
+builder.Services.AddScoped<IReservationService,HttpReservationService>();
 builder.Services.AddScoped<AuthProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<AuthProvider>());
 builder.Services.AddScoped<JwtAuthMessageHandler>();
