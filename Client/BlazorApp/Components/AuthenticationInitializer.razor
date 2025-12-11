@@ -1,0 +1,15 @@
+﻿@inject AuthProvider AuthProvider
+
+@code {
+    private bool _initialized;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_initialized)
+        {
+            _initialized = true;
+            await AuthProvider.InitializeAsync(); // JS interop safe here
+            StateHasChanged(); // update UI after initialization
+        }
+    }
+}

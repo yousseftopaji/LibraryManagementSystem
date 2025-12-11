@@ -10,12 +10,12 @@ public class HttpBookService : IBookService
 {
     private readonly HttpClient client;
 
-    public HttpBookService(HttpClient client)
+    public HttpBookService(IHttpClientFactory  httpClientFactory)
     {
-        this.client = client;
+        client = httpClientFactory.CreateClient("AuthorizedClient");
     }
 
-    public async Task<BookDTO> GetBookAsync(string isbn)
+    public async Task<BookDTO> GetBookAsync(string isbn)    
     {
         HttpResponseMessage httpResponse = await client.GetAsync($"books/{isbn}");
         string response = await httpResponse.Content.ReadAsStringAsync();

@@ -1,6 +1,5 @@
 package dk.via.sep3.model.loans;
 
-import dk.via.sep3.*;
 import dk.via.sep3.grpcConnection.bookGrpcService.BookGrpcService;
 import dk.via.sep3.grpcConnection.loanGrpcService.LoanGrpcService;
 import dk.via.sep3.model.domain.Book;
@@ -8,6 +7,7 @@ import dk.via.sep3.model.domain.Loan;
 import dk.via.sep3.model.utils.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 
@@ -20,20 +20,20 @@ import java.util.List;
       LoanServiceImpl.class);
   private final BookGrpcService bookGrpcService;
   private final LoanGrpcService loanGrpcService;
-  private final Validator validator;
+    private final Validator<String> userValidator;
 
   public LoanServiceImpl(BookGrpcService bookGrpcService,
-      LoanGrpcService loanGrpcService, Validator validator)
+      LoanGrpcService loanGrpcService,  @Qualifier("userValidator") Validator<String> userValidator)
   {
     this.bookGrpcService = bookGrpcService;
     this.loanGrpcService = loanGrpcService;
-    this.validator = validator;
+      this.userValidator = userValidator;
   }
 
   @Override public Loan createLoan(Loan loan)
   {
     // Validate USER exists
-    validator.validateUser(loan.getUsername());
+      userValidator.validate(loan.getUsername());
 
     // Prevent same user borrowing same ISBN while they have an active loan
     List<Loan> existingLoansForIsbn = loanGrpcService.getLoansByISBN(
