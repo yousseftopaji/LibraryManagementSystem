@@ -3,17 +3,17 @@ package dk.via.sep3.shared.registration;
 public class RegistrationDTO {
     public String fullName;
     public String email;
-    public String phone;
+    public String phoneNumber;
     public String username;
     public String password;
 
     public RegistrationDTO() {
     }
 
-    public RegistrationDTO(String fullName, String email, String phone, String username, String password) {
+    public RegistrationDTO(String fullName, String email, String phoneNumber, String username, String password) {
         this.fullName = fullName;
         this.email = email;
-        this.phone = phone;
+        this.phoneNumber = phoneNumber;
         this.username = username;
         this.password = password;
     }
@@ -35,11 +35,11 @@ public class RegistrationDTO {
     }
 
     public String getPhone() {
-        return phone;
+        return phoneNumber;
     }
 
     public void setPhone(String phone) {
-        this.phone = phone;
+        this.phoneNumber = phone;
     }
 
     public String getUsername() {

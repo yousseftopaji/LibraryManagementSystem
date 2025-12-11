@@ -1,7 +1,5 @@
 package dk.via.sep3.shared.login;
 
-import dk.via.sep3.shared.user.UserDTO;
-
 public class LoginResponseDTO {
     private String token;
     private String  username;
@@ -12,7 +10,7 @@ public class LoginResponseDTO {
         this.token = token;
         this.username = username;
     }
-//for nancy
+
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }
     public String getUsername() { return username; }

@@ -9,7 +9,7 @@ import dk.via.sep3.shared.user.UserDTO;
 
 public interface UserMapper {
 
-    // Registration DTO (from client) -> domain User (model layer)
+
     User mapRegistrationDTOToDomain(RegistrationDTO dto);
 
     // gRPC / shared UserDTO <-> domain User

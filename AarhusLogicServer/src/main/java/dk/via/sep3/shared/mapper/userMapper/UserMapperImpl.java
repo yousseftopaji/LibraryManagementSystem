@@ -21,9 +21,6 @@ public class UserMapperImpl implements UserMapper {
         user.setPassword(dto.getPassword());
         user.setEmail(dto.getEmail());
         user.setPhoneNumber(dto.getPhone());
-        // If you always register readers, you can hard-code here:
-        // user.setRole("READER");
-       // user.setRole(dto.getRole());
         return user;
     }
 
