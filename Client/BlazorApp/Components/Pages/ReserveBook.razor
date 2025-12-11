@@ -1,207 +1,85 @@
-@page "/books/{ISBN}/reserve"
-@using DTOs.Book
 @using DTOs.Reservation
-@inject BlazorApp.Services.IBookService BookService
 @inject BlazorApp.Services.ReservationService.IReservationService ReservationService
-@inject NavigationManager Navigation
-
-
-<!-- Buttons toolbar -->
-<div class="mb-3">
-    <button class="btn btn-secondary me-2" @onclick="GoBackToList">← Back to List</button>
-    
-</div>
 
 <div class="mt-3">
-
-    @if (isLoading)
-    {
-        <button class="btn btn-secondary" disabled>Loading…</button>
-    }
-    else if (book == null)
-    {
-        <div class="alert alert-danger mt-2">Book not found.</div>
-    }
-    else
-    {
-        <button class="btn btn-primary"
-                disabled="@ShouldDisableReserveButton"
-                @onclick="Reserve">
-
-            @if (book.State == "AVAILABLE")
-            {
-                <span>Cannot Reserve (Book Available)</span>
-            }
-            else if (alreadyReserved)
-            {
-                <span>Already Reserved</span>
-            }
-            else if (isReserving)
-            {
-                <span>Reserving…</span>
-            }
-            else
-            {
-                <span>Reserve</span>
-            }
-        </button>
-    }
+    <button class="btn btn-warning" @onclick="ShowConfirmation" disabled="@isProcessing">
+        @if (isProcessing)
+        {
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        }
+        Reserve
+    </button>
 </div>
 
-@if (reservation != null)
+<ConfirmationDialog IsVisible="@showConfirmDialog" Title="Confirm Reservation"
+    Message="Do you want to reserve this book?" ConfirmText="Yes, Reserve" CancelText="Cancel"
+    ConfirmButtonClass="btn-warning" OnConfirm="HandleReservation" OnCancel="HideConfirmation" />
+
+@if (!string.IsNullOrEmpty(message))
 {
-    <div class="alert alert-success mt-3">
-        <strong>Reservation Created!</strong><br />
-        Reservation ID: @reservation.ReservationId<br />
-        Book ID: @reservation.BookId<br />
-        
-        Reserved At: @reservation.ReservationDate.ToLocalTime().ToString("g")
+    <div class="alert @(isError ? "alert-danger" : "alert-info") mt-3" role="alert">
+        <i class="bi bi-info-circle"></i> @message
     </div>
 }
 
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <div class="alert alert-danger mt-3">@errorMessage</div>
-}
-
 @code {
-
     [Parameter]
     public required string ISBN { get; set; }
 
-    private BookDTO? book;
-    private ReservationDTO? reservation;
-    private string? errorMessage;
-    private bool isLoading = true;
-    private bool isReserving = false;
-    private bool alreadyReserved = false;
+    [Parameter]
+    public EventCallback OnReserveSuccess { get; set; }
 
-    private bool ShouldDisableReserveButton =>
-        isReserving || (book != null && book.State == "AVAILABLE") || alreadyReserved;
+    
+    
 
-    protected override async Task OnInitializedAsync()
+    private bool isProcessing = false;
+    private string message = string.Empty;
+    private bool isError = false;
+    private bool showConfirmDialog = false;
+
+    private void ShowConfirmation()
     {
-        try
-        {
-            book = await BookService.GetBookAsync(ISBN);
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Failed to load book: {ex.Message}";
-        }
-        finally
-        {
-            isLoading = false;
-        }
+        showConfirmDialog = true;
     }
 
-    private async Task Reserve()
+    private void HideConfirmation()
     {
-        if (book == null)
-        {
-            errorMessage = "Book not found.";
-            return;
-        }
+        showConfirmDialog = false;
+    }
 
-        errorMessage = null;
-        reservation = null;
-        isReserving = true;
+    private async Task HandleReservation()
+    {
+        showConfirmDialog = false;
+        isProcessing = true;
+        message = string.Empty;
+        isError = false;
 
         try
         {
             var dto = new CreateReservationDTO
             {
-                Username = "charlie789",
-                BookISBN = book.ISBN!
+                Username = "jane_smith",
+                BookISBN = ISBN
             };
 
-            reservation = await ReservationService.CreateReservationAsync(dto);
+            ReservationDTO result = await ReservationService.ReserveBookAsync(dto);
 
-            // Clear any "already reserved" state on success
-            alreadyReserved = false;
+            // 🎯 Show queue position to the user
+            message = $"Book Reserved! Your position in queue: #{result.PositionInQueue}.";
+            isError = false;
+
+            // 🔄 Refresh the parent BookDetails page
+            await OnReserveSuccess.InvokeAsync();
         }
         catch (Exception ex)
         {
-            // The service usually throws an exception with the response body.
-            // Try to extract a human-friendly message (server often returns JSON).
-            var msg = TryExtractMessageFromException(ex);
-
-            errorMessage = $"Error creating reservation: {msg}";
-
-            // If the message indicates an existing reservation, mark alreadyReserved
-            if (msg != null && (msg.Contains("already", StringComparison.OrdinalIgnoreCase)
-                                || msg.Contains("existing reservation", StringComparison.OrdinalIgnoreCase)
-                                || msg.Contains("already reserved", StringComparison.OrdinalIgnoreCase)))
-            {
-                alreadyReserved = true;
-            }
+            Console.WriteLine($"Error reserving book: {ex}");
+            message = "Failed to reserve the book. Please try again.";
+            isError = true;
         }
         finally
         {
-            isReserving = false;
-        }
-    }
-
-    // Navigate back to the list of books
-    private void GoBackToList()
-    {
-        Navigation.NavigateTo("/books");
-    }
-
-    
-
-    // Try to parse a readable message from the exception (handles JSON error bodies)
-    private static string TryExtractMessageFromException(Exception ex)
-    {
-        if (ex == null) return "Unknown error";
-
-        // If the exception message already looks human, return it
-        if (ex.Message.Length < 300 && !ex.Message.TrimStart().StartsWith("{"))
-            return ex.Message;
-
-        // Try to find a "message" or "error" property inside JSON-like text
-        try
-        {
-            var text = ex.Message;
-
-            // If message contains a JSON body, attempt a quick substring parse (non-strict)
-            // We'll look for common keys: "message", "error", "detail"
-            int idx = text.IndexOf("\"message\"");
-            if (idx >= 0)
-            {
-                int colon = text.IndexOf(':', idx);
-                if (colon > 0)
-                {
-                    int start = text.IndexOf('"', colon + 1);
-                    int end = text.IndexOf('"', start + 1);
-                    if (start >= 0 && end > start)
-                    {
-                        return text.Substring(start + 1, end - start - 1);
-                    }
-                }
-            }
-
-            idx = text.IndexOf("\"error\"");
-            if (idx >= 0)
-            {
-                int colon = text.IndexOf(':', idx);
-                if (colon > 0)
-                {
-                    int start = text.IndexOf('"', colon + 1);
-                    int end = text.IndexOf('"', start + 1);
-                    if (start >= 0 && end > start)
-                    {
-                        return text.Substring(start + 1, end - start - 1);
-                    }
-                }
-            }
-
-            // fallback: return the raw message but truncated
-            return text.Length > 800 ? text.Substring(0, 800) + "..." : text;
-        }
-        catch
-        {
-            return ex.Message;
+            isProcessing = false;
         }
     }
 }

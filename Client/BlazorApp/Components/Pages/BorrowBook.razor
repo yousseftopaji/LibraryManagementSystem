@@ -3,42 +3,19 @@
 @inject BlazorApp.Services.LoanService.ILoanService LoanService
 
 <div class="mt-3">
- @if (LoanId == 0)
-    {<button class="btn btn-success" @onclick="ShowConfirmation" disabled="@isProcessing">
+    <button class="btn btn-success" @onclick="ShowConfirmation" disabled="@isProcessing">
         @if (isProcessing)
         {
             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
         }
         Borrow
     </button>
-    }
-    
-    
-    @if (LoanId != 0)
-
-     {<button class="btn btn-warning ms-2"
-            disabled="@isExtending"
-            @onclick="ShowExtendConfirmation">
-        @if (isExtending)
-        {
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-        }
-        Extend Loan
-    </button>
-    }
 </div>
 
 <ConfirmationDialog IsVisible="@showConfirmDialog" Title="Confirm Borrow"
     Message="Are you sure you want to borrow this book?" ConfirmText="Yes, Borrow" CancelText="Cancel"
     ConfirmButtonClass="btn-success" OnConfirm="HandleBorrow" OnCancel="HideConfirmation" />
-<ConfirmationDialog IsVisible="@showExtendDialog"
-    Title="Extend Loan"
-    Message="Do you want to extend this loan?"
-    ConfirmText="Extend"
-    CancelText="Cancel"
-    ConfirmButtonClass="btn-warning"
-    OnConfirm="HandleExtend"
-    OnCancel="HideExtendConfirmation" />
+
 @if (!string.IsNullOrEmpty(message))
 {
     <div class="alert @(isError ? "alert-danger" : "alert-success") mt-3" role="alert">
@@ -49,17 +26,15 @@
 @code {
     [Parameter]
     public required string ISBN { get; set; }
-[Parameter]
-public required int LoanId { get; set; }
+
     [Parameter]
     public EventCallback OnBorrowSuccess { get; set; }
-public EventCallback OnExtendSuccess { get; set; }
+
     private bool isProcessing = false;
     private string message = string.Empty;
     private bool isError = false;
     private bool showConfirmDialog = false;
-private bool isExtending = false;
-    private bool showExtendDialog = false;
+
     private void ShowConfirmation()
     {
         showConfirmDialog = true;
@@ -82,14 +57,11 @@ private bool isExtending = false;
             var createLoanDTO = new CreateLoanDTO
             {
                 BookISBN = ISBN,
-                Username = "alice" // TODO: Replace with actual logged-in username
+                Username = "stud.alex" // TODO: Replace with actual logged-in username
             };
 
             var loanResponseDto = await LoanService.CreateLoanAsync(createLoanDTO);
-            LoanId = loanResponseDto.LoanId; 
             Console.WriteLine(loanResponseDto);
-            Console.WriteLine("LoanId after loan" + loanResponseDto.LoanId);
-
             message = "Book successfully borrowed!";
             isError = false;
 
@@ -99,7 +71,7 @@ private bool isExtending = false;
         catch (Exception ex)
         {
             Console.WriteLine($"Error borrowing book: {ex}");
-            message = $"Failed to borrow the book: {ex.Message}";
+            message = "Failed to borrow the book. Please try again.";
             isError = true;
         }
         finally
@@ -107,43 +79,4 @@ private bool isExtending = false;
             isProcessing = false;
         }
     }
-    private void ShowExtendConfirmation() => showExtendDialog = true;
-    private void HideExtendConfirmation() => showExtendDialog = false;
-
-    private async Task HandleExtend()
-    {
-        showExtendDialog = false;
-        isExtending = true;
-        isError = false;
-        message = "";
-
-        try
-        {
-            Console.WriteLine("before extend" + LoanId);
-            
-            var dto = new ExtendLoanDTO
-            {
-                LoanId = LoanId,
-                Username = "alice123"
-
-            };
-
-            await LoanService.ExtendLoanAsync(dto);
-
-            message = "Loan successfully extended!";
-            isError = false;
-
-            await OnExtendSuccess.InvokeAsync();
-        }
-        catch (Exception ex)
-        {
-            message = $"Failed to extend loan: {ex.Message}";
-            isError = true;
-        }
-        finally
-        {
-            isExtending = false;
-        }
-    }
-
 }

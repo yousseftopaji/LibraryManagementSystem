@@ -16,4 +16,6 @@ public class ReservationDTO
     [JsonPropertyName("bookId")]
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public int BookId { get; set; }
+    [JsonPropertyName("positionInQueue")]
+    public int PositionInQueue { get; set; }
 }

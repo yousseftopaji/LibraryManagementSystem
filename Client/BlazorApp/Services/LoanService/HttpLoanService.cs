@@ -9,14 +9,11 @@ public class HttpLoanService : ILoanService
 {
     private readonly HttpClient client;
 
-//    public HttpLoanService(IHttpClientFactory  httpClientFactory)
-//     {
-//         client = httpClientFactory.CreateClient("AuthorizedClient");
-//     }
-     public HttpLoanService(HttpClient  client)
+    public HttpLoanService(HttpClient client)
     {
         this.client = client;
     }
+
     public async Task<LoanDTO> CreateLoanAsync(CreateLoanDTO createLoanDto)
     {
         HttpResponseMessage httpResponse = await client.PostAsJsonAsync("loans", createLoanDto);
@@ -27,24 +24,18 @@ public class HttpLoanService : ILoanService
         }
         return JsonSerializer.Deserialize<LoanDTO>(response, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
     }
-    public async Task<LoanDTO> ExtendLoanAsync(ExtendLoanDTO dto)
-{
-    HttpResponseMessage httpResponse =
-        await client.SendAsync(
-          new HttpRequestMessage(HttpMethod.Put, $"loans/{dto.LoanId}/extensions?username={dto.Username}")
-            {
-                Content = JsonContent.Create(dto)
-            }
-        );
 
-    string json = await httpResponse.Content.ReadAsStringAsync();
+ public async Task<bool> ExtendLoanAsync(int loanId)
+    {
+        HttpResponseMessage httpResponse = await client.PatchAsync($"loans/{loanId}", null);
 
-    if (!httpResponse.IsSuccessStatusCode)
-        throw new Exception($"Error extending loan: {json}");
+        if (httpResponse.IsSuccessStatusCode)
+            return true;
 
-    return JsonSerializer.Deserialize<LoanDTO>(
-        json,
-        new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-    )!;
-}
+        // Optional error message for UI:
+        string error = await httpResponse.Content.ReadAsStringAsync();
+        Console.WriteLine($"Error extending loan: {error}");
+
+        return false;
+    }
 }
