@@ -3,24 +3,26 @@ package dk.via.sep3.model.utils.validation;
 import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-@Service public class ValidatorImpl implements Validator
+@Component("userValidator")
+ public class UserValidator implements Validator<String>
 {
   private static final Logger logger = LoggerFactory.getLogger(
-      ValidatorImpl.class);
+      UserValidator.class);
   private final UserGrpcService userGrpcService;
 
-  public ValidatorImpl(UserGrpcService userGrpcService)
+  public UserValidator(UserGrpcService userGrpcService)
   {
     this.userGrpcService = userGrpcService;
   }
 
-  @Override public void validateUser(String username)
+  @Override public void validate(String username)
   {
     if (userGrpcService.getUserByUsername(username) == null)
     {
-      logger.error("validateUser: User not found with username: {}",
+      logger.error("validate: User not found with username: {}",
           username);
       throw new IllegalArgumentException(
           "User not found with username: " + username);

@@ -8,6 +8,7 @@ import dk.via.sep3.model.domain.Loan;
 import dk.via.sep3.model.domain.Reservation;
 import dk.via.sep3.model.domain.State;
 import dk.via.sep3.model.utils.validation.Validator;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -16,16 +17,16 @@ import java.time.LocalDate;
 
 @Service public class ReservationServiceImpl implements ReservationService
 {
-  private final Validator validator;
+  private final Validator<String> userValidator;
   private final LoanGrpcService loanGrpcService;
   private final BookGrpcService bookGrpcService;
   private final ReservationGrpcService reservationGrpcService;
 
-  public ReservationServiceImpl(Validator validator,
-      LoanGrpcService loanGrpcService, BookGrpcService bookGrpcService,
-      ReservationGrpcService reservationGrpcService)
+  public ReservationServiceImpl(    @Qualifier("userValidator") Validator<String> userValidator,
+                                LoanGrpcService loanGrpcService, BookGrpcService bookGrpcService,
+                                ReservationGrpcService reservationGrpcService)
   {
-    this.validator = validator;
+      this.userValidator = userValidator;
     this.loanGrpcService = loanGrpcService;
     this.bookGrpcService = bookGrpcService;
     this.reservationGrpcService = reservationGrpcService;
@@ -39,7 +40,7 @@ import java.time.LocalDate;
     // -----------------------------
     // Step 1 — Validate user
     // -----------------------------
-    validator.validateUser(username);
+      userValidator.validate(username);
 
     // -----------------------------
     // Step 2 — Check ISBN availability

@@ -1,18 +1,116 @@
-@using DTOs
+@using DTOs.Error_Handler
+@using DTOs.Reservation
+@using System.Text.Json
+@inject AuthProvider Auth
+@inject BlazorApp.Services.ReservationService.IReservationService ReservationService
 
 <div class="mt-3">
-    <button class="btn btn-warning" disabled>
-        Reserve (Coming Soon)
+    <button class="btn btn-warning" @onclick="ShowConfirmation" disabled="@isProcessing">
+        @if (isProcessing)
+        {
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        }
+        Reserve
     </button>
 </div>
 
-<div class="alert alert-info mt-3" role="alert">
-    <i class="bi bi-info-circle"></i> Book reservation functionality will be available soon.
-</div>
+<ConfirmationDialog IsVisible="@showConfirmDialog" Title="Confirm Reservation"
+    Message="Do you want to reserve this book?" ConfirmText="Yes, Reserve" CancelText="Cancel"
+    ConfirmButtonClass="btn-warning" OnConfirm="HandleReservation" OnCancel="HideConfirmation" />
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert @(isError ? "alert-danger" : "alert-info") mt-3" role="alert">
+        <i class="bi bi-info-circle"></i> @message
+    </div>
+}
 
 @code {
     [Parameter]
     public required string ISBN { get; set; }
 
-    // TODO: Implement reservation logic in future
+    [Parameter]
+    public EventCallback OnReserveSuccess { get; set; }
+
+    
+    
+
+    private bool isProcessing = false;
+    private string message = string.Empty;
+    private bool isError = false;
+    private bool showConfirmDialog = false;
+
+    private void ShowConfirmation()
+    {
+        showConfirmDialog = true;
+    }
+
+    private void HideConfirmation()
+    {
+        showConfirmDialog = false;
+    }
+
+    private async Task HandleReservation()
+    {
+        showConfirmDialog = false;
+        isProcessing = true;
+        message = string.Empty;
+        isError = false;
+
+        try
+        {
+             var username = Auth.ExtractUsernameFromJwt();
+
+            if (string.IsNullOrEmpty(username))
+            {
+                message = "You are not logged in.";
+                isError = true;
+                return;
+            }
+
+            var dto = new CreateReservationDTO
+            {
+                Username = username,
+                BookISBN = ISBN
+            };
+
+            ReservationDTO result = await ReservationService.ReserveBookAsync(dto);
+
+            //  Show queue position to the user
+            message = $"Book Reserved! Your position in queue: #{result.PositionInQueue}.";
+            isError = false;
+
+            //  Refresh the parent BookDetails page
+            await OnReserveSuccess.InvokeAsync();
+        }
+        catch (Exception e)
+        {
+           try
+    {
+        // Extract JSON part from the message
+        string jsonPart = e.Message;
+
+        int startIndex = jsonPart.IndexOf('{');
+        if (startIndex > 0)
+        {
+            jsonPart = jsonPart[startIndex..];
+        }
+
+        ErrorResponseDTO? errorResponse = JsonSerializer.Deserialize<ErrorResponseDTO>(jsonPart,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        message = errorResponse?.Details ?? "An unknown error occurred.";
+    }
+    catch
+    {
+        message = e.Message;  // Fallback
+    }
+
+    isError = true;
+        }
+        finally
+        {
+            isProcessing = false;
+        }
+    }
 }
