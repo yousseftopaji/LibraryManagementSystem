@@ -1,6 +1,6 @@
 package dk.via.sep3.model.reservation;
 
-import dk.via.sep3.controller.exceptionHandler.ResourceNotFoundException;
+import dk.via.sep3.exceptionHandler.ResourceNotFoundException;
 import dk.via.sep3.grpcConnection.bookGrpcService.BookGrpcService;
 import dk.via.sep3.grpcConnection.loanGrpcService.LoanGrpcService;
 import dk.via.sep3.grpcConnection.reservationGrpcService.ReservationGrpcService;
@@ -8,8 +8,6 @@ import dk.via.sep3.model.domain.Book;
 import dk.via.sep3.model.domain.Loan;
 import dk.via.sep3.model.domain.Reservation;
 import dk.via.sep3.model.domain.State;
-import dk.via.sep3.model.utils.validation.Validator;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;

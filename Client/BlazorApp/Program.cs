@@ -14,7 +14,7 @@ builder.Services.AddRazorComponents()
 // Unauthenticated client
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri("http://localhost:8081/")
+    BaseAddress = new Uri("http://localhost:8080/")
 });
 
 builder.Services.AddScoped<IBookService, HttpBookService>();
@@ -27,7 +27,7 @@ builder.Services.AddScoped<JwtAuthMessageHandler>();
 // Authenticated HTTP client
 builder.Services.AddHttpClient("AuthorizedClient", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:8081/");
+    client.BaseAddress = new Uri("http://localhost:8080/");
 })
 .AddHttpMessageHandler<JwtAuthMessageHandler>();
 

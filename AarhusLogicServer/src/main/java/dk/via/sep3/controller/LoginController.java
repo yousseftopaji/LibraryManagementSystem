@@ -1,11 +1,11 @@
 package dk.via.sep3.controller;
 
+import dk.via.sep3.mapper.userMapper.UserMapper;
 import dk.via.sep3.model.auth.AuthService;
 import dk.via.sep3.model.domain.User;
 import dk.via.sep3.security.JwtUtil;
 import dk.via.sep3.shared.login.LoginRequestDTO;
 import dk.via.sep3.shared.login.LoginResponseDTO;
-import dk.via.sep3.shared.mapper.userMapper.UserMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

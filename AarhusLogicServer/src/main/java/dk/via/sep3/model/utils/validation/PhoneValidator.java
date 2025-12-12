@@ -1,6 +1,5 @@
 package dk.via.sep3.model.utils.validation;
 
-import dk.via.sep3.controller.exceptionHandler.BusinessRuleViolationException;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
@@ -13,7 +12,7 @@ public class PhoneValidator implements Validator<String> {
     @Override
     public void validate(String phone) {
         if (phone == null || !PHONE.matcher(phone).matches()) {
-            throw new BusinessRuleViolationException("Invalid phone format");
+            throw new dk.via.sep3.exceptionHandler.BusinessRuleViolationException("Invalid phone format");
         }
     }
 }

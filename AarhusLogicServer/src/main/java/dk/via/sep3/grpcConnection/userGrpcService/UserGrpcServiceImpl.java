@@ -1,9 +1,9 @@
 package dk.via.sep3.grpcConnection.userGrpcService;
 
 import dk.via.sep3.*;
-import dk.via.sep3.controller.exceptionHandler.GrpcCommunicationException;
+import dk.via.sep3.exceptionHandler.GrpcCommunicationException;
+import dk.via.sep3.mapper.userMapper.UserMapper;
 import dk.via.sep3.model.domain.User;
-import dk.via.sep3.shared.mapper.userMapper.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
