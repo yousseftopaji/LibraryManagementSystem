@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 using DTOs;
@@ -65,14 +66,13 @@ public class AuthProvider : AuthenticationStateProvider
         var claims = new List<Claim>()
         {
             new Claim(ClaimTypes.Name, loginResponse.Username ?? "User")
-            // new Claim(ClaimTypes.Role, loginResponse.User.Role ?? "User"),
-            // new Claim("FullName", loginResponse.User.Name ?? ""),
-            // new Claim("Email", loginResponse.User.Email ?? ""),
-            // new Claim("PhoneNumber", loginResponse.User.PhoneNumber ?? "")
+            // new Claim(ClaimTypes.Role, loginResponse.User.Role ?? "User")
         };
-
+        
         currentClaimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(claims, "jwt"));
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(currentClaimsPrincipal)));
+        
+        AttachToken(client);
     }
 
     // LOGOUT
@@ -118,9 +118,12 @@ public class AuthProvider : AuthenticationStateProvider
         await js.InvokeVoidAsync("localStorage.setItem", "jwtToken", token);
     }
     public void AttachToken(HttpClient client)
-{
-    if (!string.IsNullOrEmpty(jwtToken))
-        client.DefaultRequestHeaders.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
-}
+    {
+        if (!string.IsNullOrEmpty(jwtToken)) 
+        {
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", jwtToken);
+            
+        }
+    }
 }

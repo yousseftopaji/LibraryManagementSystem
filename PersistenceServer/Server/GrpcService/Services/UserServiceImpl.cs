@@ -28,4 +28,36 @@ public class UserServiceImpl(IUserRepository userRepository) : UserService.UserS
             };
         }
     }
+    
+    public override async Task<CreateUserResponse> CreateUser(CreateUserRequest request, ServerCallContext context)
+    {
+        try
+        {
+            var userEntity = new Entities.User
+            {
+                Username = request.User.Username,
+                PasswordHash = request.User.Password,
+                PhoneNumber = request.User.PhoneNumber,
+                Email = request.User.Email,
+                Name = request.User.Name,
+                Role = request.User.Role
+            };
+            var user = await userRepository.CreateUserAsync(userEntity);
+            var response = new CreateUserResponse
+            {
+                User = new DTOUser { Username = user.Username },
+                Success = true,
+                Message = "User created successfully."
+            };
+            return response;
+        }
+        catch (Exception ex)
+        {
+            return new CreateUserResponse
+            {
+                Success = false,
+                Message = ex.Message
+            };
+        }
+    }
 }

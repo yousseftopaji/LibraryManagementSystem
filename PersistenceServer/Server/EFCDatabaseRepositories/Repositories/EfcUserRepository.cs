@@ -24,4 +24,20 @@ public class EfcUserRepository(LibraryDbContext context) : IUserRepository
             Email = user.Email
         };
     }
+
+    public async Task<User> CreateUserAsync(User user)
+    {
+        context.User.Add(user);
+        await context.SaveChangesAsync();
+        
+        return new User()
+        {
+            Username = user.Username,
+            PasswordHash = user.PasswordHash,
+            Role = user.Role,
+            Name = user.Name,
+            PhoneNumber = user.PhoneNumber,
+            Email = user.Email
+        };
+    }
 }
