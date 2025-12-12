@@ -26,11 +26,11 @@ public class LoginController {
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
        User user = userMapper.mapLoginRequestToDomain(request);
 
-       authService.login(user);
-       String token = jwtUtil.generateToken(user.getUsername(),  user.getRole());
+       User authenticatedUser = authService.login(user);
+       String token = jwtUtil.generateToken(authenticatedUser.getUsername(),  authenticatedUser.getRole());
         LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
         loginResponseDTO.setToken(token);
-        loginResponseDTO.setUsername(user.getUsername());
+        loginResponseDTO.setUsername(authenticatedUser.getUsername());
         return  new ResponseEntity<>(loginResponseDTO, HttpStatus.OK);
     }
 }
