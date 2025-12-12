@@ -14,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/loans")
 public class LoansController
@@ -21,13 +24,11 @@ public class LoansController
   private static final Logger logger = LoggerFactory.getLogger(LoansController.class);
   private final LoanService loanService;
   private final LoanMapper loanMapper;
-  private final JwtTokenProvider jwtTokenProvider;
 
   public LoansController(LoanService loanService, LoanMapper loanMapper, JwtTokenProvider jwtTokenProvider)
   {
     this.loanService = loanService;
     this.loanMapper = loanMapper;
-    this.jwtTokenProvider = jwtTokenProvider;
   }
 
   @PreAuthorize("hasRole('Reader')")
@@ -47,15 +48,11 @@ public class LoansController
 
   @PreAuthorize("hasRole('READER')")
   @PatchMapping("/extensions")
-  public ResponseEntity extendLoan(
-      @PathVariable String id,
+  public ResponseEntity<Void> extendLoan(
       @RequestBody CreateExtensionDTO request)
   {
-    logger.info("Extension request for loan ID: {} by user: {}",
-        id, request.getUsername());
+    logger.info("Extension request for loan by user: {}", request.getUsername());
 
-    // Set the loan ID from path variable
-    request.setLoanId(Integer.parseInt(id));
 
     // Map DTO to domain
     Loan loan = loanMapper.mapCreateExtensionDTOToDomain(request);
@@ -63,5 +60,23 @@ public class LoansController
     // Extend the loan
     loanService.extendLoan(loan);
     return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @PreAuthorize("hasRole('READER')")
+  @GetMapping("/active")
+  public ResponseEntity<List<LoanDTO>> getActiveLoansByUsername(@RequestParam String username)
+  {
+    logger.info("Fetching active loans for user: {}", username);
+
+    List<Loan> activeLoans = loanService.getActiveLoansByUsername(username);
+    List<LoanDTO> loanDTOs = new ArrayList<>();
+    for (Loan loan : activeLoans)
+    {
+      LoanDTO loanDTO = loanMapper.mapDomainToLoanDTO(loan);
+      loanDTOs.add(loanDTO);
+    }
+
+    logger.info("Found {} active loans for user: {}", loanDTOs.size(), username);
+    return new ResponseEntity<>(loanDTOs, HttpStatus.OK);
   }
 }

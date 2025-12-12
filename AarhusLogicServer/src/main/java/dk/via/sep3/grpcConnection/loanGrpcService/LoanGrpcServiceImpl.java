@@ -123,4 +123,38 @@ import java.util.List;
       return null;
     }
   }
+
+  @Override public List<Loan> getActiveLoansByUsername(String username)
+  {
+    try
+    {
+      GetActiveLoansByUsernameRequest request = GetActiveLoansByUsernameRequest.newBuilder()
+          .setUsername(username)
+          .build();
+
+      logger.info("Sending gRPC request to get active loans for user: {}", username);
+      GetActiveLoansByUsernameResponse response = loanStub.getActiveLoansByUsername(request);
+      if (response.getSuccess())
+      {
+        logger.info("Retrieved {} active loans for user: {}", response.getLoansCount(), username);
+        List<Loan> loans = new ArrayList<>();
+        for (DTOLoan dtoLoan : response.getLoansList())
+        {
+          loans.add(loanMapper.mapDTOLoanToDomain(dtoLoan));
+        }
+        return loans;
+      }
+      else
+      {
+        logger.error("Failed to retrieve active loans for user: {}: {}", username,
+            response.getMessage());
+        return null;
+      }
+    }
+    catch (Exception ex)
+    {
+      logger.error("Error retrieving active loans for user: {}", username, ex);
+      return null;
+    }
+  }
 }

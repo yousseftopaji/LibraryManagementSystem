@@ -1,4 +1,4 @@
-package dk.via.sep3.controller.controllers;
+package dk.via.sep3.controller;
 
 import dk.via.sep3.model.domain.Reservation;
 import dk.via.sep3.model.reservation.ReservationService;

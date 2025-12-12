@@ -1,5 +1,7 @@
 package dk.via.sep3.model.loans;
 
+import dk.via.sep3.controller.exceptionHandler.GrpcCommunicationException;
+import dk.via.sep3.controller.exceptionHandler.ResourceNotFoundException;
 import dk.via.sep3.grpcConnection.bookGrpcService.BookGrpcService;
 import dk.via.sep3.grpcConnection.loanGrpcService.LoanGrpcService;
 import dk.via.sep3.model.domain.Book;
@@ -68,6 +70,27 @@ import java.util.List;
     loanGrpcService.extendLoan(loan);
 
     logger.info("Loan {} successfully extended to {}", loan.getLoanId(), loan.getDueDate());
+  }
+
+  @Override public List<Loan> getActiveLoansByUsername(String username)
+  {
+    logger.info("Fetching active loans for user {}", username);
+    try
+    {
+      List<Loan> activeLoans = loanGrpcService.getActiveLoansByUsername(
+          username);
+      if (activeLoans == null || activeLoans.isEmpty())
+      {
+        logger.info("No active loans found for user {}", username);
+        throw new ResourceNotFoundException("No active loans found for user: " + username);
+      }
+      return activeLoans;
+    }
+    catch (Exception ex)
+    {
+      logger.error("Error fetching active loans for user {}", username, ex);
+      throw new GrpcCommunicationException("Failed to fetch active loans for user: " + username);
+    }
   }
 
   // ==================== Create Loan Helper Methods ====================
