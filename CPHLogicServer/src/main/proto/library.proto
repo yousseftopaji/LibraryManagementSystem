@@ -207,40 +207,6 @@ message GetLoansByISBNResponse {
   string message = 3;
 }
 
-// ========================
-// User Registration Messages
-// ========================
-
-message RegisterRequest {
-  string fullName = 1;
-  string email = 2;
-  string phoneNumber = 3;
-  string username = 4;
-  string password = 5;
-}
-
-message RegisterResponse {
-  DTOUser user = 1;
-  bool success = 2;
-  string message = 3;
-}
-
-// ========================
-// User Login Messages
-// ========================
-
-message LoginRequest {
-  string username = 1;
-  string password = 2;
-}
-
-message LoginResponse {
-  bool success = 1;
-  string message = 2;
-  string token = 3;
-  DTOUser user = 4;
-}
-
 
 // ========================
 // Services
@@ -263,14 +229,6 @@ service LoanService {
 service UserService {
   rpc GetUserByUsername (GetUserByUsernameRequest) returns (GetUserByUsernameResponse);
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
-}
-
-service RegistrationService {
-  rpc Register (RegisterRequest) returns (RegisterResponse);
-}
-
-service AuthenticationService {
-  rpc Login (LoginRequest) returns (LoginResponse);
 }
 
 service ReservationService {

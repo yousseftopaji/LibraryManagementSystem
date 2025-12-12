@@ -35,14 +35,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       if (token != null && jwtTokenProvider.validateToken(token)) {
         String username = jwtTokenProvider.getUsernameFromToken(token);
         String role = jwtTokenProvider.getRoleFromToken(token);
-
+        
         // Create authority with ROLE_ prefix (Spring Security convention)
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
-
+        
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(username, null, Collections.singletonList(authority));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
+        
         logger.info("User '{}' authenticated with role '{}'", username, role);
       }
     } catch (Exception e) {

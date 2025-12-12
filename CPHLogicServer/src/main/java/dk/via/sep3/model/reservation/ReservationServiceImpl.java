@@ -8,8 +8,6 @@ import dk.via.sep3.model.domain.Book;
 import dk.via.sep3.model.domain.Loan;
 import dk.via.sep3.model.domain.Reservation;
 import dk.via.sep3.model.domain.State;
-import dk.via.sep3.model.utils.validation.Validator;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -22,7 +20,8 @@ import java.time.LocalDate;
   private final BookGrpcService bookGrpcService;
   private final ReservationGrpcService reservationGrpcService;
 
-  public ReservationServiceImpl(LoanGrpcService loanGrpcService, BookGrpcService bookGrpcService,
+  public ReservationServiceImpl(LoanGrpcService loanGrpcService,
+      BookGrpcService bookGrpcService,
       ReservationGrpcService reservationGrpcService)
   {
     this.loanGrpcService = loanGrpcService;
@@ -51,7 +50,8 @@ import java.time.LocalDate;
     Book targetBook = findBookWithEarliestDueDate(books, isbn);
 
     // Step 6: Create and persist reservation
-    Reservation createdReservation = createAndPersistReservation(username, targetBook);
+    Reservation createdReservation = createAndPersistReservation(username,
+        targetBook);
 
     // Step 7: Update book status to reserved
     updateBookStatusToReserved(targetBook.getId());
@@ -80,12 +80,15 @@ import java.time.LocalDate;
    */
   private void validateNoDuplicateReservation(String username, String isbn)
   {
-    List<Reservation> existingReservations = reservationGrpcService.getReservationsByIsbn(isbn);
+    List<Reservation> existingReservations = reservationGrpcService.getReservationsByIsbn(
+        isbn);
 
     for (Reservation existingReservation : existingReservations)
     {
-      System.out.println("Existing reservation by user: " + existingReservation.getUsername()
-          + " for book Id: " + existingReservation.getBookId() + " and ISBN: " + isbn);
+      System.out.println(
+          "Existing reservation by user: " + existingReservation.getUsername()
+              + " for book Id: " + existingReservation.getBookId()
+              + " and ISBN: " + isbn);
 
       if (existingReservation.getUsername().equalsIgnoreCase(username))
       {
@@ -100,8 +103,8 @@ import java.time.LocalDate;
    */
   private void validateNoAvailableCopies(List<Book> books)
   {
-    boolean anyAvailable = books.stream()
-        .anyMatch(book -> book.getState().toString().equalsIgnoreCase("AVAILABLE"));
+    boolean anyAvailable = books.stream().anyMatch(
+        book -> book.getState().toString().equalsIgnoreCase("AVAILABLE"));
 
     if (anyAvailable)
     {
@@ -140,16 +143,13 @@ import java.time.LocalDate;
 
     for (Book book : books)
     {
-      if (isBookReservable(book))
-      {
-        Date bookEarliestDueDate = findEarliestDueDateForBook(book);
+      Date bookEarliestDueDate = findEarliestDueDateForBook(book);
 
-        if (bookEarliestDueDate != null &&
-            (earliestDueDate == null || bookEarliestDueDate.before(earliestDueDate)))
-        {
-          earliestDueDate = bookEarliestDueDate;
-          targetBook = book;
-        }
+      if (bookEarliestDueDate != null && (earliestDueDate == null
+          || bookEarliestDueDate.before(earliestDueDate)))
+      {
+        earliestDueDate = bookEarliestDueDate;
+        targetBook = book;
       }
     }
 
@@ -160,14 +160,6 @@ import java.time.LocalDate;
     }
 
     return targetBook;
-  }
-
-  /**
-   * Checks if a book can be reserved (not already in RESERVED state).
-   */
-  private boolean isBookReservable(Book book)
-  {
-    return !book.getState().toString().equalsIgnoreCase("RESERVED");
   }
 
   /**
@@ -182,7 +174,8 @@ import java.time.LocalDate;
     {
       if (!loan.isReturned())
       {
-        if (earliestDueDate == null || loan.getDueDate().before(earliestDueDate))
+        if (earliestDueDate == null || loan.getDueDate()
+            .before(earliestDueDate))
         {
           earliestDueDate = loan.getDueDate();
         }
@@ -197,10 +190,12 @@ import java.time.LocalDate;
   /**
    * Creates a reservation object and persists it via gRPC.
    */
-  private Reservation createAndPersistReservation(String username, Book targetBook)
+  private Reservation createAndPersistReservation(String username,
+      Book targetBook)
   {
     Reservation reservation = createReservationObject(username, targetBook);
-    Reservation persistedReservation = reservationGrpcService.createReservation(reservation);
+    Reservation persistedReservation = reservationGrpcService.createReservation(
+        reservation);
 
     validateReservationPersistence(persistedReservation);
 
@@ -245,16 +240,13 @@ import java.time.LocalDate;
   /**
    * Builds the complete reservation with queue position count.
    */
-  private Reservation buildCompleteReservation(Reservation reservation, String isbn)
+  private Reservation buildCompleteReservation(Reservation reservation,
+      String isbn)
   {
     int queuePosition = reservationGrpcService.getReservationCountByISBN(isbn);
 
-    return new Reservation(
-        reservation.getId(),
-        reservation.getUsername(),
-        reservation.getBookId(),
-        reservation.getReservationDate(),
-        queuePosition
-    );
+    return new Reservation(reservation.getId(), reservation.getUsername(),
+        reservation.getBookId(), reservation.getReservationDate(),
+        queuePosition);
   }
 }
