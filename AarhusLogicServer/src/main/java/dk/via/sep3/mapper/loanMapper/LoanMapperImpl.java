@@ -1,4 +1,4 @@
-package dk.via.sep3.shared.mapper.loanMapper;
+package dk.via.sep3.mapper.loanMapper;
 
 import dk.via.sep3.DTOLoan;
 import dk.via.sep3.model.domain.Loan;

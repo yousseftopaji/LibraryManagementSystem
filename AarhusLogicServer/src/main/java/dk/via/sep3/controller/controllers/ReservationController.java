@@ -1,8 +1,8 @@
-package dk.via.sep3.controller;
+package dk.via.sep3.controller.controllers;
 
 import dk.via.sep3.model.domain.Reservation;
 import dk.via.sep3.model.reservation.ReservationService;
-import dk.via.sep3.shared.mapper.ReservationMapper.ReservationMapper;
+import dk.via.sep3.mapper.ReservationMapper.ReservationMapper;
 import dk.via.sep3.shared.reservation.CreateReservationDTO;
 import dk.via.sep3.shared.reservation.ReservationDTO;
 import org.springframework.http.HttpStatus;
