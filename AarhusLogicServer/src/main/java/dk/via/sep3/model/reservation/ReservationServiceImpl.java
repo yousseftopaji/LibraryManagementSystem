@@ -201,7 +201,7 @@ public class ReservationServiceImpl implements ReservationService {
      * Updates the book status to RESERVED.
      */
     private void updateBookStatusToReserved(long bookId) {
-        bookGrpcService.updateBookStatus((int) bookId, State.RESERVED.toString());
+        bookGrpcService.updateBookStatus((int) bookId, "Reserved");
     }
 
     /**
