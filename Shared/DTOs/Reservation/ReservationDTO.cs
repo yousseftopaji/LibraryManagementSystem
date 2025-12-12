@@ -1,4 +1,5 @@
 using System;
+using System;
 using System.Text.Json.Serialization;
 namespace DTOs.Reservation;
 public class ReservationDTO
@@ -16,4 +17,6 @@ public class ReservationDTO
     [JsonPropertyName("bookId")]
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public int BookId { get; set; }
+    [JsonPropertyName("positionInQueue")]
+    public int PositionInQueue { get; set; }
 }

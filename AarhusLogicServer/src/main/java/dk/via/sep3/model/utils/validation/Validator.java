@@ -1,6 +1,7 @@
 package dk.via.sep3.model.utils.validation;
 
-public interface Validator
+public interface Validator<T>
 {
-    void validateUser(String username);
+    void validate(T target);
+
 }

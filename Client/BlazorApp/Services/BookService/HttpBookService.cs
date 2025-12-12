@@ -9,14 +9,16 @@ namespace BlazorApp.Services;
 public class HttpBookService : IBookService
 {
     private readonly HttpClient client;
-
-    public HttpBookService(HttpClient client)
+    private readonly AuthProvider authProvider;
+    public HttpBookService(HttpClient  client, AuthProvider authProvider)
     {
         this.client = client;
+        this.authProvider = authProvider;
     }
 
-    public async Task<BookDTO> GetBookAsync(string isbn)
+    public async Task<BookDTO> GetBookAsync(string isbn)    
     {
+        authProvider.AttachToken(client);
         HttpResponseMessage httpResponse = await client.GetAsync($"books/{isbn}");
         string response = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode)
@@ -36,7 +38,8 @@ public class HttpBookService : IBookService
     }
 
     public async Task<List<BookDTO>> GetBooksAsync()
-    {      
+    {   
+        authProvider.AttachToken(client);
         HttpResponseMessage httpResponse = await client.GetAsync("books");
         string response = await httpResponse.Content.ReadAsStringAsync();
         if (!httpResponse.IsSuccessStatusCode)

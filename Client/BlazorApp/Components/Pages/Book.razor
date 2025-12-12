@@ -1,32 +1,49 @@
 ﻿@page "/books/{ISBN}"
 @using DTOs.Book
+@using DTOs.Error_Handler
+@using System.Text.Json
 @rendermode InteractiveServer
 @inject Services.IBookService BookService
 
-<h3>Book Details</h3>
-@if (book == null)
-{
-    <p class="text-muted fst-italic">Loading book details...</p>
-}
-else
-{
-    <div>
-        <h4>@book.Title</h4>
-        <p><strong>Title:</strong> @book.Title</p>
-        <p><strong>Author:</strong> @book.Author</p>
-        <p><strong>ISBN:</strong> @book.ISBN</p>
-        <p><strong>State:</strong> @book.State</p>
-
-        @if (book.State.Equals("Available", StringComparison.OrdinalIgnoreCase))
+<div class="d-flex justify-content-center mt-5">
+    <div class="card shadow-lg p-4" style="max-width: 600px; width: 100%;">
+        @if (book == null)
         {
-            <BorrowBook ISBN="@book.ISBN" OnBorrowSuccess="RefreshBookDetails" />
+            <p class="text-muted fst-italic text-center fs-5">Loading book details...</p>
         }
         else
         {
-            <ReserveBook ISBN="@book.ISBN" />
+            <div class="text-center">
+                <h2 class="fw-bold mb-4 fs-1">@book.Title</h2>
+
+                <p class="text-secondary mb-3 fs-5"><strong>Author:</strong> @book.Author</p>
+                <p class="text-secondary mb-3 fs-5"><strong>ISBN:</strong> @book.ISBN</p>
+                <p class="mb-4 fs-5">
+                    <strong>Status:</strong>
+                    @if (book.State.Equals("Available", StringComparison.OrdinalIgnoreCase))
+                    {
+                        <span class="text-success fw-bold">@book.State</span>
+                    }
+                    else
+                    {
+                        <span class="text-warning fw-bold">@book.State</span>
+                    }
+                </p>
+
+                <div class="mt-4">
+                    @if (book.State.Equals("Available", StringComparison.OrdinalIgnoreCase))
+                    {
+                        <BorrowBook ISBN="@book.ISBN" OnBorrowSuccess="RefreshBookDetails" />
+                    }
+                    else
+                    {
+                        <ReserveBook ISBN="@book.ISBN" />
+                    }
+                </div>
+            </div>
         }
     </div>
-}
+</div>
 
 @code {
     [Parameter]
@@ -45,9 +62,23 @@ else
         {
             book = await BookService.GetBookAsync(ISBN);
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Console.WriteLine($"Error loading book details: {ex}");
+           try
+            {
+                // Try to parse server JSON error
+                ErrorResponseDTO? errorResponse = JsonSerializer.Deserialize<ErrorResponseDTO>(e.Message, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                @* errorLabel = errorResponse?.Details ?? "An unknown error occurred."; *@
+            }
+            catch
+            {
+                // Fallback if JSON parsing fails
+                @* errorLabel = $"Error: {e.Message}"; *@
+            }
         }
     }
 
