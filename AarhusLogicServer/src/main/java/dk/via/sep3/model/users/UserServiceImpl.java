@@ -1,10 +1,8 @@
 package dk.via.sep3.model.users;
 
-import dk.via.sep3.controller.exceptionHandler.BusinessRuleViolationException;
+import dk.via.sep3.exceptionHandler.BusinessRuleViolationException;
 import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
-import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcServiceImpl;
 import dk.via.sep3.model.domain.User;
-import dk.via.sep3.shared.user.UserDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 

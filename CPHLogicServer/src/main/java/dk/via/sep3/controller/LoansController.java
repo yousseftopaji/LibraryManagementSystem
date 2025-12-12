@@ -30,7 +30,7 @@ public class LoansController
     this.jwtTokenProvider = jwtTokenProvider;
   }
 
-  @PreAuthorize("hasRole('READER')")
+  @PreAuthorize("hasRole('Reader')")
   @PostMapping
   public ResponseEntity<LoanDTO> createLoan(@RequestBody CreateLoanDTO request)
   {

@@ -30,7 +30,7 @@ public class ReservationController
     this.reservationMapper = reservationMapper;
   }
 
-  @PreAuthorize("hasRole('READER')")
+  @PreAuthorize("hasRole('Reader')")
   @PostMapping public ResponseEntity<ReservationDTO> createReservation(
       @RequestBody CreateReservationDTO createReservationDTO)
   {

@@ -1,11 +1,11 @@
 package dk.via.sep3.controller;
 
+import dk.via.sep3.mapper.loanMapper.LoanMapper;
 import dk.via.sep3.model.domain.Loan;
 import dk.via.sep3.model.loans.LoanService;
 import dk.via.sep3.shared.extension.CreateExtensionDTO;
 import dk.via.sep3.shared.loan.CreateLoanDTO;
 import dk.via.sep3.shared.loan.LoanDTO;
-import dk.via.sep3.shared.mapper.loanMapper.LoanMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

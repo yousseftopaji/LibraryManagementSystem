@@ -1,6 +1,6 @@
 package dk.via.sep3.model.utils.validation;
 
-import dk.via.sep3.controller.exceptionHandler.BusinessRuleViolationException;
+import dk.via.sep3.exceptionHandler.BusinessRuleViolationException;
 import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
 import dk.via.sep3.model.domain.User;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,7 @@
 package dk.via.sep3.shared.mapper.bookMapper;
 import dk.via.sep3.DTOBook;
 import dk.via.sep3.DTOGenre;
+import dk.via.sep3.mapper.bookMapper.BookMapper;
 import dk.via.sep3.shared.book.BookDTO;
 import dk.via.sep3.model.domain.Book;
 import dk.via.sep3.model.domain.Genre;

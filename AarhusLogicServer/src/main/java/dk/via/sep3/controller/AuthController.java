@@ -1,14 +1,14 @@
 package dk.via.sep3.controller;
 
+import dk.via.sep3.exceptionHandler.BusinessRuleViolationException;
+import dk.via.sep3.mapper.userMapper.UserMapper;
 import dk.via.sep3.model.domain.User;
 import dk.via.sep3.security.JwtUtil;
 import dk.via.sep3.shared.auth.AuthResponseDTO;
-import dk.via.sep3.shared.mapper.userMapper.UserMapper;
 import dk.via.sep3.shared.registration.RegistrationDTO;
 import dk.via.sep3.model.register.RegisterService;
 import dk.via.sep3.shared.user.UserDTO;
 import dk.via.sep3.model.utils.validation.Validator;
-import dk.via.sep3.controller.exceptionHandler.BusinessRuleViolationException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
