@@ -16,22 +16,21 @@ import java.sql.Date;
 import java.util.List;
 import java.time.LocalDate;
 
-@Service public class ReservationServiceImpl implements ReservationService
-{
+@Service
+public class ReservationServiceImpl implements ReservationService {
     private final LoanGrpcService loanGrpcService;
     private final BookGrpcService bookGrpcService;
     private final ReservationGrpcService reservationGrpcService;
 
     public ReservationServiceImpl(LoanGrpcService loanGrpcService, BookGrpcService bookGrpcService,
-                                  ReservationGrpcService reservationGrpcService)
-    {
+                                  ReservationGrpcService reservationGrpcService) {
         this.loanGrpcService = loanGrpcService;
         this.bookGrpcService = bookGrpcService;
         this.reservationGrpcService = reservationGrpcService;
     }
 
-    @Override public Reservation createReservation(Reservation reservation)
-    {
+    @Override
+    public Reservation createReservation(Reservation reservation) {
         String username = reservation.getUsername();
         String isbn = reservation.getBookISBN();
 
@@ -65,11 +64,9 @@ import java.time.LocalDate;
     /**
      * Retrieves books by ISBN and validates that at least one exists.
      */
-    private List<Book> retrieveAndValidateBooksExist(String isbn)
-    {
+    private List<Book> retrieveAndValidateBooksExist(String isbn) {
         List<Book> books = bookGrpcService.getBooksByIsbn(isbn);
-        if (books.isEmpty())
-        {
+        if (books.isEmpty()) {
             throw new IllegalArgumentException("No books found with ISBN: " + isbn);
         }
         return books;
@@ -78,17 +75,11 @@ import java.time.LocalDate;
     /**
      * Validates that the user doesn't already have an active reservation for this ISBN.
      */
-    private void validateNoDuplicateReservation(String username, String isbn)
-    {
+    private void validateNoDuplicateReservation(String username, String isbn) {
         List<Reservation> existingReservations = reservationGrpcService.getReservationsByIsbn(isbn);
 
-        for (Reservation existingReservation : existingReservations)
-        {
-            System.out.println("Existing reservation by user: " + existingReservation.getUsername()
-                    + " for book Id: " + existingReservation.getBookId() + " and ISBN: " + isbn);
-
-            if (existingReservation.getUsername().equalsIgnoreCase(username))
-            {
+        for (Reservation existingReservation : existingReservations) {
+            if (existingReservation.getUsername().equalsIgnoreCase(username)) {
                 throw new IllegalArgumentException(
                         "User already has an active reservation for this book.");
             }
@@ -98,13 +89,11 @@ import java.time.LocalDate;
     /**
      * Validates that no copies are available. Users must borrow available books, not reserve them.
      */
-    private void validateNoAvailableCopies(List<Book> books)
-    {
+    private void validateNoAvailableCopies(List<Book> books) {
         boolean anyAvailable = books.stream()
                 .anyMatch(book -> book.getState().toString().equalsIgnoreCase("AVAILABLE"));
 
-        if (anyAvailable)
-        {
+        if (anyAvailable) {
             throw new IllegalArgumentException(
                     "Book is currently available. Cannot reserve, but borrow instead.");
         }
@@ -113,14 +102,11 @@ import java.time.LocalDate;
     /**
      * Validates that the user doesn't have an unreturned loan for this book.
      */
-    private void validateNoUnreturnedLoan(String username, String isbn)
-    {
+    private void validateNoUnreturnedLoan(String username, String isbn) {
         List<Loan> userLoans = loanGrpcService.getLoansByISBN(isbn);
 
-        for (Loan loan : userLoans)
-        {
-            if (loan.getUsername().equalsIgnoreCase(username) && !loan.isReturned())
-            {
+        for (Loan loan : userLoans) {
+            if (loan.getUsername().equalsIgnoreCase(username) && !loan.isReturned()) {
                 throw new IllegalArgumentException(
                         "User already has an unreturned loan for this book.");
             }
@@ -133,28 +119,21 @@ import java.time.LocalDate;
      * Finds the book with the earliest due date that is not already reserved.
      * This ensures the user gets notified as soon as possible when a copy becomes available.
      */
-    private Book findBookWithEarliestDueDate(List<Book> books, String isbn)
-    {
+    private Book findBookWithEarliestDueDate(List<Book> books, String isbn) {
         Book targetBook = null;
         Date earliestDueDate = null;
 
-        for (Book book : books)
-        {
-            if (isBookReservable(book))
-            {
-                Date bookEarliestDueDate = findEarliestDueDateForBook(book);
+        for (Book book : books) {
+            Date bookEarliestDueDate = findEarliestDueDateForBook(book);
 
-                if (bookEarliestDueDate != null &&
-                        (earliestDueDate == null || bookEarliestDueDate.before(earliestDueDate)))
-                {
-                    earliestDueDate = bookEarliestDueDate;
-                    targetBook = book;
-                }
+            if (bookEarliestDueDate != null &&
+                    (earliestDueDate == null || bookEarliestDueDate.before(earliestDueDate))) {
+                earliestDueDate = bookEarliestDueDate;
+                targetBook = book;
             }
         }
 
-        if (targetBook == null)
-        {
+        if (targetBook == null) {
             throw new ResourceNotFoundException(
                     "No suitable book found for reservation with ISBN: " + isbn);
         }
@@ -163,27 +142,15 @@ import java.time.LocalDate;
     }
 
     /**
-     * Checks if a book can be reserved (not already in RESERVED state).
-     */
-    private boolean isBookReservable(Book book)
-    {
-        return !book.getState().toString().equalsIgnoreCase("RESERVED");
-    }
-
-    /**
      * Finds the earliest due date among all unreturned loans for a specific book.
      */
-    private Date findEarliestDueDateForBook(Book book)
-    {
+    private Date findEarliestDueDateForBook(Book book) {
         List<Loan> loansForBook = loanGrpcService.getLoansByISBN(book.getIsbn());
         Date earliestDueDate = null;
 
-        for (Loan loan : loansForBook)
-        {
-            if (!loan.isReturned())
-            {
-                if (earliestDueDate == null || loan.getDueDate().before(earliestDueDate))
-                {
+        for (Loan loan : loansForBook) {
+            if (!loan.isReturned()) {
+                if (earliestDueDate == null || loan.getDueDate().before(earliestDueDate)) {
                     earliestDueDate = loan.getDueDate();
                 }
             }
@@ -197,8 +164,7 @@ import java.time.LocalDate;
     /**
      * Creates a reservation object and persists it via gRPC.
      */
-    private Reservation createAndPersistReservation(String username, Book targetBook)
-    {
+    private Reservation createAndPersistReservation(String username, Book targetBook) {
         Reservation reservation = createReservationObject(username, targetBook);
         Reservation persistedReservation = reservationGrpcService.createReservation(reservation);
 
@@ -210,8 +176,7 @@ import java.time.LocalDate;
     /**
      * Creates a new reservation domain object.
      */
-    private Reservation createReservationObject(String username, Book targetBook)
-    {
+    private Reservation createReservationObject(String username, Book targetBook) {
         Date reservationDate = Date.valueOf(LocalDate.now());
 
         Reservation reservation = new Reservation();
@@ -225,10 +190,8 @@ import java.time.LocalDate;
     /**
      * Validates that the reservation was successfully persisted.
      */
-    private void validateReservationPersistence(Reservation reservation)
-    {
-        if (reservation == null || reservation.getId() <= 0)
-        {
+    private void validateReservationPersistence(Reservation reservation) {
+        if (reservation == null || reservation.getId() <= 0) {
             throw new RuntimeException(
                     "Failed to create reservation - received invalid response from server");
         }
@@ -237,16 +200,14 @@ import java.time.LocalDate;
     /**
      * Updates the book status to RESERVED.
      */
-    private void updateBookStatusToReserved(long bookId)
-    {
+    private void updateBookStatusToReserved(long bookId) {
         bookGrpcService.updateBookStatus((int) bookId, State.RESERVED.toString());
     }
 
     /**
      * Builds the complete reservation with queue position count.
      */
-    private Reservation buildCompleteReservation(Reservation reservation, String isbn)
-    {
+    private Reservation buildCompleteReservation(Reservation reservation, String isbn) {
         int queuePosition = reservationGrpcService.getReservationCountByISBN(isbn);
 
         return new Reservation(
