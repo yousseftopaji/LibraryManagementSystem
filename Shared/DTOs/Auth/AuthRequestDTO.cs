@@ -8,8 +8,8 @@ public class RegisterRequest
     [JsonPropertyName("fullName")]
     public required string FullName { get; set; }
 
-    [JsonPropertyName("phone")]
-    public required string Phone { get; set; }
+    [JsonPropertyName("phoneNumber")]
+    public required string PhoneNumber { get; set; }
     
     [JsonPropertyName("username")]
     public required string UserName { get; set; }

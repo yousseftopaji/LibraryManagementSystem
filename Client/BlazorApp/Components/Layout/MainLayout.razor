@@ -9,7 +9,17 @@
 
     <main>
         <div class="top-row px-4">
-            <button class="btn btn-link" @onclick="Logout">Log Out</button>
+
+            <AuthorizeView>
+                <Authorized>
+                    <button class="btn btn-link" @onclick="Logout">Log Out</button>
+                </Authorized>
+
+                <NotAuthorized>
+                    <!-- Show nothing when logged out -->
+                </NotAuthorized>
+            </AuthorizeView>
+
         </div>
 
         <article class="content px-4">
@@ -24,11 +34,10 @@
     <span class="dismiss">🗙</span>
 </div>
 
-
 @code {
     private async Task Logout()
     {
-        await AuthProvider.Logout();       // clears token + claims
-        NavMgr.NavigateTo("/login");       // redirect to login page
+        await AuthProvider.Logout();
+        NavMgr.NavigateTo("/login");
     }
 }

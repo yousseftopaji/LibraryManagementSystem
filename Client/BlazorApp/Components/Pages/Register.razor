@@ -1,4 +1,7 @@
 ﻿@page "/register"
+@using System.Text.Json
+@using DTOs.Error_Handler
+@inject IJSRuntime JS
 @inject AuthenticationStateProvider AuthProvider
 @inject NavigationManager navMgr
 
@@ -89,9 +92,23 @@
             email = "";
             password = "";
         }
-        catch (Exception e)
+       catch (Exception e)
         {
-            errorLabel = $"Error: {e.Message}";
+            try
+            {
+                // Try to parse server JSON error
+                ErrorResponseDTO? errorResponse = JsonSerializer.Deserialize<ErrorResponseDTO>(e.Message, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                errorLabel = errorResponse?.Details ?? "An unknown error occurred.";
+            }
+            catch
+            {
+                // Fallback if JSON parsing fails
+                errorLabel = $"Error: {e.Message}";
+            }
         }
         
     }

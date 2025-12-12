@@ -1,5 +1,8 @@
 @using DTOs
+@using DTOs.Error_Handler
 @using DTOs.Loan
+@using System.Text.Json
+@inject AuthProvider Auth
 @inject BlazorApp.Services.LoanService.ILoanService LoanService
 
 <div class="mt-3">
@@ -54,10 +57,19 @@
 
         try
         {
+            var username = Auth.ExtractUsernameFromJwt();
+
+            if (string.IsNullOrEmpty(username))
+            {
+                message = "You are not logged in.";
+                isError = true;
+                return;
+            }
+
             var createLoanDTO = new CreateLoanDTO
             {
                 BookISBN = ISBN,
-                Username = "alice" // TODO: Replace with actual logged-in username
+                Username = username 
             };
 
             var loanResponseDto = await LoanService.CreateLoanAsync(createLoanDTO);
@@ -68,11 +80,30 @@
             // Notify parent component to refresh book details
             await OnBorrowSuccess.InvokeAsync();
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Console.WriteLine($"Error borrowing book: {ex}");
-            message = "Failed to borrow the book. Please try again.";
-            isError = true;
+         try
+    {
+        // Extract JSON part from the message
+        string jsonPart = e.Message;
+
+        int startIndex = jsonPart.IndexOf('{');
+        if (startIndex > 0)
+        {
+            jsonPart = jsonPart[startIndex..];
+        }
+
+        ErrorResponseDTO? errorResponse = JsonSerializer.Deserialize<ErrorResponseDTO>(jsonPart,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        message = errorResponse?.Details ?? "An unknown error occurred.";
+    }
+    catch
+    {
+        message = e.Message;  // Fallback
+    }
+
+    isError = true;
         }
         finally
         {

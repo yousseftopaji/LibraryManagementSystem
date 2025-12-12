@@ -11,7 +11,7 @@ import javax.annotation.PostConstruct;
 import java.util.Date;
 
 @Component
-public class JwtUtil {
+public class JwtUtil implements IJwtTokenProvider {
 
     @Value("${jwt.secret:sep3defaultsecret}")
     private String secret;
@@ -28,21 +28,42 @@ public class JwtUtil {
         verifier = JWT.require(algorithm).build();
     }
 
-    public String generateToken(String username) {
+    @Override
+    public String generateToken(String username, String role) {
         Date now = new Date();
         Date exp = new Date(now.getTime() + expirationMs);
         return JWT.create()
                 .withSubject(username)
+                .withClaim("role", role)
                 .withIssuedAt(now)
                 .withExpiresAt(exp)
                 .sign(algorithm);
+
     }
 
+    // keep old helper for backwards compatibility
     public String extractUsername(String token) {
         DecodedJWT decoded = verifier.verify(token);
         return decoded.getSubject();
     }
 
+    // keep old helper for backwards compatibility
+    public String extractRole(String token) {
+        DecodedJWT decoded = verifier.verify(token);
+        return decoded.getClaim("role").asString();
+    }
+
+    @Override
+    public String getUsernameFromToken(String token) {
+        return extractUsername(token);
+    }
+
+    @Override
+    public String getRoleFromToken(String token) {
+        return extractRole(token);
+    }
+
+    @Override
     public boolean validateToken(String token) {
         try {
             verifier.verify(token);
@@ -52,4 +73,3 @@ public class JwtUtil {
         }
     }
 }
-

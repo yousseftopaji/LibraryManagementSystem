@@ -20,12 +20,12 @@ public class AuthProvider : AuthenticationStateProvider
     }
 
     // REGISTER
-    public async Task Register(string fullName, string phone, string userName, string email, string password)
+    public async Task Register(string fullName, string phoneNumber, string userName, string email, string password)
     {
         var request = new RegisterRequest()
         {
             FullName = fullName,
-            Phone = phone,
+            PhoneNumber = phoneNumber,
             UserName = userName,
             Email = email,
             Password = password
@@ -36,15 +36,6 @@ public class AuthProvider : AuthenticationStateProvider
 
         if (!response.IsSuccessStatusCode)
             throw new Exception(content);
-
-        var registerResponse = JsonSerializer.Deserialize<AuthResponseDTO>(content,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
-
-        // Save token and update authentication state
-        if (!string.IsNullOrEmpty(registerResponse.Token))
-        {
-            await SaveTokenAsync(registerResponse.Token);
-        }
     }
 
     // LOGIN
@@ -56,29 +47,29 @@ public class AuthProvider : AuthenticationStateProvider
         if (!response.IsSuccessStatusCode)
             throw new Exception(content);
 
-        var loginResponse = JsonSerializer.Deserialize<AuthResponseDTO>(content, new JsonSerializerOptions
+        var loginResponse = JsonSerializer.Deserialize<LoginResponse>(content, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         });
 
-        Console.WriteLine("Received token: " + loginResponse?.Token);
-
+    
         if (loginResponse == null || string.IsNullOrEmpty(loginResponse.Token))
             throw new Exception("Invalid login response");
 
-        if (loginResponse.User == null)
-            throw new Exception("Invalid user data in login response");
+        if (loginResponse.Username == null)
+            throw new Exception("Invalid username.");
 
         await SaveTokenAsync(loginResponse.Token);
+        AttachToken(client);
 
         // Build claims
         var claims = new List<Claim>()
         {
-            new Claim(ClaimTypes.Name, loginResponse.User.Username ?? "User"),
-            new Claim(ClaimTypes.Role, loginResponse.User.Role ?? "User"),
-            new Claim("FullName", loginResponse.User.Name ?? ""),
-            new Claim("Email", loginResponse.User.Email ?? ""),
-            new Claim("PhoneNumber", loginResponse.User.PhoneNumber ?? "")
+            new Claim(ClaimTypes.Name, loginResponse.Username ?? "User")
+            // new Claim(ClaimTypes.Role, loginResponse.User.Role ?? "User"),
+            // new Claim("FullName", loginResponse.User.Name ?? ""),
+            // new Claim("Email", loginResponse.User.Email ?? ""),
+            // new Claim("PhoneNumber", loginResponse.User.PhoneNumber ?? "")
         };
 
         currentClaimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(claims, "jwt"));
@@ -94,50 +85,79 @@ public class AuthProvider : AuthenticationStateProvider
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(currentClaimsPrincipal)));
     }
 
-    // Initialize authentication state from localStorage
-    public async Task InitializeAsync()
+
+// method to restore authentication from stored JWT
+    public async Task RestoreFromTokenAsync()
     {
-        currentClaimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity());
-        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(currentClaimsPrincipal)));
+        var storedToken = await js.InvokeAsync<string>("localStorage.getItem", "jwtToken");
 
-        jwtToken = await js.InvokeAsync<string>("localStorage.getItem", "jwtToken");
-
-        if (!string.IsNullOrEmpty(jwtToken))
+        if (!string.IsNullOrEmpty(storedToken))
         {
-            // Validate token
-            var handler = new JwtSecurityTokenHandler();
-            JwtSecurityToken? jwt = null;
-
             try
             {
-                jwt = handler.ReadJwtToken(jwtToken);
+                var handler = new JwtSecurityTokenHandler();
+                var jwt = handler.ReadJwtToken(storedToken);
+
+                if (jwt.ValidTo > DateTime.UtcNow)
+                {
+                    jwtToken = storedToken;
+
+                    // Map server-sent username to ClaimTypes.Name
+                    var claims = new List<Claim>();
+                    var username = jwt.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+                    if (!string.IsNullOrEmpty(username))
+                        claims.Add(new Claim(ClaimTypes.Name, username));
+
+                    // Add all other claims (except "username" to avoid duplicates)
+                    claims.AddRange(jwt.Claims.Where(c => c.Type != "sub"));
+
+                    currentClaimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(claims, "jwt"));
+                }
+                else
+                {
+                    // Token expired, remove it
+                    await js.InvokeVoidAsync("localStorage.removeItem", "jwtToken");
+                    currentClaimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity());
+                }
             }
             catch
             {
                 // Invalid token
-                await Logout();
-                return;
+                await js.InvokeVoidAsync("localStorage.removeItem", "jwtToken");
+                currentClaimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity());
             }
-
-            // Check expiration
-            if (jwt.ValidTo < DateTime.UtcNow)
-            {
-                await Logout();
-                return;
-            }
-
-            // Set claims
-            var claims = jwt.Claims.ToList();
-            currentClaimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(claims, "jwt"));
         }
         else
         {
+            // No token found
             currentClaimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity());
         }
 
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(currentClaimsPrincipal)));
     }
 
+    public string? ExtractUsernameFromJwt()
+{
+    if (string.IsNullOrEmpty(jwtToken))
+        return null;
+
+    try
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwt = handler.ReadJwtToken(jwtToken);
+
+        // Server usually sends username in "sub" or "unique_name" claim
+        var username =
+            jwt.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ??
+            jwt.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+        return username;
+    }
+    catch
+    {
+        return null;
+    }
+}
     public override Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         return Task.FromResult(new AuthenticationState(currentClaimsPrincipal));

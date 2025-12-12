@@ -2,12 +2,12 @@ package dk.via.sep3.controller;
 
 import dk.via.sep3.model.domain.Loan;
 import dk.via.sep3.model.loans.LoanService;
+import dk.via.sep3.shared.extension.CreateExtensionDTO;
 import dk.via.sep3.shared.loan.CreateLoanDTO;
 import dk.via.sep3.shared.loan.LoanDTO;
 import dk.via.sep3.shared.mapper.loanMapper.LoanMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-//import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController @RequestMapping("/loans") public class LoansController
@@ -22,13 +22,14 @@ import org.springframework.web.bind.annotation.*;
   }
 
   @PostMapping
-//  @PreAuthorize("permitAll()")
   public ResponseEntity<LoanDTO> createLoan(
       @RequestBody CreateLoanDTO request)
   {
     System.out.println(
         "Received loan creation request for user: " + request.getUsername()
             + " and book ISBN: " + request.getBookISBN());
+
+
     Loan loan = loanMapper.mapCreateLoanDTOToDomain(request);
     Loan createdLoan = loanService.createLoan(loan);
     LoanDTO loanDTO = loanMapper.mapDomainToLoanDTO(createdLoan);
@@ -36,11 +37,11 @@ import org.springframework.web.bind.annotation.*;
     return new ResponseEntity<>(loanDTO, HttpStatus.CREATED);
   }
 
-  @PatchMapping("/{id}") public ResponseEntity<Void> extendLoan(
-      @PathVariable String id)
+  @PatchMapping("/extensions") public ResponseEntity<Void> extendLoan(
+          @RequestBody CreateExtensionDTO request)
   {
-    int loanId = Integer.parseInt(id);
-    loanService.extendLoan(loanId);
+     Loan loan = loanMapper.mapCreateExtensionDTOToDomain(request) ;
+    loanService.extendLoan(loan);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 }
