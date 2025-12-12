@@ -34,9 +34,18 @@ public class UserGrpcServiceImpl implements UserGrpcService
       GetUserByUsernameResponse response = userStub
           .getUserByUsername(request);
 
-      logger.info("User found: {}", response.getUser());
-
-      return userMapper.mapDTOUserToDomain(response.getUser());
+      // Check if user exists in the response
+      if (response.hasUser() && response.getUser().getUsername() != null
+          && !response.getUser().getUsername().isEmpty())
+      {
+        logger.info("User found: {}", response.getUser());
+        return userMapper.mapDTOUserToDomain(response.getUser());
+      }
+      else
+      {
+        logger.info("User not found with username: {}", username);
+        return null;
+      }
     }
     catch (Exception ex)
     {

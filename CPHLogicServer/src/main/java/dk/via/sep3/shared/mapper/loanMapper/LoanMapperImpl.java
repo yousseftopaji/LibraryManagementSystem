@@ -2,6 +2,7 @@ package dk.via.sep3.shared.mapper.loanMapper;
 
 import dk.via.sep3.DTOLoan;
 import dk.via.sep3.model.domain.Loan;
+import dk.via.sep3.shared.extension.CreateExtensionDTO;
 import dk.via.sep3.shared.loan.CreateLoanDTO;
 import dk.via.sep3.shared.loan.LoanDTO;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,16 @@ public class LoanMapperImpl implements LoanMapper
     Loan loan = new Loan();
     loan.setUsername(createLoanDTO.getUsername());
     loan.setBookISBN(createLoanDTO.getBookISBN());
+    return loan;
+  }
+
+  @Override
+  public Loan mapCreateExtensionDTOToDomain(
+      CreateExtensionDTO createExtensionDTO)
+  {
+    Loan loan = new Loan();
+    loan.setLoanId(createExtensionDTO.getLoanId());
+    loan.setUsername(createExtensionDTO.getUsername());
     return loan;
   }
 

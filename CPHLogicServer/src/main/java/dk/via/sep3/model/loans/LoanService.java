@@ -7,5 +7,5 @@ import dk.via.sep3.shared.loan.LoanDTO;
 public interface LoanService
 {
   Loan createLoan(Loan loan);
-  void extendLoan(int loanId);
+  void extendLoan(Loan loan);
 }

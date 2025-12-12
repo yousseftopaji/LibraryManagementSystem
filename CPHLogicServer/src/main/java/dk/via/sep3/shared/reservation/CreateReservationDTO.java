@@ -4,6 +4,9 @@ public class CreateReservationDTO {
     private String username;
     private String bookISBN;
 
+    public CreateReservationDTO() {
+    }
+
     public CreateReservationDTO(String username, String bookISBN)
     {
         this.username = username;

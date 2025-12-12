@@ -1,31 +1,29 @@
 package dk.via.sep3.model.reservation;
 
+import dk.via.sep3.controller.exceptionHandler.ResourceNotFoundException;
 import dk.via.sep3.grpcConnection.bookGrpcService.BookGrpcService;
 import dk.via.sep3.grpcConnection.loanGrpcService.LoanGrpcService;
 import dk.via.sep3.grpcConnection.reservationGrpcService.ReservationGrpcService;
 import dk.via.sep3.model.domain.Book;
 import dk.via.sep3.model.domain.Loan;
 import dk.via.sep3.model.domain.Reservation;
-import dk.via.sep3.model.utils.validation.Validator;
+import dk.via.sep3.model.domain.State;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.util.List;
 import java.time.LocalDate;
 
-@Service public class ReservationServiceImpl
-    implements dk.via.sep3.model.reservation.ReservationService
+@Service public class ReservationServiceImpl implements ReservationService
 {
-  private final Validator validator;
   private final LoanGrpcService loanGrpcService;
   private final BookGrpcService bookGrpcService;
   private final ReservationGrpcService reservationGrpcService;
 
-  public ReservationServiceImpl(Validator validator,
-      LoanGrpcService loanGrpcService, BookGrpcService bookGrpcService,
+  public ReservationServiceImpl(LoanGrpcService loanGrpcService,
+      BookGrpcService bookGrpcService,
       ReservationGrpcService reservationGrpcService)
   {
-    this.validator = validator;
     this.loanGrpcService = loanGrpcService;
     this.bookGrpcService = bookGrpcService;
     this.reservationGrpcService = reservationGrpcService;
@@ -36,37 +34,92 @@ import java.time.LocalDate;
     String username = reservation.getUsername();
     String isbn = reservation.getBookISBN();
 
-    // -----------------------------
-    // Step 1 — Validate user
-    // -----------------------------
-    validator.validateUser(username);
+    // Step 1: Retrieve and validate books exist
+    List<Book> books = retrieveAndValidateBooksExist(isbn);
 
-    // -----------------------------
-    // Step 2 — Check ISBN availability
-    // -----------------------------
+    // Step 2: Validate no duplicate reservation
+    validateNoDuplicateReservation(username, isbn);
 
+    // Step 3: Validate no available copies (must be borrowed to reserve)
+    validateNoAvailableCopies(books);
+
+    // Step 4: Validate user doesn't have unreturned loan
+    validateNoUnreturnedLoan(username, isbn);
+
+    // Step 5: Find best book to reserve (earliest due date)
+    Book targetBook = findBookWithEarliestDueDate(books, isbn);
+
+    // Step 6: Create and persist reservation
+    Reservation createdReservation = createAndPersistReservation(username,
+        targetBook);
+
+    // Step 7: Update book status to reserved
+    updateBookStatusToReserved(targetBook.getId());
+
+    // Step 8: Get reservation count and return complete reservation
+    return buildCompleteReservation(createdReservation, isbn);
+  }
+
+  // ==================== Validation Methods ====================
+
+  /**
+   * Retrieves books by ISBN and validates that at least one exists.
+   */
+  private List<Book> retrieveAndValidateBooksExist(String isbn)
+  {
     List<Book> books = bookGrpcService.getBooksByIsbn(isbn);
     if (books.isEmpty())
     {
       throw new IllegalArgumentException("No books found with ISBN: " + isbn);
     }
+    return books;
+  }
 
-    // -----------------------------
-    // Step 3 — Check if any copies are available
-    // -----------------------------
+  /**
+   * Validates that the user doesn't already have an active reservation for this ISBN.
+   */
+  private void validateNoDuplicateReservation(String username, String isbn)
+  {
+    List<Reservation> existingReservations = reservationGrpcService.getReservationsByIsbn(
+        isbn);
+
+    for (Reservation existingReservation : existingReservations)
+    {
+      System.out.println(
+          "Existing reservation by user: " + existingReservation.getUsername()
+              + " for book Id: " + existingReservation.getBookId()
+              + " and ISBN: " + isbn);
+
+      if (existingReservation.getUsername().equalsIgnoreCase(username))
+      {
+        throw new IllegalArgumentException(
+            "User already has an active reservation for this book.");
+      }
+    }
+  }
+
+  /**
+   * Validates that no copies are available. Users must borrow available books, not reserve them.
+   */
+  private void validateNoAvailableCopies(List<Book> books)
+  {
     boolean anyAvailable = books.stream().anyMatch(
         book -> book.getState().toString().equalsIgnoreCase("AVAILABLE"));
+
     if (anyAvailable)
     {
       throw new IllegalArgumentException(
           "Book is currently available. Cannot reserve, but borrow instead.");
     }
+  }
 
-    // -----------------------------
-    // Step 4 — Check if the user already has an unreturned loan for this book
-    // -----------------------------
-
+  /**
+   * Validates that the user doesn't have an unreturned loan for this book.
+   */
+  private void validateNoUnreturnedLoan(String username, String isbn)
+  {
     List<Loan> userLoans = loanGrpcService.getLoansByISBN(isbn);
+
     for (Loan loan : userLoans)
     {
       if (loan.getUsername().equalsIgnoreCase(username) && !loan.isReturned())
@@ -75,51 +128,125 @@ import java.time.LocalDate;
             "User already has an unreturned loan for this book.");
       }
     }
+  }
 
-    // -----------------------------
-    // Find the book with the earliest due date
-    // -----------------------------
+  // ==================== Book Selection Methods ====================
 
+  /**
+   * Finds the book with the earliest due date that is not already reserved.
+   * This ensures the user gets notified as soon as possible when a copy becomes available.
+   */
+  private Book findBookWithEarliestDueDate(List<Book> books, String isbn)
+  {
     Book targetBook = null;
     Date earliestDueDate = null;
-    for (Loan loan : userLoans)
+
+    for (Book book : books)
     {
-      Date dueDate = loan.getDueDate();
-      if (earliestDueDate == null || dueDate.before(earliestDueDate))
+      Date bookEarliestDueDate = findEarliestDueDateForBook(book);
+
+      if (bookEarliestDueDate != null && (earliestDueDate == null
+          || bookEarliestDueDate.before(earliestDueDate)))
       {
-        earliestDueDate = dueDate;
-        targetBook = books.stream()
-            .filter(book -> book.getId() == loan.getBookId()).findFirst()
-            .orElse(null);
+        earliestDueDate = bookEarliestDueDate;
+        targetBook = book;
       }
     }
+
     if (targetBook == null)
     {
-      throw new IllegalArgumentException("No valid book found to reserve.");
+      throw new ResourceNotFoundException(
+          "No suitable book found for reservation with ISBN: " + isbn);
     }
 
-    // -----------------------------
-    // Step 5 — Create reservation
-    // -----------------------------
+    return targetBook;
+  }
 
+  /**
+   * Finds the earliest due date among all unreturned loans for a specific book.
+   */
+  private Date findEarliestDueDateForBook(Book book)
+  {
+    List<Loan> loansForBook = loanGrpcService.getLoansByISBN(book.getIsbn());
+    Date earliestDueDate = null;
+
+    for (Loan loan : loansForBook)
+    {
+      if (!loan.isReturned())
+      {
+        if (earliestDueDate == null || loan.getDueDate()
+            .before(earliestDueDate))
+        {
+          earliestDueDate = loan.getDueDate();
+        }
+      }
+    }
+
+    return earliestDueDate;
+  }
+
+  // ==================== Reservation Creation Methods ====================
+
+  /**
+   * Creates a reservation object and persists it via gRPC.
+   */
+  private Reservation createAndPersistReservation(String username,
+      Book targetBook)
+  {
+    Reservation reservation = createReservationObject(username, targetBook);
+    Reservation persistedReservation = reservationGrpcService.createReservation(
+        reservation);
+
+    validateReservationPersistence(persistedReservation);
+
+    return persistedReservation;
+  }
+
+  /**
+   * Creates a new reservation domain object.
+   */
+  private Reservation createReservationObject(String username, Book targetBook)
+  {
     Date reservationDate = Date.valueOf(LocalDate.now());
-    Reservation createReservation = new Reservation();
-    createReservation.setUsername(username);
-    createReservation.setBookId(targetBook.getId());
-    createReservation.setReservationDate(reservationDate);
 
-    Reservation grpcReservation = reservationGrpcService.createReservation(createReservation);
-    if (grpcReservation == null || grpcReservation.getId() <= 0)
+    Reservation reservation = new Reservation();
+    reservation.setUsername(username);
+    reservation.setBookId(targetBook.getId());
+    reservation.setReservationDate(reservationDate);
+
+    return reservation;
+  }
+
+  /**
+   * Validates that the reservation was successfully persisted.
+   */
+  private void validateReservationPersistence(Reservation reservation)
+  {
+    if (reservation == null || reservation.getId() <= 0)
     {
       throw new RuntimeException(
           "Failed to create reservation - received invalid response from server");
     }
+  }
 
-    int countReservations = reservationGrpcService.getReservationCountByISBN(
-        isbn);
+  /**
+   * Updates the book status to RESERVED.
+   */
+  private void updateBookStatusToReserved(long bookId)
+  {
+    bookGrpcService.updateBookStatus((int) bookId, State.RESERVED.toString());
+  }
 
-    return new Reservation(grpcReservation.getId(),
-        grpcReservation.getUsername(), grpcReservation.getBookId(),
-        grpcReservation.getReservationDate(), countReservations);
+  /**
+   * Builds the complete reservation with queue position count.
+   */
+  private Reservation buildCompleteReservation(Reservation reservation,
+      String isbn)
+  {
+    int queuePosition = reservationGrpcService.getReservationCountByISBN(isbn);
+
+    return new Reservation(reservation.getId(), reservation.getUsername(),
+        reservation.getBookId(), reservation.getReservationDate(),
+        queuePosition);
   }
 }
