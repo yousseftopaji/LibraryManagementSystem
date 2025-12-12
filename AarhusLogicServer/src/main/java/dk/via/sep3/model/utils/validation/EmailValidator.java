@@ -1,6 +1,6 @@
 package dk.via.sep3.model.utils.validation;
 
-import dk.via.sep3.controller.exceptionHandler.BusinessRuleViolationException;
+import dk.via.sep3.exceptionHandler.BusinessRuleViolationException;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;

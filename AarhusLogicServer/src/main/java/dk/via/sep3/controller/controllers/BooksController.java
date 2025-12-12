@@ -1,9 +1,9 @@
-package dk.via.sep3.controller;
+package dk.via.sep3.controller.controllers;
 
 import dk.via.sep3.model.books.BookService;
 import dk.via.sep3.model.domain.Book;
 import dk.via.sep3.shared.book.BookDTO;
-import dk.via.sep3.shared.mapper.bookMapper.BookMapper;
+import dk.via.sep3.mapper.bookMapper.BookMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

@@ -1,6 +1,6 @@
 package dk.via.sep3.model.reservation;
 
-import dk.via.sep3.controller.exceptionHandler.ResourceNotFoundException;
+import dk.via.sep3.exceptionHandler.ResourceNotFoundException;
 import dk.via.sep3.grpcConnection.bookGrpcService.BookGrpcService;
 import dk.via.sep3.grpcConnection.loanGrpcService.LoanGrpcService;
 import dk.via.sep3.grpcConnection.reservationGrpcService.ReservationGrpcService;
@@ -201,7 +201,7 @@ public class ReservationServiceImpl implements ReservationService {
      * Updates the book status to RESERVED.
      */
     private void updateBookStatusToReserved(long bookId) {
-        bookGrpcService.updateBookStatus((int) bookId, State.RESERVED.toString());
+        bookGrpcService.updateBookStatus((int) bookId, "Reserved");
     }
 
     /**

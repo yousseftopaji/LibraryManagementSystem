@@ -1,5 +1,6 @@
 package dk.via.sep3.grpcConnection.registrationGrpcService;
 
+
 import dk.via.sep3.CreateUserRequest;
 import dk.via.sep3.CreateUserResponse;
 import dk.via.sep3.DTOUser;
@@ -34,7 +35,7 @@ public class RegistrationGrpcServiceImpl implements RegistrationGrpcService
     DTOUser dtoUser = DTOUser.newBuilder().setUsername(user.getUsername())
         .setName(user.getName()).setPassword(user.getPassword())
         .setEmail(user.getEmail()).setPhoneNumber(user.getPhoneNumber())
-        .setRole("READER").build();
+        .setRole("Reader").build();
 
     CreateUserRequest request = CreateUserRequest.newBuilder().setUser(dtoUser)
         .build();

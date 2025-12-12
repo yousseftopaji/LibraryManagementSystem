@@ -71,7 +71,7 @@ public class ValidatorImpl implements Validator
 
     if (user != null) {
       System.out.println("User found with username: " + username);
-      throw new IllegalArgumentException("Username already in use");
+      throw new IllegalArgumentException("Username already exists");
     }
   }
 

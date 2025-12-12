@@ -1,4 +1,4 @@
-package dk.via.sep3.shared.mapper.userMapper;
+package dk.via.sep3.mapper.userMapper;
 
 import dk.via.sep3.DTOUser;
 import dk.via.sep3.shared.login.LoginRequestDTO;

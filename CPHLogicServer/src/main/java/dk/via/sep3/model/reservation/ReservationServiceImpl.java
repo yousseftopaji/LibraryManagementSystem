@@ -234,7 +234,7 @@ import java.time.LocalDate;
    */
   private void updateBookStatusToReserved(long bookId)
   {
-    bookGrpcService.updateBookStatus((int) bookId, State.RESERVED.toString());
+      bookGrpcService.updateBookStatus((int) bookId, "Reserved");
   }
 
   /**
