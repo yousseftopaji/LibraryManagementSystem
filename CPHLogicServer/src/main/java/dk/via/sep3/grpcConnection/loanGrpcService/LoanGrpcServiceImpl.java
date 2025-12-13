@@ -1,6 +1,7 @@
 package dk.via.sep3.grpcConnection.loanGrpcService;
 
 import dk.via.sep3.*;
+import dk.via.sep3.exceptionHandler.GrpcCommunicationException;
 import dk.via.sep3.model.domain.Loan;
 import dk.via.sep3.mapper.loanMapper.LoanMapper;
 import io.grpc.ManagedChannel;
@@ -154,6 +155,6 @@ import java.util.List;
     catch (Exception ex)
     {
       logger.error("Error retrieving active loans for user: {}", username, ex);
-      return null;
+      throw new GrpcCommunicationException("Error retrieving active loans for user: " + username, ex);
     }
   }}
