@@ -3,10 +3,10 @@ package dk.via.sep3.controller;
 import dk.via.sep3.model.domain.Loan;
 import dk.via.sep3.model.loans.LoanService;
 import dk.via.sep3.security.JwtTokenProvider;
-import dk.via.sep3.shared.extension.CreateExtensionDTO;
-import dk.via.sep3.shared.loan.CreateLoanDTO;
-import dk.via.sep3.shared.loan.LoanDTO;
-import dk.via.sep3.shared.mapper.loanMapper.LoanMapper;
+import dk.via.sep3.DTOs.extension.CreateExtensionDTO;
+import dk.via.sep3.DTOs.loan.CreateLoanDTO;
+import dk.via.sep3.DTOs.loan.LoanDTO;
+import dk.via.sep3.mapper.loanMapper.LoanMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -25,7 +25,7 @@ public class LoansController
   private final LoanService loanService;
   private final LoanMapper loanMapper;
 
-  public LoansController(LoanService loanService, LoanMapper loanMapper, JwtTokenProvider jwtTokenProvider)
+  public LoansController(LoanService loanService, LoanMapper loanMapper)
   {
     this.loanService = loanService;
     this.loanMapper = loanMapper;

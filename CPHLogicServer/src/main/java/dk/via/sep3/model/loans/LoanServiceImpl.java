@@ -1,7 +1,7 @@
 package dk.via.sep3.model.loans;
 
-import dk.via.sep3.controller.exceptionHandler.GrpcCommunicationException;
-import dk.via.sep3.controller.exceptionHandler.ResourceNotFoundException;
+import dk.via.sep3.exceptionHandler.GrpcCommunicationException;
+import dk.via.sep3.exceptionHandler.ResourceNotFoundException;
 import dk.via.sep3.grpcConnection.bookGrpcService.BookGrpcService;
 import dk.via.sep3.grpcConnection.loanGrpcService.LoanGrpcService;
 import dk.via.sep3.model.domain.Book;

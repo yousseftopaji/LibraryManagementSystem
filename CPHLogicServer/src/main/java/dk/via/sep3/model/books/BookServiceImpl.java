@@ -1,6 +1,6 @@
 package dk.via.sep3.model.books;
 
-import dk.via.sep3.controller.exceptionHandler.ResourceNotFoundException;
+import dk.via.sep3.exceptionHandler.ResourceNotFoundException;
 import dk.via.sep3.grpcConnection.bookGrpcService.BookGrpcService;
 import dk.via.sep3.model.domain.Book;
 import org.slf4j.Logger;

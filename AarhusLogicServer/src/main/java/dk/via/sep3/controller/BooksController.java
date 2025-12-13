@@ -2,7 +2,7 @@ package dk.via.sep3.controller;
 
 import dk.via.sep3.model.books.BookService;
 import dk.via.sep3.model.domain.Book;
-import dk.via.sep3.shared.book.BookDTO;
+import dk.via.sep3.DTOs.book.BookDTO;
 import dk.via.sep3.mapper.bookMapper.BookMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +38,6 @@ import java.util.List;
     }
 
     @PreAuthorize("hasRole('Reader')")
-
     @GetMapping("/{isbn}") public ResponseEntity<BookDTO> getBooksByIsbn(
             @PathVariable String isbn)
     {

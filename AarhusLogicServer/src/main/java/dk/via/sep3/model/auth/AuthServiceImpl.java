@@ -3,7 +3,7 @@ package dk.via.sep3.model.auth;
 import dk.via.sep3.exceptionHandler.BusinessRuleViolationException;
 import dk.via.sep3.model.domain.User;
 import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
-import dk.via.sep3.model.utils.validation.LoginValidator;
+import dk.via.sep3.model.validation.LoginValidator;
 import dk.via.sep3.security.PasswordService;
 import org.springframework.stereotype.Service;
 

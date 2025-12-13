@@ -4,11 +4,11 @@ import dk.via.sep3.exceptionHandler.BusinessRuleViolationException;
 import dk.via.sep3.mapper.userMapper.UserMapper;
 import dk.via.sep3.model.domain.User;
 import dk.via.sep3.security.JwtUtil;
-import dk.via.sep3.shared.auth.AuthResponseDTO;
-import dk.via.sep3.shared.registration.RegistrationDTO;
+import dk.via.sep3.DTOs.auth.AuthResponseDTO;
+import dk.via.sep3.DTOs.registration.RegistrationDTO;
 import dk.via.sep3.model.register.RegisterService;
-import dk.via.sep3.shared.user.UserDTO;
-import dk.via.sep3.model.utils.validation.Validator;
+import dk.via.sep3.DTOs.user.UserDTO;
+import dk.via.sep3.model.validation.Validator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,16 +19,13 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final UserMapper userMapper;
     private final RegisterService registerService;
-    private final JwtUtil jwtUtil;
     private final Validator<String> passwordValidator;
 
     public AuthController(UserMapper userMapper,
                           RegisterService registerService,
-                          JwtUtil jwtUtil,
                           @Qualifier("passwordValidator") Validator<String> passwordValidator) {
         this.userMapper = userMapper;
         this.registerService = registerService;
-        this.jwtUtil = jwtUtil;
         this.passwordValidator = passwordValidator;
     }
 
