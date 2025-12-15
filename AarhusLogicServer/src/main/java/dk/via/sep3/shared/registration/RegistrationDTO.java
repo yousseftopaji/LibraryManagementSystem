@@ -38,8 +38,8 @@ public class RegistrationDTO {
         return phoneNumber;
     }
 
-    public void setPhone(String phone) {
-        this.phoneNumber = phone;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public String getUsername() {
