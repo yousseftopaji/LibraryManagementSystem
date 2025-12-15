@@ -1,8 +1,9 @@
 package dk.via.sep3.mapper.userMapper;
 
 import dk.via.sep3.DTOUser;
+import dk.via.sep3.DTOs.login.LoginResponseDTO;
 import dk.via.sep3.model.domain.User;
-import dk.via.sep3.DTOs.auth.AuthResponseDTO;
+import dk.via.sep3.DTOs.auth.RegisterResponseDTO;
 import dk.via.sep3.DTOs.login.LoginRequestDTO;
 import dk.via.sep3.DTOs.registration.RegistrationDTO;
 import dk.via.sep3.DTOs.user.UserDTO;
@@ -67,10 +68,10 @@ public class UserMapperImpl implements UserMapper {
     }
 
     @Override
-    public AuthResponseDTO mapDomainToAuthResponse(User user) {
+    public RegisterResponseDTO mapDomainToRegisterResponseDTO(User user) {
         if (user == null) return null;
 
-        return new AuthResponseDTO(
+        return new RegisterResponseDTO(
                 user.getUsername(),
                 user.getName(),
                 user.getEmail(),

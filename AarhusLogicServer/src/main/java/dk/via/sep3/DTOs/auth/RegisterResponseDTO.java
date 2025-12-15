@@ -3,7 +3,8 @@ package dk.via.sep3.DTOs.auth;
 import dk.via.sep3.DTOs.user.UserDTO;
 
 @SuppressWarnings("unused")
-public class AuthResponseDTO {
+public class RegisterResponseDTO
+{
 
     private String username;
     private String name;
@@ -11,10 +12,10 @@ public class AuthResponseDTO {
     private String phoneNumber;
     private String role;
 
-    public AuthResponseDTO() {
+    public RegisterResponseDTO() {
     }
 
-    public AuthResponseDTO(
+    public RegisterResponseDTO(
                            String username,
                            String name,
                            String email,
@@ -29,7 +30,7 @@ public class AuthResponseDTO {
     }
 
     // Convenience constructor used by AuthController
-    public AuthResponseDTO( UserDTO user) {
+    public RegisterResponseDTO( UserDTO user) {
 
         if (user != null) {
             this.username = user.getUsername();

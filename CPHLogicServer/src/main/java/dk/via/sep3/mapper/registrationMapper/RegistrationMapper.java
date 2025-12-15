@@ -7,10 +7,4 @@ import dk.via.sep3.DTOs.registration.CreateRegisterDTO;
 public interface RegistrationMapper
 {
   User mapCreateRegisterDTOToDomain(CreateRegisterDTO createRegisterDTO);
-
-  DTOUser mapDomainToDTOUser(User user);
-
-  User mapDTOUserToDomain(DTOUser dtoUser);
-
-//  RegisterDTO mapDomainToRegisterDTO(User user);
 }
