@@ -12,7 +12,7 @@ public class EfcLoanRepository(LibraryDbContext context) : ILoanRepository
     {
         var entityEntry = await context.Loan.AddAsync(loan);
         await context.SaveChangesAsync();
-        
+
         return new LoanDTO
         {
             LoanId = entityEntry.Entity.Id,
@@ -41,7 +41,7 @@ public class EfcLoanRepository(LibraryDbContext context) : ILoanRepository
             NumberOfExtensions = loan.NumberOfExtensions
         };
     }
-  
+
     public async Task<LoanDTO> UpdateLoanAsync(Loan loan)
     {
         var existing = await context.Loan.FindAsync(loan.Id);
@@ -64,33 +64,28 @@ public class EfcLoanRepository(LibraryDbContext context) : ILoanRepository
         };
     }
 
-     public async Task<IEnumerable<Loan>> GetLoansByIsbnAsync(string isbn)
+    public async Task<IEnumerable<Loan>> GetLoansByIsbnAsync(string isbn)
     {
-        return await (from loan in context.Loan
-                      join book in context.Book
-                      on loan.BookId equals book.Id
-                      where book.ISBN == isbn
-                      select loan)
-                      .ToListAsync();
+        return await context.Loan.Include(l => l.Book).Where(l => l.Book!.ISBN == isbn).ToListAsync<Loan>();
     }
 
     public async Task<LoanDTO?> GetLoanByIdAsync(int loanId)
-{
-    var loan = await context.Loan.FindAsync(loanId);
-
-    if (loan == null) return null;
-
-    return new LoanDTO
     {
-        LoanId = loan.Id,
-        BookId = loan.BookId,
-        Username = loan.Username,
-        BorrowDate = loan.BorrowDate,
-        DueDate = loan.DueDate,
-        NumberOfExtensions = loan.NumberOfExtensions
-    };
-}
-   
+        var loan = await context.Loan.FindAsync(loanId);
+
+        if (loan == null) return null;
+
+        return new LoanDTO
+        {
+            LoanId = loan.Id,
+            BookId = loan.BookId,
+            Username = loan.Username,
+            BorrowDate = loan.BorrowDate,
+            DueDate = loan.DueDate,
+            NumberOfExtensions = loan.NumberOfExtensions
+        };
+    }
+
     public Task UpdateLoanAsync(LoanDTO loan)
     {
         throw new NotImplementedException();
