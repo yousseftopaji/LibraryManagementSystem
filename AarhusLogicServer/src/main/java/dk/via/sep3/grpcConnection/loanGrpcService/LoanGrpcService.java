@@ -4,12 +4,14 @@ import dk.via.sep3.model.domain.Loan;
 
 import java.util.List;
 
-public interface LoanGrpcService {
-    Loan createLoan(Loan loan);
+public interface LoanGrpcService
+{
+  Loan createLoan(Loan loan);
 
-    List<Loan> getLoansByISBN(String isbn);
+  List<Loan> getLoansByISBN(String isbn);
 
-    void extendLoan(Loan loan);
+  void extendLoan(Loan loan);
 
-    Loan getLoanById(int bookId);
+  Loan getLoanById(int bookId);
+  List<Loan> getActiveLoansByUsername(String username);
 }

@@ -1,11 +1,11 @@
 package dk.via.sep3.model.loans;
 
 import dk.via.sep3.model.domain.Loan;
-import dk.via.sep3.shared.loan.CreateLoanDTO;
-import dk.via.sep3.shared.loan.LoanDTO;
+import java.util.List;
 
 public interface LoanService
 {
   Loan createLoan(Loan loan);
   void extendLoan(Loan loan);
+  List<Loan> getActiveLoansByUsername(String username);
 }
