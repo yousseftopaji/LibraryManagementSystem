@@ -13,6 +13,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controller for authentication endpoints: registration and login.
+ *
+ * <p>Delegates registration and authentication logic to the appropriate services and
+ * returns DTOs containing user and token information.
+ */
 @RestController @RequestMapping("/auth") public class AuthController
 {
   private final UserMapper userMapper;
@@ -29,6 +35,13 @@ import org.springframework.web.bind.annotation.*;
     this.loginService = loginService;
   }
 
+  /**
+   * Register a new user in the system.
+   *
+   * @param req registration payload as {@link RegistrationDTO}; must not be null
+   * @return {@link RegisterResponseDTO} containing created user information
+   * @throws dk.via.sep3.exceptionHandler.BusinessRuleViolationException if registration fails due to business rules
+   */
   @PostMapping("/register") public ResponseEntity<RegisterResponseDTO> register(
       @RequestBody RegistrationDTO req)
   {
@@ -42,6 +55,13 @@ import org.springframework.web.bind.annotation.*;
     return new ResponseEntity<>(registerResponseDTO, HttpStatus.CREATED);
   }
 
+  /**
+   * Authenticate a user and return a JWT token.
+   *
+   * @param request the {@link LoginRequestDTO} with credentials; must not be null
+   * @return {@link LoginResponseDTO} containing JWT token and username
+   * @throws dk.via.sep3.exceptionHandler.BusinessRuleViolationException if authentication fails
+   */
   @PostMapping(value = "/login")
   public ResponseEntity<LoginResponseDTO> login(
       @RequestBody LoginRequestDTO request)

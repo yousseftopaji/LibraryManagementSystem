@@ -12,6 +12,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Implementation of {@link BookService} containing business rules for book retrieval and
+ * uniqueness filtering.
+ */
 @Service
 public class BookServiceImpl implements BookService
 {

@@ -13,6 +13,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controller for reservation-related endpoints.
+ *
+ * <p>Handles creation, cancellation and listing of reservations by delegating to
+ * {@link dk.via.sep3.model.reservation.ReservationService} and mapping results via
+ * {@link dk.via.sep3.mapper.ReservationMapper.ReservationMapper}.
+ */
 @RestController @RequestMapping("/reservations") public class ReservationController
 {
   private final ReservationService reservationService;
@@ -25,6 +32,13 @@ import org.springframework.web.bind.annotation.RestController;
     this.reservationMapper = reservationMapper;
   }
 
+  /**
+   * Create a reservation for a book on behalf of a user.
+   *
+   * @param createReservationDTO the DTO containing reservation details; must not be null
+   * @return created {@link ReservationDTO}
+   * @throws IllegalStateException or BusinessRuleViolationException if reservation rules fail
+   */
   @PreAuthorize("hasRole('Reader')")
   @PostMapping
   public ResponseEntity<ReservationDTO> createReservation(

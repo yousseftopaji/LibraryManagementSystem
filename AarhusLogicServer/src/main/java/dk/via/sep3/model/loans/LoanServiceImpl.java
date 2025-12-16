@@ -14,6 +14,18 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.util.List;
 
+/**
+ * Concrete implementation of {@link LoanService} applying domain rules for creating and
+ * extending loans.
+ *
+ * <p>Responsibilities include:
+ * <ul>
+ *   <li>Ensuring a user does not have duplicate active loans for the same ISBN</li>
+ *   <li>Finding available book copies</li>
+ *   <li>Calculating borrow and due dates</li>
+ *   <li>Enforcing extension timing and maximum extension counts</li>
+ * </ul>
+ */
 @Service public class LoanServiceImpl implements LoanService
 {
     private static final Logger logger = LoggerFactory.getLogger(
@@ -54,22 +66,22 @@ import java.util.List;
     {
         logger.info("Extending loan {} for user {}", loan.getLoanId(), loan.getUsername());
 
-        // Step 1: Retrieve and validate loan exists
+        // Step 1: Retrieve and validate loan exists (use the persisted loan for all checks/updates)
         Loan existingLoan = retrieveAndValidateLoanExists(loan.getLoanId());
 
         // Step 2: Validate user is the borrower
         validateUserIsBorrower(existingLoan, loan.getUsername());
 
-        // Step 3: Validate extension timing and limit
-        validateExtensionEligibility(loan);
+        // Step 3: Validate extension timing and limit -> use the persisted loan (has dueDate and extension count)
+        validateExtensionEligibility(existingLoan);
 
-        // Step 4: Calculate new due date and update loan
-        applyExtensionToLoan(loan);
+        // Step 4: Calculate new due date and update the persisted loan
+        applyExtensionToLoan(existingLoan);
 
-        // Step 5: Persist the extension
-        loanGrpcService.extendLoan(loan);
+        // Step 5: Persist the extension using the updated persisted loan
+        loanGrpcService.extendLoan(existingLoan);
 
-        logger.info("Loan {} successfully extended to {}", loan.getLoanId(), loan.getDueDate());
+        logger.info("Loan {} successfully extended to {}", existingLoan.getLoanId(), existingLoan.getDueDate());
     }
 
   @Override public List<Loan> getActiveLoansByUsername(String username)
@@ -216,6 +228,13 @@ import java.util.List;
             throw new IllegalArgumentException("Loan not found with ID: " + loanId);
         }
 
+        // Ensure the persisted loan contains a due date before attempting operations that require it
+        if (loan.getDueDate() == null)
+        {
+            logger.error("Loan {} retrieved from server has null dueDate", loanId);
+            throw new IllegalStateException("Loan due date is missing; cannot extend this loan");
+        }
+
         return loan;
     }
 
@@ -246,6 +265,12 @@ import java.util.List;
      */
     private void validateExtensionTiming(Loan loan)
     {
+        if (loan.getDueDate() == null)
+        {
+            logger.error("Cannot validate extension timing for loan {} because dueDate is null", loan.getLoanId());
+            throw new IllegalStateException("Loan due date is missing; cannot validate extension timing");
+        }
+
         Date today = new Date(System.currentTimeMillis());
         Date allowableExtensionDate = Date.valueOf(loan.getDueDate().toLocalDate().minusDays(1));
 
@@ -279,6 +304,12 @@ import java.util.List;
      */
     private void applyExtensionToLoan(Loan loan)
     {
+        if (loan.getDueDate() == null)
+        {
+            logger.error("Cannot apply extension to loan {} because dueDate is null", loan.getLoanId());
+            throw new IllegalStateException("Loan due date is missing; cannot apply extension");
+        }
+
         final int EXTENSION_DAYS = 30;
 
         Date newDueDate = Date.valueOf(loan.getDueDate().toLocalDate().plusDays(EXTENSION_DAYS));

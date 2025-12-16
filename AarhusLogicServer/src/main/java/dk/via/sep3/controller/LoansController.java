@@ -16,6 +16,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Controller exposing loan lifecycle endpoints.
+ *
+ * <p>Responsible for creating loans, extending due dates, closing loans and listing active loans.
+ */
 @RestController @RequestMapping("/loans") public class LoansController
 {
   private static final Logger logger = LoggerFactory.getLogger(LoansController.class);
@@ -28,6 +33,13 @@ import java.util.List;
     this.loanMapper = loanMapper;
   }
 
+  /**
+   * Create a new loan for a user and book specified in the request DTO.
+   *
+   * @param request the {@link CreateLoanDTO} containing username and book ISBN; must not be null
+   * @return the created {@link LoanDTO} representing the persisted loan
+   * @throws IllegalStateException or BusinessRuleViolationException if creation rules are violated
+   */
   @PreAuthorize("hasRole('READER')")
   @PostMapping
   public ResponseEntity<LoanDTO> createLoan(
@@ -45,6 +57,14 @@ import java.util.List;
     return new ResponseEntity<>(loanDTO, HttpStatus.CREATED);
   }
 
+  /**
+   * Request an extension for the loan described in the DTO. The service will validate
+   * ownership, timing and extension limits.
+   *
+   * @param request the extension details as {@link CreateExtensionDTO}; must not be null
+   * @return HTTP 200 OK on success
+   * @throws IllegalStateException if extension is not permitted
+   */
   @PreAuthorize("hasRole('READER')")
   @PatchMapping("/extensions") public ResponseEntity<Void> extendLoan(
           @RequestBody CreateExtensionDTO request)
@@ -54,6 +74,12 @@ import java.util.List;
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
+  /**
+   * Fetch active (non-returned) loans for the given username.
+   *
+   * @param username the username to query for; must not be null or empty
+   * @return list of {@link LoanDTO} representing active loans; may throw if none found
+   */
   @PreAuthorize("hasRole('READER')")
   @GetMapping("/active")
   public ResponseEntity<List<LoanDTO>> getActiveLoansByUsername(@RequestParam String username)
