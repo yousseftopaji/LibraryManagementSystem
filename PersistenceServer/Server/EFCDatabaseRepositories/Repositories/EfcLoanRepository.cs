@@ -64,24 +64,22 @@ public class EfcLoanRepository(LibraryDbContext context) : ILoanRepository
         };
     }
 
-     public async Task<IEnumerable<LoanDTO>> GetLoansByIsbnAsync(string isbn)
+    public async Task<IEnumerable<LoanDTO>> GetLoansByIsbnAsync(string isbn)
     {
-        var loanDTOs = await (from loan in context.Loan
-                              join book in context.Book
-                              on loan.BookId equals book.Id
-                              where book.ISBN == isbn
-                              select new LoanDTO
-                              {
-                                  LoanId = loan.Id,
-                                  BookId = loan.BookId,
-                                  Username = loan.Username,
-                                  BorrowDate = loan.BorrowDate,
-                                  DueDate = loan.DueDate,
-                                  NumberOfExtensions = loan.NumberOfExtensions,
-                                  IsReturned = loan.IsReturned
-                              })
-                              .ToListAsync();
-        return loanDTOs;
+        return await context.Loan
+            .Include(l => l.Book)
+            .Where(l => l.Book!.ISBN == isbn)
+            .Select(l => new LoanDTO
+            {
+                LoanId = l.Id,
+                BookId = l.BookId,
+                Username = l.Username,
+                BorrowDate = l.BorrowDate,
+                DueDate = l.DueDate,
+                NumberOfExtensions = l.NumberOfExtensions,
+                IsReturned = l.IsReturned
+            })
+            .ToListAsync();
     }
 
     public async Task<LoanDTO?> GetLoanByIdAsync(int loanId)
