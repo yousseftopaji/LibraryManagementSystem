@@ -121,6 +121,19 @@ message GetLoanByIdResponse
   string message = 3;
 }
 
+
+message GetActiveLoansByUsernameRequest
+{
+  string username = 1;
+}
+
+message GetActiveLoansByUsernameResponse
+{
+  repeated DTOLoan activeLoans = 1;
+  bool success = 2;
+  string message = 3;
+}
+
 // ========================
 // Reservation Service Messages
 // ========================
@@ -233,6 +246,7 @@ service LoanService {
   rpc GetLoansByISBN (GetLoansByISBNRequest) returns (GetLoansByISBNResponse);
   rpc ExtendLoan (ExtendLoanRequest) returns (ExtendLoanResponse);
   rpc GetLoanById (GetLoanByIdRequest) returns (GetLoanByIdResponse);
+  rpc GetActiveLoansByUsername (GetActiveLoansByUsernameRequest) returns (GetActiveLoansByUsernameResponse);
 }
 
 service UserService {

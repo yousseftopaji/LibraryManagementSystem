@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{DAD03CFC-D5FA-AC94-41C7-9ABAB326F09E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entities", "Server\Entities\Entities.csproj", "{7CB8ED2B-C9AB-4E4C-965F-0A2A4E8FBC9B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrpcService", "Server\GrpcService\GrpcService.csproj", "{EBD6B6AC-C19A-40B1-A0B4-2F9F10AF37F7}"
@@ -12,6 +10,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileRepositories", "Server\FileRepositories\FileRepositories.csproj", "{BE2ED481-68CC-4E47-B53D-0EFC5DC13FCD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepositoryContracts", "Server\RepositoryContracts\RepositoryContracts.csproj", "{A0146705-F3CF-46CF-9D55-F3CB6F633FF8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCDatabaseRepositories", "Server\EFCDatabaseRepositories\EFCDatabaseRepositories.csproj", "{E3BD706F-3DBE-4C1B-B3F8-7B4ACC9694EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server.Tests", "Server\Server.Tests\Server.Tests.csproj", "{4D255BE1-5FE9-4FFF-B8B2-D2126B320519}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,6 +73,18 @@ Global
 		{A0146705-F3CF-46CF-9D55-F3CB6F633FF8}.Release|x64.Build.0 = Release|Any CPU
 		{A0146705-F3CF-46CF-9D55-F3CB6F633FF8}.Release|x86.ActiveCfg = Release|Any CPU
 		{A0146705-F3CF-46CF-9D55-F3CB6F633FF8}.Release|x86.Build.0 = Release|Any CPU
+		{E3BD706F-3DBE-4C1B-B3F8-7B4ACC9694EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3BD706F-3DBE-4C1B-B3F8-7B4ACC9694EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3BD706F-3DBE-4C1B-B3F8-7B4ACC9694EC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E3BD706F-3DBE-4C1B-B3F8-7B4ACC9694EC}.Debug|x64.Build.0 = Debug|Any CPU
+		{E3BD706F-3DBE-4C1B-B3F8-7B4ACC9694EC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E3BD706F-3DBE-4C1B-B3F8-7B4ACC9694EC}.Debug|x86.Build.0 = Debug|Any CPU
+		{E3BD706F-3DBE-4C1B-B3F8-7B4ACC9694EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3BD706F-3DBE-4C1B-B3F8-7B4ACC9694EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3BD706F-3DBE-4C1B-B3F8-7B4ACC9694EC}.Release|x64.ActiveCfg = Release|Any CPU
+		{E3BD706F-3DBE-4C1B-B3F8-7B4ACC9694EC}.Release|x64.Build.0 = Release|Any CPU
+		{E3BD706F-3DBE-4C1B-B3F8-7B4ACC9694EC}.Release|x86.ActiveCfg = Release|Any CPU
+		{E3BD706F-3DBE-4C1B-B3F8-7B4ACC9694EC}.Release|x86.Build.0 = Release|Any CPU
 		{4D255BE1-5FE9-4FFF-B8B2-D2126B320519}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4D255BE1-5FE9-4FFF-B8B2-D2126B320519}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D255BE1-5FE9-4FFF-B8B2-D2126B320519}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -86,12 +100,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{7CB8ED2B-C9AB-4E4C-965F-0A2A4E8FBC9B} = {DAD03CFC-D5FA-AC94-41C7-9ABAB326F09E}
-		{EBD6B6AC-C19A-40B1-A0B4-2F9F10AF37F7} = {DAD03CFC-D5FA-AC94-41C7-9ABAB326F09E}
-		{BE2ED481-68CC-4E47-B53D-0EFC5DC13FCD} = {DAD03CFC-D5FA-AC94-41C7-9ABAB326F09E}
-		{A0146705-F3CF-46CF-9D55-F3CB6F633FF8} = {DAD03CFC-D5FA-AC94-41C7-9ABAB326F09E}
-		{4D255BE1-5FE9-4FFF-B8B2-D2126B320519} = {4F52FD11-658E-A102-6CD3-7D7C16FFA15B}
 	EndGlobalSection
 EndGlobal
