@@ -1,18 +1,15 @@
-﻿@page "/loans/activeloans/{pathUsername?}"
+﻿@page "/loans/activeloans"
 @using DTOs.Loan
 @using DTOs.Error_Handler
 @using System.Text.Json
-@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.WebUtilities
 @inject BlazorApp.Services.LoanService.ILoanService LoanService
 @inject NavigationManager NavigationManager
-@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject AuthProvider AuthProvider
 
 <AuthorizeView>
     <Authorized>
         <div class="container mt-5">
-            <h2 class="text-center mb-4">Active Loans for @displayedUsername</h2>
+            <h2 class="text-center mb-4">Active Loans</h2>
 
             @if (!string.IsNullOrEmpty(errorMessage))
             {
@@ -34,7 +31,17 @@
                 <div class="list-group">
                     @foreach (var loan in loans)
                     {
-                        <LoanItem OriginalLoan="loan" OnExtendRequested="HandleExtendRequest" />
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Loan ID: @loan.LoanId</h5>
+                                <small>Due: @loan.DueDate.ToString("yyyy-MM-dd")</small>
+                            </div>
+                            <p class="mb-1">Book ID: @loan.BookId</p>
+                            <small>Borrowed: @loan.BorrowDate.ToString("yyyy-MM-dd") • Extensions: @loan.NumberOfExtensions</small>
+                            <div class="mt-2">
+                                <button class="btn btn-outline-primary btn-sm" @onclick="() => HandleExtendRequest(loan)">Extend Book</button>
+                            </div>
+                        </div>
                     }
                 </div>
             }
@@ -51,127 +58,65 @@
     </NotAuthorized>
 </AuthorizeView>
 
-<ConfirmationDialog IsVisible="showDialog" Title="Extend Loan" Message="@($"Are you sure you want to extend the loan for Book ID {selectedLoan?.BookId}?")" OnConfirm="OnConfirm" OnCancel="OnCancel" />
+<ConfirmationDialog IsVisible="showDialog"
+                    Title="Extend Loan"
+                    Message="@($"Are you sure you want to extend the loan for Book ID {selectedLoan?.BookId}?")"
+                    OnConfirm="OnConfirm"
+                    OnCancel="OnCancel" />
 
 @code {
-    [Parameter]
-    public string? pathUsername { get; set; }
-
     private List<LoanDTO>? loans;
     private string? errorMessage;
-    private string? displayedUsername;
+    private string? username;
+
     private LoanDTO? selectedLoan;
     private bool showDialog = false;
 
     protected override async Task OnInitializedAsync()
     {
-        // Parse username query parameter
-        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-        var query = QueryHelpers.ParseQuery(uri.Query);
-        string? username = null;
-        if (query.TryGetValue("username", out var usernameValues))
-            username = usernameValues.FirstOrDefault();
-
-        // If not in query, check the route parameter
-        if (string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(pathUsername))
-        {
-            // support URLs like /loans/activeloans/username=john or /loans/activeloans/john
-            if (pathUsername.StartsWith("username=", StringComparison.OrdinalIgnoreCase))
-                username = pathUsername.Substring("username=".Length);
-            else
-                username = pathUsername;
-        }
-
-        // If still not found, try to extract from the authentication state (recommended)
-        if (string.IsNullOrEmpty(username))
-        {
-            try
-            {
-                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-                var user = authState.User;
-                if (user?.Identity?.IsAuthenticated == true)
-                {
-                    // Prefer Name claim, then 'sub' then other username claim
-                    username = user.Identity.Name ?? user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value ?? user.Claims.FirstOrDefault(c => c.Type == "username")?.Value;
-                }
-            }
-            catch { }
-        }
-
-        // Fallback: try the token extractor if still null
-        if (string.IsNullOrEmpty(username))
-        {
-            try
-            {
-                username = AuthProvider.ExtractUsernameFromJwt();
-            }
-            catch { }
-        }
-
-        displayedUsername = username ?? "Unknown";
-
-        if (!string.IsNullOrEmpty(username))
-        {
-            await LoadActiveLoans(username);
-        }
-        else
-        {
-            errorMessage = "No username provided in route/query and not found in token or auth state.";
-        }
+        await LoadActiveLoans();
     }
 
-    private async Task LoadActiveLoans(string? username)
+    private async Task LoadActiveLoans()
     {
-        if (string.IsNullOrEmpty(username))
-        {
-            errorMessage = "No username provided to load active loans.";
-            loans = new List<LoanDTO>();
-            return;
-        }
-
         try
         {
-            loans = await LoanService.GetActiveLoansAsync(username);
+            loans = await LoanService.GetActiveLoansAsync();
             errorMessage = null;
         }
         catch (Exception e)
         {
-            // Try to parse server JSON error into ErrorResponseDTO and show a friendly message
-            string content = e.Message ?? e.ToString();
-            string friendly = null;
-
-            try
+            errorMessage = ExtractError(e);
+        }
+    }
+    private string ExtractError(Exception e)
+    {
+        try
+        {
+            var message = e.Message;
+            Console.WriteLine(message);
+            
+            // Look for JSON content (starts with { and ends with })
+            var jsonStart = message.IndexOf('{');
+            var jsonEnd = message.LastIndexOf('}');
+            
+            if (jsonStart >= 0 && jsonEnd > jsonStart)
             {
-                var parsed = JsonSerializer.Deserialize<ErrorResponseDTO>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                if (parsed != null)
-                {
-                    friendly = parsed.Details ?? parsed.Message ?? parsed.ErrorCode;
-                }
+                var jsonContent = message.Substring(jsonStart, jsonEnd - jsonStart + 1);
+                var errorResponse = JsonSerializer.Deserialize<ErrorResponseDTO>(
+                    jsonContent,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
+                return errorResponse?.Details ?? errorResponse?.Message ?? "An unknown error occurred.";
             }
-            catch
-            {
-                // not JSON or parsing failed
-            }
-
-            if (string.IsNullOrEmpty(friendly))
-            {
-                // If it's long JSON-like text, try to extract 'message' field manually
-                try
-                {
-                    using var doc = JsonDocument.Parse(content);
-                    if (doc.RootElement.TryGetProperty("details", out var det)) friendly = det.GetString();
-                    else if (doc.RootElement.TryGetProperty("message", out var msg)) friendly = msg.GetString();
-                }
-                catch { }
-            }
-
-            if (string.IsNullOrEmpty(friendly))
-            {
-                // Fallback to trimmed content (limit length so UI doesn't dump huge JSON)
-                friendly = content.Length > 500 ? content.Substring(0, 500) + "..." : content;
-            }
-
-            errorMessage = friendly;
+            
+            // If no JSON found, return the original message
+            return message;
+        }
+        catch (JsonException)
+        {
+            // If JSON parsing fails, return the original exception message
+            return e.Message;
         }
     }
 
@@ -183,20 +128,23 @@
 
     private async Task OnConfirm()
     {
-        if (selectedLoan != null)
+        try
         {
-            bool success = await LoanService.ExtendLoanAsync(selectedLoan.LoanId);
-            if (success)
+            if (selectedLoan != null)
             {
-                await LoadActiveLoans(displayedUsername);
-            }
-            else
-            {
-                errorMessage = "Failed to extend the loan.";
+                await LoanService.ExtendLoanAsync(selectedLoan.LoanId);
+                await LoadActiveLoans();
             }
         }
-        showDialog = false;
-        selectedLoan = null;
+        catch (Exception e)
+        {
+            errorMessage = ExtractError(e);
+        }
+        finally
+        {
+            showDialog = false;
+            selectedLoan = null;
+        }
     }
 
     private void OnCancel()
