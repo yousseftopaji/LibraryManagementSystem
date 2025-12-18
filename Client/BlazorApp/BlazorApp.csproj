@@ -19,4 +19,9 @@
     <Folder Include="Services\ReservationService\" />
   </ItemGroup>
 
+  <!-- Exclude test files directory from main project build -->
+  <ItemGroup>
+    <Compile Remove="Tests\**\*.cs" />
+  </ItemGroup>
+
 </Project>

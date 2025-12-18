@@ -20,6 +20,16 @@ import org.springframework.stereotype.Service;
     this.passwordEncoderService = passwordEncoderService;
   }
 
+  /**
+   * Register a new user.
+   *
+   * This method validates user fields (name, email, phone, username and password),
+   * hashes the password and delegates user creation to the gRPC user service.
+   *
+   * @param user the user to register; password should be plaintext and will be hashed
+   * @return the created User object from the backend
+   * @throws IllegalArgumentException if any validation fails
+   */
   @Override
   public User register(User user) {
     // Validate all fields
