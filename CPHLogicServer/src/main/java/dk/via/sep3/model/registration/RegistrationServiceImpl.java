@@ -1,21 +1,21 @@
 package dk.via.sep3.model.registration;
 
-import dk.via.sep3.grpcConnection.registrationGrpcService.RegistrationGrpcService;
+import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
 import dk.via.sep3.model.domain.User;
-import dk.via.sep3.model.utils.validation.Validator;
+import dk.via.sep3.model.validation.Validator;
 import dk.via.sep3.security.IPasswordEncoderService;
 import org.springframework.stereotype.Service;
 
 @Service public class RegistrationServiceImpl implements RegistrationService
 {
-  private final RegistrationGrpcService registrationGrpcService;
+  private final UserGrpcService userGrpcService;
   private final Validator validator;
   private final IPasswordEncoderService passwordEncoderService;
 
   public RegistrationServiceImpl(
-      RegistrationGrpcService registrationGrpcService, Validator validator, IPasswordEncoderService passwordEncoderService)
+      UserGrpcService userGrpcService, Validator validator, IPasswordEncoderService passwordEncoderService)
   {
-    this.registrationGrpcService = registrationGrpcService;
+    this.userGrpcService = userGrpcService;
     this.validator = validator;
     this.passwordEncoderService = passwordEncoderService;
   }
@@ -34,6 +34,6 @@ import org.springframework.stereotype.Service;
     user.setPassword(hashedPassword);
 
     // Call gRPC service to register
-    return registrationGrpcService.register(user);
+    return userGrpcService.createUser(user);
   }
 }

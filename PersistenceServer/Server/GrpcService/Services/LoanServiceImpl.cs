@@ -102,7 +102,7 @@ public override async Task<GetLoansByISBNResponse> GetLoansByISBN(GetLoansByISBN
 
             response.Loans.AddRange(loans.Select(l => new DTOLoan
             {
-                Id = l.Id,
+                Id = l.LoanId,
                 BorrowDate = l.BorrowDate.ToString("yyyy-MM-dd"),
                 DueDate = l.DueDate.ToString("yyyy-MM-dd"),
                 Username = l.Username,
@@ -158,5 +158,36 @@ public override async Task<GetLoanByIdResponse> GetLoanById(GetLoanByIdRequest r
     }
 
     return response;
+    }
+
+ public override async Task<GetActiveLoansByUsernameResponse> GetActiveLoansByUsername(GetActiveLoansByUsernameRequest request, ServerCallContext context)
+    {
+        var response = new GetActiveLoansByUsernameResponse();
+
+        try
+        {
+            var activeLoans = await loanRepository.GetActiveLoansByUsername(request.Username);
+
+            response.ActiveLoans.AddRange(activeLoans.Select(l => new DTOLoan
+            {
+                Id = l.LoanId,
+                BorrowDate = l.BorrowDate.ToString("yyyy-MM-dd"),
+                DueDate = l.DueDate.ToString("yyyy-MM-dd"),
+                Username = l.Username,
+                BookId = l.BookId,
+                NumberOfExtensions = l.NumberOfExtensions,
+                IsReturned = l.IsReturned
+            }));
+
+            response.Success = true;
+            response.Message = "Active loans retrieved successfully.";
+        }
+        catch (Exception ex)
+        {
+            response.Success = false;
+            response.Message = $"Error retrieving active loans: {ex.Message}";
+        }
+
+        return response;
     }
 }

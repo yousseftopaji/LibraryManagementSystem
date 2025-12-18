@@ -1,65 +1,58 @@
 package dk.via.sep3.controller;
 
-import dk.via.sep3.exceptionHandler.BusinessRuleViolationException;
+import dk.via.sep3.DTOs.login.LoginRequestDTO;
+import dk.via.sep3.DTOs.login.LoginResponseDTO;
 import dk.via.sep3.mapper.userMapper.UserMapper;
-import dk.via.sep3.model.domain.User;
+import dk.via.sep3.application.domain.User;
+import dk.via.sep3.application.services.login.LoginService;
 import dk.via.sep3.security.JwtUtil;
-import dk.via.sep3.shared.auth.AuthResponseDTO;
-import dk.via.sep3.shared.registration.RegistrationDTO;
-import dk.via.sep3.model.register.RegisterService;
-import dk.via.sep3.shared.user.UserDTO;
-import dk.via.sep3.model.utils.validation.Validator;
-import org.springframework.beans.factory.annotation.Qualifier;
+import dk.via.sep3.DTOs.auth.RegisterResponseDTO;
+import dk.via.sep3.DTOs.registration.RegistrationDTO;
+import dk.via.sep3.application.services.register.RegisterService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/auth")
-public class AuthController {
-    private final UserMapper userMapper;
-    private final RegisterService registerService;
-    private final JwtUtil jwtUtil;
-    private final Validator<String> passwordValidator;
+@RestController @RequestMapping("/auth") public class AuthController
+{
+  private final UserMapper userMapper;
+  private final RegisterService registerService;
+  private final JwtUtil jwtUtil;
+  private final LoginService loginService;
 
-    public AuthController(UserMapper userMapper,
-                          RegisterService registerService,
-                          JwtUtil jwtUtil,
-                          @Qualifier("passwordValidator") Validator<String> passwordValidator) {
-        this.userMapper = userMapper;
-        this.registerService = registerService;
-        this.jwtUtil = jwtUtil;
-        this.passwordValidator = passwordValidator;
-    }
+  public AuthController(UserMapper userMapper, RegisterService registerService,
+      JwtUtil jwtUtil, LoginService loginService)
+  {
+    this.userMapper = userMapper;
+    this.registerService = registerService;
+    this.jwtUtil = jwtUtil;
+    this.loginService = loginService;
+  }
 
-    @PostMapping("/register")
-    public ResponseEntity<AuthResponseDTO> register(@RequestBody RegistrationDTO req) {
-        if (req == null) throw new BusinessRuleViolationException("Registration cannot be null");
+  @PostMapping("/register") public ResponseEntity<RegisterResponseDTO> register(
+      @RequestBody RegistrationDTO req)
+  {
+    User user = userMapper.mapRegistrationDTOToDomain(req);
 
-        // Validate password according to policy
-        String pw = req.getPassword();
-        passwordValidator.validate(pw);
+    User registeredUser = registerService.register(user);
 
-        // 1. Map incoming DTO to domain
-        User user = userMapper.mapRegistrationDTOToDomain(req);
+    RegisterResponseDTO registerResponseDTO = userMapper.mapDomainToRegisterResponseDTO(
+        registeredUser);
 
-        // 2. Delegate to model layer: validation, hashing, persistence
-        User registeredUser = registerService.register(user);
+    return new ResponseEntity<>(registerResponseDTO, HttpStatus.CREATED);
+  }
 
-        // 4. Map domain user → DTO to avoid password and other internals
-        UserDTO userDTO = userMapper.mapDomainToUserDTO(registeredUser);
+  @PostMapping(value = "/login")
+  public ResponseEntity<LoginResponseDTO> login(
+      @RequestBody LoginRequestDTO request)
+  {
+    User user = userMapper.mapLoginRequestToDomain(request);
 
-        // 5. Wrap in AuthResponseDTO using explicit fields to avoid constructor resolution issues
-        AuthResponseDTO response = new AuthResponseDTO(
+    User authenticatedUser = loginService.login(user);
+    String token = jwtUtil.generateToken(authenticatedUser.getUsername(),
+        authenticatedUser.getRole());
 
-                userDTO != null ? userDTO.getUsername() : null,
-                userDTO != null ? userDTO.getName() : null,
-                userDTO != null ? userDTO.getEmail() : null,
-                userDTO != null ? userDTO.getPhoneNumber() : null,
-                userDTO != null ? userDTO.getRole() : null
-        );
-
-        // 6. Return
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
+    LoginResponseDTO loginResponseDTO = new LoginResponseDTO(token, authenticatedUser.getUsername());
+    return new ResponseEntity<>(loginResponseDTO, HttpStatus.OK);
+  }
 }
