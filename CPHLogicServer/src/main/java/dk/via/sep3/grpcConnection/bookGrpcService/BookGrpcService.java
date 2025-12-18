@@ -2,7 +2,7 @@ package dk.via.sep3.grpcConnection.bookGrpcService;
 
 // AarhusLogicServer/src/main/java/dk/via/sep3/grpcConnection/BookGrpcServiceInterface.java
 
-import dk.via.sep3.model.domain.Book;
+import dk.via.sep3.application.domain.Book;
 
 import java.util.List;
 

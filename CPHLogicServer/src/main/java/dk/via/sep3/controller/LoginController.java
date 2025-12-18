@@ -1,7 +1,7 @@
 package dk.via.sep3.controller;
 
-import dk.via.sep3.model.domain.User;
-import dk.via.sep3.model.login.LoginService;
+import dk.via.sep3.application.domain.User;
+import dk.via.sep3.application.services.login.LoginService;
 import dk.via.sep3.security.IJwtTokenProvider;
 import dk.via.sep3.DTOs.login.LoginDTO;
 import dk.via.sep3.DTOs.login.LoginResponseDTO;

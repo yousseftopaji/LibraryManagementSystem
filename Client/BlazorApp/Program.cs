@@ -12,7 +12,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // Read logic server base URL from configuration or default to localhost:8080
-var logicServerBase = builder.Configuration["LogicServerBaseUrl"] ?? "http://localhost:8080/";
+var logicServerBase = builder.Configuration["LogicServerBaseUrl"] ?? "http://localhost:8081/";
 
 // Unauthenticated client
 builder.Services.AddScoped(_ => new HttpClient
