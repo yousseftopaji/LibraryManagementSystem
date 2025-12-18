@@ -3,7 +3,7 @@ package dk.via.sep3.grpcConnection.reservationGrpcService;
 import dk.via.sep3.*;
 import dk.via.sep3.exceptionHandler.BusinessRuleViolationException;
 import dk.via.sep3.exceptionHandler.GrpcCommunicationException;
-import dk.via.sep3.model.domain.Reservation;
+import dk.via.sep3.application.domain.Reservation;
 import dk.via.sep3.mapper.ReservationMapper.ReservationMapper;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;

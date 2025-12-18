@@ -1,7 +1,7 @@
 package dk.via.sep3.grpcConnection.loanGrpcService;
 
 import dk.via.sep3.*;
-import dk.via.sep3.model.domain.Loan;
+import dk.via.sep3.application.domain.Loan;
 import dk.via.sep3.mapper.loanMapper.LoanMapper;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;

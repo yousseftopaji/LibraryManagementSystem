@@ -1,8 +1,8 @@
 package dk.via.sep3.controller;
 
 import dk.via.sep3.mapper.loanMapper.LoanMapper;
-import dk.via.sep3.model.domain.Loan;
-import dk.via.sep3.model.loans.LoanService;
+import dk.via.sep3.application.domain.Loan;
+import dk.via.sep3.application.services.loans.LoanService;
 import dk.via.sep3.DTOs.extension.CreateExtensionDTO;
 import dk.via.sep3.DTOs.loan.CreateLoanDTO;
 import dk.via.sep3.DTOs.loan.LoanDTO;

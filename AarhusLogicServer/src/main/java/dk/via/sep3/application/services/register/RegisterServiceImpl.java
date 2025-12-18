@@ -1,0 +1,56 @@
+package dk.via.sep3.application.services.register;
+
+import dk.via.sep3.exceptionHandler.BusinessRuleViolationException;
+import dk.via.sep3.exceptionHandler.GrpcCommunicationException;
+import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
+import dk.via.sep3.application.domain.User;
+import dk.via.sep3.application.services.validation.RegistrationValidator;
+import dk.via.sep3.security.PasswordService;
+import org.springframework.stereotype.Service;
+
+@Service public class RegisterServiceImpl implements RegisterService
+{
+  private final UserGrpcService userGrpcService;
+  private final PasswordService passwordService;
+  private final RegistrationValidator registrationValidator;
+
+  public RegisterServiceImpl(UserGrpcService userGrpcService,
+      PasswordService passwordService,
+      RegistrationValidator registrationValidator)
+  {
+    this.userGrpcService = userGrpcService;
+    this.passwordService = passwordService;
+    this.registrationValidator = registrationValidator;
+  }
+
+  @Override public User register(User user)
+  {
+    if (user == null)
+      throw new BusinessRuleViolationException("Registration cannot be null");
+
+    registrationValidator.validate(user);
+
+    // Hash password
+    String hashedPassword = passwordService.hash(user.getPassword());
+    user.setPassword(hashedPassword);
+
+    // Persist user
+    try
+    {
+      User created = userGrpcService.createUser(user);
+
+      if (created == null)
+      {
+        throw new GrpcCommunicationException(
+            "Internal Server Error. Please try again later.");
+      }
+
+      return created;
+
+    }
+    catch (Exception e)
+    {
+      throw new GrpcCommunicationException("Failed to create user", e);
+    }
+  }
+}
