@@ -1,119 +1,77 @@
 using System;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
+using DTOs.Extension;
 using DTOs.Loan;
-using DTOs.Error_Handler;
 
 namespace BlazorApp.Services.LoanService;
 
-public class HttpLoanService : ILoanService
+public class HttpLoanService(HttpClient client, AuthProvider authProvider) : ILoanService
 {
-    private readonly HttpClient client;
-    private readonly AuthProvider authProvider;
-
-    public HttpLoanService(HttpClient client, AuthProvider authProvider)
+    private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        this.client = client;
-        this.authProvider = authProvider;
-    }
-
-    private string StripHtml(string html)
-    {
-        if (string.IsNullOrEmpty(html)) return html;
-        // Remove script/style blocks
-        var withoutScripts = Regex.Replace(html, @"<(script|style)[^>]*>[\s\S]*?<\/(script|style)>", string.Empty, RegexOptions.IgnoreCase);
-        // Remove tags
-        var text = Regex.Replace(withoutScripts, @"<[^>]+>", string.Empty);
-        // Collapse whitespace
-        text = Regex.Replace(text, @"\s+", " ").Trim();
-        return text;
-    }
-
-    private async Task<string> ExtractFriendlyErrorAsync(HttpResponseMessage response)
-    {
-        string content = await response.Content.ReadAsStringAsync();
-        if (string.IsNullOrEmpty(content))
-            return response.ReasonPhrase ?? "An unknown error occurred.";
-
-        // Try to parse known JSON ErrorResponseDTO
-        try
-        {
-            var parsed = JsonSerializer.Deserialize<ErrorResponseDTO>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            if (parsed != null)
-                return parsed.Details ?? parsed.Message ?? parsed.ErrorCode ?? content;
-        }
-        catch
-        {
-            // Not the expected JSON format - continue
-        }
-
-        // If looks like HTML, strip tags and return the first meaningful snippet
-        var lower = content.Length > 1000 ? content.Substring(0, 1000).ToLowerInvariant() : content.ToLowerInvariant();
-        if (lower.Contains("<html") || lower.Contains("<!doctype html") || lower.Contains("<head") || lower.Contains("<body"))
-        {
-            var text = StripHtml(content);
-            if (!string.IsNullOrEmpty(text))
-            {
-                // Return first 200 characters of the textual content
-                return text.Length > 200 ? text.Substring(0, 200) + "..." : text;
-            }
-        }
-
-        // Fallback to trimmed content (plain text or other formats)
-        var trimmed = content.Length > 500 ? content.Substring(0, 500) + "..." : content;
-        return trimmed;
-    }
+        PropertyNameCaseInsensitive = true
+    };
 
     public async Task<LoanDTO> CreateLoanAsync(CreateLoanDTO createLoanDto)
     {
         authProvider.AttachToken(client);
-        HttpResponseMessage httpResponse = await client.PostAsJsonAsync("loans", createLoanDto);
-        string response = await httpResponse.Content.ReadAsStringAsync();
+
+        var httpResponse = await client.PostAsJsonAsync("loans", createLoanDto);
+        
         if (!httpResponse.IsSuccessStatusCode)
         {
-            var friendly = await ExtractFriendlyErrorAsync(httpResponse);
-            throw new Exception(friendly);
+            var content = await httpResponse.Content.ReadAsStringAsync();
+            throw new HttpRequestException(
+                $"CreateLoan failed ({(int)httpResponse.StatusCode} {httpResponse.ReasonPhrase}). {content}");
         }
-        return JsonSerializer.Deserialize<LoanDTO>(response, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+
+        var response = await httpResponse.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<LoanDTO>(response, JsonOptions)!;
     }
 
-    public async Task<bool> ExtendLoanAsync(int loanId)
+    public async Task ExtendLoanAsync(int loanId)
     {
         authProvider.AttachToken(client);
-        HttpResponseMessage httpResponse = await client.PatchAsync($"loans/{loanId}", null);
 
-        if (httpResponse.IsSuccessStatusCode)
-            return true;
+        var username = authProvider.ExtractUsernameFromJwt() ?? string.Empty;
+        var payload = new CreateExtensionDTO(loanId, username);
 
-        var friendly = await ExtractFriendlyErrorAsync(httpResponse);
-        Console.WriteLine($"Error extending loan: {friendly}");
-
-        return false;
-    }
-
-    public async Task<List<LoanDTO>> GetActiveLoansAsync(string username)
-    {
-        authProvider.AttachToken(client);
-        var url1 = $"loans/active?username={Uri.EscapeDataString(username)}";
-        var url2 = $"loans?username={Uri.EscapeDataString(username)}";
-
-        HttpResponseMessage httpResponse = await client.GetAsync(url1);
-
-        if (httpResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+        var request = new HttpRequestMessage(HttpMethod.Patch, "loans/extensions")
         {
-            httpResponse = await client.GetAsync(url2);
-        }
+            Content = JsonContent.Create(payload)
+        };
+
+        var httpResponse = await client.SendAsync(request);
 
         if (!httpResponse.IsSuccessStatusCode)
         {
-            var friendly = await ExtractFriendlyErrorAsync(httpResponse);
-            throw new Exception(friendly);
+            var content = await httpResponse.Content.ReadAsStringAsync();
+            throw new HttpRequestException(
+                $"ExtendLoan failed ({(int)httpResponse.StatusCode} {httpResponse.ReasonPhrase}). {content}");
+        }
+    }
+
+    public async Task<List<LoanDTO>> GetActiveLoansAsync()
+    {
+        authProvider.AttachToken(client);
+        string username = authProvider.ExtractUsernameFromJwt() ?? string.Empty;
+        
+        var url = $"loans/active?username={Uri.EscapeDataString(username)}";
+
+        var httpResponse = await client.GetAsync(url);
+
+        if (!httpResponse.IsSuccessStatusCode)
+        {
+            var content = await httpResponse.Content.ReadAsStringAsync();
+            throw new HttpRequestException(
+                $"GetActiveLoans failed ({(int)httpResponse.StatusCode} {httpResponse.ReasonPhrase}). {content}");
         }
 
-        string response = await httpResponse.Content.ReadAsStringAsync();
-
-        return JsonSerializer.Deserialize<List<LoanDTO>>(response, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<LoanDTO>();
+        var response = await httpResponse.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<List<LoanDTO>>(response, JsonOptions) ?? new List<LoanDTO>();
     }
 }

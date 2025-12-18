@@ -31,6 +31,8 @@
         <java.version>17</java.version>
         <grpc.version>1.60.0</grpc.version>
         <protobuf.version>3.25.1</protobuf.version>
+        <maven.compiler.source>24</maven.compiler.source>
+        <maven.compiler.target>24</maven.compiler.target>
     </properties>
 
     <repositories>

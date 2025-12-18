@@ -1,11 +1,11 @@
 package dk.via.sep3.controller;
 
-import dk.via.sep3.model.domain.User;
-import dk.via.sep3.model.login.LoginService;
+import dk.via.sep3.application.domain.User;
+import dk.via.sep3.application.services.login.LoginService;
 import dk.via.sep3.security.IJwtTokenProvider;
-import dk.via.sep3.shared.login.LoginDTO;
-import dk.via.sep3.shared.login.LoginResponseDTO;
-import dk.via.sep3.shared.mapper.loginMapper.LoginMapper;
+import dk.via.sep3.DTOs.login.LoginDTO;
+import dk.via.sep3.DTOs.login.LoginResponseDTO;
+import dk.via.sep3.mapper.loginMapper.LoginMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;

@@ -1,8 +1,8 @@
 package dk.via.sep3.grpcConnection.loanGrpcService;
 
 import dk.via.sep3.*;
-import dk.via.sep3.model.domain.Loan;
-import dk.via.sep3.shared.mapper.loanMapper.LoanMapper;
+import dk.via.sep3.application.domain.Loan;
+import dk.via.sep3.mapper.loanMapper.LoanMapper;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,6 +120,40 @@ import java.util.List;
     catch (Exception ex)
     {
       logger.error("Error retrieving loan with ID: {}", bookId, ex);
+      return null;
+    }
+  }
+
+  @Override public List<Loan> getActiveLoansByUsername(String username)
+  {
+    try
+    {
+      GetActiveLoansByUsernameRequest request = GetActiveLoansByUsernameRequest.newBuilder()
+          .setUsername(username)
+          .build();
+
+      logger.info("Sending gRPC request to get active loans for user: {}", username);
+      GetActiveLoansByUsernameResponse response = loanStub.getActiveLoansByUsername(request);
+      if (response.getSuccess())
+      {
+        logger.info("Retrieved {} active loans for user: {}", response.getLoansCount(), username);
+        List<Loan> loans = new ArrayList<>();
+        for (DTOLoan dtoLoan : response.getLoansList())
+        {
+          loans.add(loanMapper.mapDTOLoanToDomain(dtoLoan));
+        }
+        return loans;
+      }
+      else
+      {
+        logger.error("Failed to retrieve active loans for user: {}: {}", username,
+            response.getMessage());
+        return null;
+      }
+    }
+    catch (Exception ex)
+    {
+      logger.error("Error retrieving active loans for user: {}", username, ex);
       return null;
     }
   }

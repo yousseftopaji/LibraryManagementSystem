@@ -2,14 +2,13 @@
 package dk.via.sep3.grpcConnection.bookGrpcService;
 
 import dk.via.sep3.*;
-import dk.via.sep3.controller.exceptionHandler.GrpcCommunicationException;
-import dk.via.sep3.model.domain.Book;
-import dk.via.sep3.shared.mapper.bookMapper.BookMapper;
+import dk.via.sep3.exceptionHandler.GrpcCommunicationException;
+import dk.via.sep3.application.domain.Book;
+import dk.via.sep3.mapper.bookMapper.BookMapper;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
