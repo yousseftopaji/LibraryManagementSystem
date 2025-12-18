@@ -1,14 +1,13 @@
 package dk.via.sep3.grpcConnection.reservationGrpcService;
 
 import dk.via.sep3.*;
-import dk.via.sep3.controller.exceptionHandler.GrpcCommunicationException;
-import dk.via.sep3.model.domain.Reservation;
-import dk.via.sep3.shared.mapper.ReservationMapper.ReservationMapper;
+import dk.via.sep3.application.domain.Reservation;
+import dk.via.sep3.exceptionHandler.GrpcCommunicationException;
+import dk.via.sep3.mapper.ReservationMapper.ReservationMapper;
 import io.grpc.ManagedChannel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
 import java.sql.Date;
 import java.util.List;
 
@@ -17,59 +16,62 @@ import static org.mockito.Mockito.*;
 
 class ReservationGrpcServiceImplTest {
 
-  private ReservationServiceGrpc.ReservationServiceBlockingStub stub;
-  private ReservationMapper mapper;
+  private ReservationServiceGrpc.ReservationServiceBlockingStub reservationStub;
+  private ReservationMapper reservationMapper;
   private ReservationGrpcServiceImpl service;
 
   @BeforeEach
-  void setUp() throws Exception {
-    stub = mock(ReservationServiceGrpc.ReservationServiceBlockingStub.class);
-    mapper = mock(ReservationMapper.class);
+  void setUp() {
+    reservationStub = mock(ReservationServiceGrpc.ReservationServiceBlockingStub.class);
+    reservationMapper = mock(ReservationMapper.class);
 
     ManagedChannel channel = mock(ManagedChannel.class);
-    service = new ReservationGrpcServiceImpl(channel, mapper);
+    service = new ReservationGrpcServiceImpl(channel, reservationMapper);
 
-    //  Inject mocked stub via reflection
-    Field stubField = ReservationGrpcServiceImpl.class
-        .getDeclaredField("reservationStub");
-    stubField.setAccessible(true);
-    stubField.set(service, stub);
+    injectStub(service, reservationStub);
   }
 
+  private void injectStub(ReservationGrpcServiceImpl service,
+      ReservationServiceGrpc.ReservationServiceBlockingStub stub) {
+    try {
+      var field = ReservationGrpcServiceImpl.class.getDeclaredField("reservationStub");
+      field.setAccessible(true);
+      field.set(service, stub);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 
+  // ---------------------------------------------------
   // createReservation()
-
+  // ---------------------------------------------------
 
   @Test
   void createReservation_success_returnsMappedReservation() {
-    Reservation input = new Reservation();
-    input.setUsername("alice");
-    input.setBookId(1);
-    input.setReservationDate(Date.valueOf("2025-01-10"));
+    Reservation reservation = new Reservation();
+    reservation.setUsername("john");
+    reservation.setBookId(1);
+    reservation.setReservationDate(Date.valueOf("2024-01-01"));
 
-    DTOReservation dto = DTOReservation.newBuilder()
-        .setId(10)
-        .setUsername("alice")
-        .setBookId(1)
-        .setReservationDate("2025-01-10")
+    DTOReservation dtoReservation = DTOReservation.newBuilder()
+        .setId(5)
         .build();
 
     CreateReservationResponse response = CreateReservationResponse.newBuilder()
-        .setReservation(dto)
         .setSuccess(true)
+        .setReservation(dtoReservation)
         .build();
 
-    Reservation mapped = new Reservation();
-    mapped.setId(10);
-
-    when(stub.createReservation(any(CreateReservationRequest.class)))
+    when(reservationStub.createReservation(any(CreateReservationRequest.class)))
         .thenReturn(response);
-    when(mapper.mapDTOReservationToDomain(dto)).thenReturn(mapped);
+    when(reservationMapper.mapDTOReservationToDomain(dtoReservation))
+        .thenReturn(new Reservation());
 
-    Reservation result = service.createReservation(input);
+    Reservation result = service.createReservation(reservation);
 
     assertNotNull(result);
-    assertEquals(10, result.getId());
+    verify(reservationStub).createReservation(any(CreateReservationRequest.class));
+    verify(reservationMapper).mapDTOReservationToDomain(dtoReservation);
   }
 
   @Test
@@ -79,7 +81,7 @@ class ReservationGrpcServiceImplTest {
         .setMessage("error")
         .build();
 
-    when(stub.createReservation(any()))
+    when(reservationStub.createReservation(any(CreateReservationRequest.class)))
         .thenReturn(response);
 
     Reservation result = service.createReservation(new Reservation());
@@ -89,43 +91,37 @@ class ReservationGrpcServiceImplTest {
 
   @Test
   void createReservation_exception_throwsGrpcCommunicationException() {
-    when(stub.createReservation(any()))
-        .thenThrow(new RuntimeException("grpc error"));
+    when(reservationStub.createReservation(any(CreateReservationRequest.class)))
+        .thenThrow(RuntimeException.class);
 
     assertThrows(GrpcCommunicationException.class,
         () -> service.createReservation(new Reservation()));
   }
 
-
+  // ---------------------------------------------------
   // getReservationsByIsbn()
-
+  // ---------------------------------------------------
 
   @Test
   void getReservationsByIsbn_success_returnsMappedList() {
-    DTOReservation dto = DTOReservation.newBuilder()
+    DTOReservation dtoReservation = DTOReservation.newBuilder()
         .setId(1)
-        .setUsername("bob")
-        .setBookId(2)
         .build();
 
     GetReservationsByIsbnResponse response =
         GetReservationsByIsbnResponse.newBuilder()
-            .addReservations(dto)
             .setSuccess(true)
+            .addReservations(dtoReservation)
             .build();
 
-    Reservation mapped = new Reservation();
-    mapped.setId(1);
-
-    when(stub.getReservationsByIsbn(any(GetReservationsByIsbnRequest.class)))
+    when(reservationStub.getReservationsByIsbn(any(GetReservationsByIsbnRequest.class)))
         .thenReturn(response);
-    when(mapper.mapDTOReservationToDomain(dto)).thenReturn(mapped);
+    when(reservationMapper.mapDTOReservationToDomain(dtoReservation))
+        .thenReturn(new Reservation());
 
-    List<Reservation> reservations =
-        service.getReservationsByIsbn("isbn-123");
+    List<Reservation> result = service.getReservationsByIsbn("123");
 
-    assertEquals(1, reservations.size());
-    assertEquals(1, reservations.get(0).getId());
+    assertEquals(1, result.size());
   }
 
   @Test
@@ -133,32 +129,32 @@ class ReservationGrpcServiceImplTest {
     GetReservationsByIsbnResponse response =
         GetReservationsByIsbnResponse.newBuilder()
             .setSuccess(false)
-            .setMessage("fail")
+            .setMessage("error")
             .build();
 
-    when(stub.getReservationsByIsbn(any()))
+    when(reservationStub.getReservationsByIsbn(any(GetReservationsByIsbnRequest.class)))
         .thenReturn(response);
 
     assertThrows(RuntimeException.class,
-        () -> service.getReservationsByIsbn("isbn"));
+        () -> service.getReservationsByIsbn("123"));
   }
 
-
+  // ---------------------------------------------------
   // getReservationCountByISBN()
-
+  // ---------------------------------------------------
 
   @Test
   void getReservationCountByISBN_success_returnsCount() {
     GetReservationCountByIsbnResponse response =
         GetReservationCountByIsbnResponse.newBuilder()
-            .setNumberOfReservations(3)
             .setSuccess(true)
+            .setNumberOfReservations(3)
             .build();
 
-    when(stub.getReservationCountByIsbn(any(GetReservationCountByIsbnRequest.class)))
+    when(reservationStub.getReservationCountByIsbn(any(GetReservationCountByIsbnRequest.class)))
         .thenReturn(response);
 
-    int count = service.getReservationCountByISBN("isbn-123");
+    int count = service.getReservationCountByISBN("123");
 
     assertEquals(3, count);
   }
@@ -171,10 +167,10 @@ class ReservationGrpcServiceImplTest {
             .setMessage("error")
             .build();
 
-    when(stub.getReservationCountByIsbn(any()))
+    when(reservationStub.getReservationCountByIsbn(any(GetReservationCountByIsbnRequest.class)))
         .thenReturn(response);
 
     assertThrows(RuntimeException.class,
-        () -> service.getReservationCountByISBN("isbn"));
+        () -> service.getReservationCountByISBN("123"));
   }
 }

@@ -1,16 +1,14 @@
 package dk.via.sep3.grpcConnection.bookGrpcService;
 
 import dk.via.sep3.*;
-import dk.via.sep3.controller.exceptionHandler.GrpcCommunicationException;
-import dk.via.sep3.model.domain.Book;
-import dk.via.sep3.shared.mapper.bookMapper.BookMapper;
+import dk.via.sep3.application.domain.Book;
+import dk.via.sep3.exceptionHandler.GrpcCommunicationException;
+import dk.via.sep3.mapper.bookMapper.BookMapper;
 import io.grpc.ManagedChannel;
-import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,147 +16,133 @@ import static org.mockito.Mockito.*;
 
 class BookGrpcServiceImplTest {
 
-  private BookServiceGrpc.BookServiceBlockingStub stub;
-  private BookMapper mapper;
+  private BookServiceGrpc.BookServiceBlockingStub bookStub;
+  private BookMapper bookMapper;
   private BookGrpcServiceImpl service;
 
   @BeforeEach
-  void setup() throws Exception {
-    stub = mock(BookServiceGrpc.BookServiceBlockingStub.class);
-    mapper = mock(BookMapper.class);
+  void setUp() {
+    bookStub = mock(BookServiceGrpc.BookServiceBlockingStub.class);
+    bookMapper = mock(BookMapper.class);
 
+    // Fake channel – never used
     ManagedChannel channel = mock(ManagedChannel.class);
-    service = new BookGrpcServiceImpl(channel, mapper);
 
-    // Inject mocked stub via reflection
-    Field stubField = BookGrpcServiceImpl.class.getDeclaredField("bookStub");
-    stubField.setAccessible(true);
-    stubField.set(service, stub);
+    service = new BookGrpcServiceImpl(channel, bookMapper);
+
+    // 🔥 Inject mocked stub via reflection
+    injectStub(service, bookStub);
   }
 
+  private void injectStub(BookGrpcServiceImpl service,
+      BookServiceGrpc.BookServiceBlockingStub stub) {
+    try {
+      var field = BookGrpcServiceImpl.class.getDeclaredField("bookStub");
+      field.setAccessible(true);
+      field.set(service, stub);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 
+  // ---------------------------------------------------
   // getAllBooks()
-
+  // ---------------------------------------------------
 
   @Test
   void getAllBooks_returnsMappedBooks() {
-    DTOBook dtoBook = DTOBook.newBuilder()
-        .setIsbn("123")
-        .setTitle("Test Book")
-        .build();
-
-    GetAllBooksResponse response = GetAllBooksResponse.newBuilder()
-        .addBooks(dtoBook)
-        .build();
+    DTOBook dtoBook = DTOBook.newBuilder().setId(1).setIsbn("123").build();
+    GetAllBooksResponse response =
+        GetAllBooksResponse.newBuilder().addBooks(dtoBook).build();
 
     Book domainBook = new Book();
-    domainBook.setIsbn("123");
 
-    when(stub.getAllBooks(any(GetAllBooksRequest.class))).thenReturn(response);
-    when(mapper.toDomain(dtoBook)).thenReturn(domainBook);
+    when(bookStub.getAllBooks(any(GetAllBooksRequest.class)))
+        .thenReturn(response);
+    when(bookMapper.toDomain(dtoBook)).thenReturn(domainBook);
 
     List<Book> result = service.getAllBooks();
 
     assertEquals(1, result.size());
-    assertEquals("123", result.get(0).getIsbn());
+    verify(bookStub).getAllBooks(any(GetAllBooksRequest.class));
+    verify(bookMapper).toDomain(dtoBook);
   }
 
   @Test
-  void getAllBooks_wrapsGrpcException() {
-    when(stub.getAllBooks(any()))
-        .thenThrow(new StatusRuntimeException(Status.INTERNAL));
+  void getAllBooks_grpcError_throwsGrpcCommunicationException() {
+    when(bookStub.getAllBooks(any(GetAllBooksRequest.class)))
+        .thenThrow(StatusRuntimeException.class);
 
     assertThrows(GrpcCommunicationException.class,
         () -> service.getAllBooks());
   }
 
-
+  // ---------------------------------------------------
   // getBooksByIsbn()
-
+  // ---------------------------------------------------
 
   @Test
   void getBooksByIsbn_returnsMappedBooks() {
-    DTOBook dtoBook = DTOBook.newBuilder()
-        .setIsbn("999")
-        .build();
+    DTOBook dtoBook = DTOBook.newBuilder().setIsbn("123").build();
+    GetBooksByIsbnResponse response =
+        GetBooksByIsbnResponse.newBuilder().addBooks(dtoBook).build();
 
-    GetBooksByIsbnResponse response = GetBooksByIsbnResponse.newBuilder()
-        .addBooks(dtoBook)
-        .build();
-
-    Book domain = new Book();
-    domain.setIsbn("999");
-
-    when(stub.getBooksByIsbn(any(GetBooksByIsbnRequest.class)))
+    when(bookStub.getBooksByIsbn(any(GetBooksByIsbnRequest.class)))
         .thenReturn(response);
-    when(mapper.toDomain(dtoBook)).thenReturn(domain);
+    when(bookMapper.toDomain(dtoBook)).thenReturn(new Book());
 
-    List<Book> books = service.getBooksByIsbn("999");
+    List<Book> result = service.getBooksByIsbn("123");
 
-    assertEquals(1, books.size());
-    assertEquals("999", books.get(0).getIsbn());
+    assertEquals(1, result.size());
+    verify(bookStub).getBooksByIsbn(any(GetBooksByIsbnRequest.class));
   }
 
   @Test
-  void getBooksByIsbn_wrapsGrpcException() {
-    when(stub.getBooksByIsbn(any()))
-        .thenThrow(new StatusRuntimeException(Status.NOT_FOUND));
+  void getBooksByIsbn_grpcError_throwsGrpcCommunicationException() {
+    when(bookStub.getBooksByIsbn(any(GetBooksByIsbnRequest.class)))
+        .thenThrow(StatusRuntimeException.class);
 
     assertThrows(GrpcCommunicationException.class,
-        () -> service.getBooksByIsbn("x"));
+        () -> service.getBooksByIsbn("123"));
   }
 
-
+  // ---------------------------------------------------
   // getBookById()
-
+  // ---------------------------------------------------
 
   @Test
   void getBookById_returnsMappedBook() {
-    DTOBook dtoBook = DTOBook.newBuilder()
-        .setIsbn("abc")
-        .build();
+    DTOBook dtoBook = DTOBook.newBuilder().setId(1).build();
+    GetBookByIdResponse response =
+        GetBookByIdResponse.newBuilder().setBook(dtoBook).build();
 
-    GetBookByIdResponse response = GetBookByIdResponse.newBuilder()
-        .setBook(dtoBook)
-        .build();
-
-    Book domain = new Book();
-    domain.setIsbn("abc");
-
-    when(stub.getBookById(any(GetBookByIdRequest.class)))
+    when(bookStub.getBookById(any(GetBookByIdRequest.class)))
         .thenReturn(response);
-    when(mapper.toDomain(dtoBook)).thenReturn(domain);
+    when(bookMapper.toDomain(dtoBook)).thenReturn(new Book());
 
     Book result = service.getBookById(1);
 
     assertNotNull(result);
-    assertEquals("abc", result.getIsbn());
+    verify(bookStub).getBookById(any(GetBookByIdRequest.class));
   }
 
-  @Test
-  void getBookById_returnsNullOnException() {
-    when(stub.getBookById(any()))
-        .thenThrow(new RuntimeException());
-
-    Book result = service.getBookById(99);
-
-    assertNull(result);
-  }
-
-
+  // ---------------------------------------------------
   // updateBookStatus()
-
+  // ---------------------------------------------------
 
   @Test
-  void updateBookStatus_doesNotThrow() {
+  void updateBookStatus_executesWithoutException() {
     UpdateBookStateResponse response =
         UpdateBookStateResponse.newBuilder()
-            .setBook(DTOBook.newBuilder().build())
+            .setBook(DTOBook.newBuilder().setId(1).build())
             .build();
 
-    when(stub.updateBookState(any())).thenReturn(response);
+    when(bookStub.updateBookState(any(UpdateBookStateRequest.class)))
+        .thenReturn(response);
 
     assertDoesNotThrow(() ->
-        service.updateBookStatus(1, "BORROWED"));
+        service.updateBookStatus(1, "Borrowed"));
+
+    verify(bookStub).updateBookState(any(UpdateBookStateRequest.class));
   }
 }

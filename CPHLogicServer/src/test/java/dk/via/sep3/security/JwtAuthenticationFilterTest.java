@@ -38,26 +38,21 @@ class JwtAuthenticationFilterTest {
     SecurityContextHolder.clearContext();
   }
 
-
+  // --------------------------------------------------
   // VALID TOKEN
-
+  // --------------------------------------------------
 
   @Test
   void doFilterInternal_validToken_setsAuthentication() throws Exception {
-    // Arrange
     String token = "valid.jwt.token";
 
-    when(request.getHeader("Authorization"))
-        .thenReturn("Bearer " + token);
-
+    when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
     when(jwtTokenProvider.validateToken(token)).thenReturn(true);
     when(jwtTokenProvider.getUsernameFromToken(token)).thenReturn("john");
     when(jwtTokenProvider.getRoleFromToken(token)).thenReturn("READER");
 
-    // Act
     filter.doFilterInternal(request, response, filterChain);
 
-    // Assert
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
     assertNotNull(auth);
@@ -70,35 +65,55 @@ class JwtAuthenticationFilterTest {
     verify(filterChain).doFilter(request, response);
   }
 
-
-  // NO AUTHORIZATION HEADER
-
+  // --------------------------------------------------
+  // NO TOKEN
+  // --------------------------------------------------
 
   @Test
-  void doFilterInternal_noHeader_doesNotAuthenticate() throws Exception {
+  void doFilterInternal_noToken_doesNotAuthenticate() throws Exception {
     when(request.getHeader("Authorization")).thenReturn(null);
 
     filter.doFilterInternal(request, response, filterChain);
 
-    assertNull(SecurityContextHolder.getContext().getAuthentication());
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    assertNull(auth);
+
     verify(filterChain).doFilter(request, response);
+    verifyNoInteractions(jwtTokenProvider);
   }
 
-
+  // --------------------------------------------------
   // INVALID TOKEN
+  // --------------------------------------------------
 
   @Test
   void doFilterInternal_invalidToken_doesNotAuthenticate() throws Exception {
-    String token = "invalid.jwt.token";
+    String token = "invalid.token";
 
-    when(request.getHeader("Authorization"))
-        .thenReturn("Bearer " + token);
-
+    when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
     when(jwtTokenProvider.validateToken(token)).thenReturn(false);
 
     filter.doFilterInternal(request, response, filterChain);
 
-    assertNull(SecurityContextHolder.getContext().getAuthentication());
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    assertNull(auth);
+
+    verify(filterChain).doFilter(request, response);
+  }
+
+  // --------------------------------------------------
+  // MALFORMED HEADER
+  // --------------------------------------------------
+
+  @Test
+  void doFilterInternal_headerWithoutBearer_doesNotAuthenticate() throws Exception {
+    when(request.getHeader("Authorization")).thenReturn("Token abc123");
+
+    filter.doFilterInternal(request, response, filterChain);
+
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    assertNull(auth);
+
     verify(filterChain).doFilter(request, response);
   }
 }

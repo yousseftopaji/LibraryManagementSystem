@@ -1,10 +1,9 @@
 package dk.via.sep3.controller;
 
-import dk.via.sep3.model.books.BookService;
-import dk.via.sep3.model.domain.Book;
-import dk.via.sep3.model.domain.State;
-import dk.via.sep3.shared.book.BookDTO;
-import dk.via.sep3.shared.mapper.bookMapper.BookMapper;
+import dk.via.sep3.application.domain.Book;
+import dk.via.sep3.application.services.books.BookService;
+import dk.via.sep3.DTOs.book.BookDTO;
+import dk.via.sep3.mapper.bookMapper.BookMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +21,7 @@ class BooksControllerTest {
   private BooksController controller;
 
   private Book book;
-  private BookDTO dto;
+  private BookDTO bookDTO;
 
   @BeforeEach
   void setup() {
@@ -30,18 +29,25 @@ class BooksControllerTest {
     bookMapper = mock(BookMapper.class);
     controller = new BooksController(bookService, bookMapper);
 
-    book = new Book("123", "Test Title", "Author", State.AVAILABLE, new ArrayList<>());
+    book = new Book(
+        "123",
+        "Test Title",
+        "Author",
+        dk.via.sep3.application.domain.State.AVAILABLE,
+        new ArrayList<>()
+    );
     book.setId(1);
 
-    dto = new BookDTO();
-    dto.setIsbn("123");
-    dto.setTitle("Test Title");
+    bookDTO = new BookDTO();
+    bookDTO.setId(1);
+    bookDTO.setIsbn("123");
+    bookDTO.setTitle("Test Title");
   }
 
   @Test
   void getAllBooks_returnsListOfBookDTOs() {
     when(bookService.getAllBooks()).thenReturn(List.of(book));
-    when(bookMapper.toDto(book)).thenReturn(dto);
+    when(bookMapper.toDto(book)).thenReturn(bookDTO);
 
     ResponseEntity<List<BookDTO>> response = controller.getAllBooks();
 
@@ -56,7 +62,7 @@ class BooksControllerTest {
   @Test
   void getBookByIsbn_returnsBookDTO() {
     when(bookService.getBookByIsbn("123")).thenReturn(book);
-    when(bookMapper.toDto(book)).thenReturn(dto);
+    when(bookMapper.toDto(book)).thenReturn(bookDTO);
 
     ResponseEntity<BookDTO> response = controller.getBookByIsbn("123");
 

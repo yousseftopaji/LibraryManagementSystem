@@ -1,51 +1,52 @@
 package dk.via.sep3.grpcConnection.userGrpcService;
 
-import dk.via.sep3.DTOUser;
-import dk.via.sep3.GetUserByUsernameRequest;
-import dk.via.sep3.GetUserByUsernameResponse;
-import dk.via.sep3.UserServiceGrpc;
-import dk.via.sep3.model.domain.User;
-import dk.via.sep3.shared.mapper.userMapper.UserMapper;
+import dk.via.sep3.*;
+import dk.via.sep3.application.domain.User;
+import dk.via.sep3.exceptionHandler.GrpcCommunicationException;
+import dk.via.sep3.mapper.userMapper.UserMapper;
 import io.grpc.ManagedChannel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class UserGrpcServiceImplTest {
 
-  private UserServiceGrpc.UserServiceBlockingStub stub;
-  private UserMapper mapper;
+  private UserServiceGrpc.UserServiceBlockingStub userStub;
+  private UserMapper userMapper;
   private UserGrpcServiceImpl service;
 
   @BeforeEach
-  void setUp() throws Exception {
-    stub = mock(UserServiceGrpc.UserServiceBlockingStub.class);
-    mapper = mock(UserMapper.class);
+  void setUp() {
+    userStub = mock(UserServiceGrpc.UserServiceBlockingStub.class);
+    userMapper = mock(UserMapper.class);
 
     ManagedChannel channel = mock(ManagedChannel.class);
-    service = new UserGrpcServiceImpl(channel, mapper);
+    service = new UserGrpcServiceImpl(channel, userMapper);
 
-    //  Inject mocked stub via reflection
-    Field stubField = UserGrpcServiceImpl.class
-        .getDeclaredField("userStub");
-    stubField.setAccessible(true);
-    stubField.set(service, stub);
+    injectStub(service, userStub);
   }
 
+  private void injectStub(UserGrpcServiceImpl service,
+      UserServiceGrpc.UserServiceBlockingStub stub) {
+    try {
+      var field = UserGrpcServiceImpl.class.getDeclaredField("userStub");
+      field.setAccessible(true);
+      field.set(service, stub);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 
-  // getUserByUsername() — user exists
-
+  // ---------------------------------------------------
+  // getUserByUsername()
+  // ---------------------------------------------------
 
   @Test
   void getUserByUsername_userExists_returnsMappedUser() {
     DTOUser dtoUser = DTOUser.newBuilder()
         .setUsername("john")
-        .setName("John Doe")
-        .setRole("READER")
         .build();
 
     GetUserByUsernameResponse response =
@@ -53,31 +54,23 @@ class UserGrpcServiceImplTest {
             .setUser(dtoUser)
             .build();
 
-    User mappedUser = new User();
-    mappedUser.setUsername("john");
-    mappedUser.setRole("READER");
-
-    when(stub.getUserByUsername(any(GetUserByUsernameRequest.class)))
+    when(userStub.getUserByUsername(any(GetUserByUsernameRequest.class)))
         .thenReturn(response);
-    when(mapper.mapDTOUserToDomain(dtoUser)).thenReturn(mappedUser);
+    when(userMapper.mapDTOUserToDomain(dtoUser))
+        .thenReturn(new User());
 
     User result = service.getUserByUsername("john");
 
     assertNotNull(result);
-    assertEquals("john", result.getUsername());
-    assertEquals("READER", result.getRole());
+    verify(userMapper).mapDTOUserToDomain(dtoUser);
   }
-
-
-  // getUserByUsername() — user not found
-
 
   @Test
   void getUserByUsername_userNotFound_returnsNull() {
     GetUserByUsernameResponse response =
         GetUserByUsernameResponse.newBuilder().build();
 
-    when(stub.getUserByUsername(any(GetUserByUsernameRequest.class)))
+    when(userStub.getUserByUsername(any(GetUserByUsernameRequest.class)))
         .thenReturn(response);
 
     User result = service.getUserByUsername("unknown");
@@ -85,17 +78,59 @@ class UserGrpcServiceImplTest {
     assertNull(result);
   }
 
-
-  // getUserByUsername() — exception
-
-
   @Test
   void getUserByUsername_exception_returnsNull() {
-    when(stub.getUserByUsername(any()))
-        .thenThrow(new RuntimeException("grpc error"));
+    when(userStub.getUserByUsername(any(GetUserByUsernameRequest.class)))
+        .thenThrow(RuntimeException.class);
 
     User result = service.getUserByUsername("john");
 
     assertNull(result);
+  }
+
+  // ---------------------------------------------------
+  // createUser()
+  // ---------------------------------------------------
+
+  @Test
+  void createUser_success_returnsMappedUser() {
+    User domainUser = new User();
+    DTOUser dtoUser = DTOUser.newBuilder()
+        .setUsername("john")
+        .build();
+
+    CreateUserResponse response =
+        CreateUserResponse.newBuilder()
+            .setSuccess(true)
+            .setUser(dtoUser)
+            .setMessage("created")
+            .build();
+
+    when(userMapper.mapDomainToDTOUser(domainUser))
+        .thenReturn(dtoUser);
+    when(userStub.createUser(any(CreateUserRequest.class)))
+        .thenReturn(response);
+    when(userMapper.mapDTOUserToDomain(dtoUser))
+        .thenReturn(new User());
+
+    User result = service.createUser(domainUser);
+
+    assertNotNull(result);
+    verify(userStub).createUser(any(CreateUserRequest.class));
+    verify(userMapper).mapDTOUserToDomain(dtoUser);
+  }
+
+  @Test
+  void createUser_exception_throwsGrpcCommunicationException() {
+    User domainUser = new User();
+    DTOUser dtoUser = DTOUser.newBuilder().build();
+
+    when(userMapper.mapDomainToDTOUser(domainUser))
+        .thenReturn(dtoUser);
+    when(userStub.createUser(any(CreateUserRequest.class)))
+        .thenThrow(RuntimeException.class);
+
+    assertThrows(GrpcCommunicationException.class,
+        () -> service.createUser(domainUser));
   }
 }

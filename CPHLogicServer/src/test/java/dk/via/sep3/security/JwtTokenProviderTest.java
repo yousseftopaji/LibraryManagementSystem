@@ -15,7 +15,7 @@ class JwtTokenProviderTest {
   void setUp() throws Exception {
     tokenProvider = new JwtTokenProvider();
 
-    // Inject @Value fields manually
+    // Manually inject @Value fields
     setPrivateField("jwtSecret", "test-secret-key-test-secret-key-test-secret");
     setPrivateField("jwtExpirationMs", 3600000L);
   }
@@ -26,51 +26,51 @@ class JwtTokenProviderTest {
     field.set(tokenProvider, value);
   }
 
-
+  // --------------------------------------------------
   // generateToken()
-
+  // --------------------------------------------------
 
   @Test
-  void generateToken_returnsValidToken() {
-    String token = tokenProvider.generateToken("user", "READER");
+  void generateToken_returnsNonNullToken() {
+    String token = tokenProvider.generateToken("john", "READER");
 
     assertNotNull(token);
     assertTrue(token.length() > 20);
   }
 
-
+  // --------------------------------------------------
   // getUsernameFromToken()
-
+  // --------------------------------------------------
 
   @Test
   void getUsernameFromToken_returnsCorrectUsername() {
-    String token = tokenProvider.generateToken("user1", "ADMIN");
+    String token = tokenProvider.generateToken("alice", "ADMIN");
 
     String username = tokenProvider.getUsernameFromToken(token);
 
-    assertEquals("user1", username);
+    assertEquals("alice", username);
   }
 
-
+  // --------------------------------------------------
   // getRoleFromToken()
-
+  // --------------------------------------------------
 
   @Test
   void getRoleFromToken_returnsCorrectRole() {
-    String token = tokenProvider.generateToken("user2", "READER");
+    String token = tokenProvider.generateToken("bob", "READER");
 
     String role = tokenProvider.getRoleFromToken(token);
 
     assertEquals("READER", role);
   }
 
-
+  // --------------------------------------------------
   // validateToken()
-
+  // --------------------------------------------------
 
   @Test
   void validateToken_validToken_returnsTrue() {
-    String token = tokenProvider.generateToken("user3", "READER");
+    String token = tokenProvider.generateToken("user1", "READER");
 
     assertTrue(tokenProvider.validateToken(token));
   }
