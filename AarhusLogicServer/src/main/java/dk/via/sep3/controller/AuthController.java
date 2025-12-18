@@ -13,6 +13,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Authentication controller for register/login endpoints.
+ *
+ * @author Group 7
+ */
 @RestController @RequestMapping("/auth") public class AuthController
 {
   private final UserMapper userMapper;

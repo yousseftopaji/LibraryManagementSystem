@@ -13,6 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controller for reservation endpoints.
+ *
+ * @author Group 7
+ */
 @RestController @RequestMapping("/reservations") public class ReservationController
 {
   private final ReservationService reservationService;

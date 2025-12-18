@@ -15,6 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Controller for book endpoints.
+ *
+ * @author Group 7
+ */
 @RestController @RequestMapping("/books") public class BooksController
 {
     private final BookService books;

@@ -16,6 +16,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Controller for loan-related endpoints.
+ *
+ * @author Group 7
+ */
 @RestController @RequestMapping("/loans") public class LoansController
 {
   private static final Logger logger = LoggerFactory.getLogger(LoansController.class);

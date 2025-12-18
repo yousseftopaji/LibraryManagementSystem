@@ -12,6 +12,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Implementation of book service that communicates with the book gRPC backend.
+ *
+ * @author Group 7
+ */
 @Service
 public class BookServiceImpl implements BookService
 {

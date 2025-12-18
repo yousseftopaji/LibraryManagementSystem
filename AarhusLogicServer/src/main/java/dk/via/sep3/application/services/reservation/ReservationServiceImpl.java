@@ -13,6 +13,11 @@ import java.sql.Date;
 import java.util.List;
 import java.time.LocalDate;
 
+/**
+ * Implementation of reservation business logic (create reservations, select book to reserve).
+ *
+ * @author Group 7
+ */
 @Service
 public class ReservationServiceImpl implements ReservationService {
     private final LoanGrpcService loanGrpcService;

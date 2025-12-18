@@ -4,10 +4,13 @@ import dk.via.sep3.exceptionHandler.BusinessRuleViolationException;
 import dk.via.sep3.mapper.userMapper.UserMapper;
 import dk.via.sep3.application.domain.User;
 import dk.via.sep3.application.services.register.RegisterService;
+import dk.via.sep3.application.services.login.LoginService;
 import dk.via.sep3.security.JwtUtil;
 import dk.via.sep3.DTOs.auth.RegisterResponseDTO;
 import dk.via.sep3.DTOs.registration.RegistrationDTO;
 import dk.via.sep3.DTOs.user.UserDTO;
+import dk.via.sep3.DTOs.login.LoginRequestDTO;
+import dk.via.sep3.DTOs.login.LoginResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,6 +40,9 @@ class AuthControllerTest {
 
     @Mock
     private JwtUtil jwtUtil;
+
+    @Mock
+    private LoginService loginService;
 
     @InjectMocks
     private AuthController authController;
@@ -216,6 +222,55 @@ class AuthControllerTest {
         assertEquals(registerResponseDTO.getEmail(), response.getBody().getEmail());
         assertEquals(registerResponseDTO.getPhoneNumber(), response.getBody().getPhoneNumber());
         assertEquals(registerResponseDTO.getRole(), response.getBody().getRole());
+    }
+
+    @Test
+    @DisplayName("Should login successfully and return a token")
+    void testLogin_Success() {
+        // Arrange
+        LoginRequestDTO loginRequest = new LoginRequestDTO();
+        loginRequest.setUsername("johndoe");
+        loginRequest.setPassword("SecurePass123");
+
+        when(userMapper.mapLoginRequestToDomain(loginRequest)).thenReturn(validDomainUser);
+        when(loginService.login(validDomainUser)).thenReturn(registeredUser);
+        when(jwtUtil.generateToken(registeredUser.getUsername(), registeredUser.getRole())).thenReturn("mock-token");
+
+        // Act
+        ResponseEntity<LoginResponseDTO> response = authController.login(loginRequest);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("mock-token", response.getBody().getToken());
+        assertEquals("johndoe", response.getBody().getUsername());
+
+        // Verify interactions
+        verify(userMapper, times(1)).mapLoginRequestToDomain(loginRequest);
+        verify(loginService, times(1)).login(validDomainUser);
+        verify(jwtUtil, times(1)).generateToken(registeredUser.getUsername(), registeredUser.getRole());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when login credentials are invalid")
+    void testLogin_InvalidCredentials() {
+        // Arrange
+        LoginRequestDTO loginRequest = new LoginRequestDTO();
+        loginRequest.setUsername("johndoe");
+        loginRequest.setPassword("WrongPassword");
+
+        when(userMapper.mapLoginRequestToDomain(loginRequest)).thenReturn(validDomainUser);
+        when(loginService.login(validDomainUser)).thenThrow(new IllegalArgumentException("Invalid username or password"));
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> authController.login(loginRequest));
+        assertEquals("Invalid username or password", exception.getMessage());
+
+        // Verify interactions
+        verify(userMapper, times(1)).mapLoginRequestToDomain(loginRequest);
+        verify(loginService, times(1)).login(validDomainUser);
+        verify(jwtUtil, never()).generateToken(any(), any());
     }
 }
 

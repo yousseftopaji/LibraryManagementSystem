@@ -1,5 +1,10 @@
 package dk.via.sep3;
 
+/**
+ * Spring Boot application entry point for Aarhus Logic Server.
+ *
+ * @author Group 7
+ */
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;

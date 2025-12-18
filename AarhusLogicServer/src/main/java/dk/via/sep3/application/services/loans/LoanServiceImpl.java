@@ -15,6 +15,11 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.util.List;
 
+/**
+ * Implementation of loan-related business logic (create, extend, fetch active loans).
+ *
+ * @author Group 7
+ */
 @Service public class LoanServiceImpl implements LoanService
 {
     private static final Logger logger = LoggerFactory.getLogger(
