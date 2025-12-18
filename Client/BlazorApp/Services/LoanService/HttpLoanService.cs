@@ -4,33 +4,24 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DTOs.Extension;
 using DTOs.Loan;
 
 namespace BlazorApp.Services.LoanService;
 
-public class HttpLoanService : ILoanService
+public class HttpLoanService(HttpClient client, AuthProvider authProvider) : ILoanService
 {
-    private readonly HttpClient _client;
-    private readonly AuthProvider _authProvider;
-
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
 
-    public HttpLoanService(HttpClient client, AuthProvider authProvider)
-    {
-        _client = client;
-        _authProvider = authProvider;
-    }
-
     public async Task<LoanDTO> CreateLoanAsync(CreateLoanDTO createLoanDto)
     {
-        _authProvider.AttachToken(_client);
+        authProvider.AttachToken(client);
 
-        var httpResponse = await _client.PostAsJsonAsync("loans", createLoanDto);
-
-        // Let the server define the error content; keep client thin
+        var httpResponse = await client.PostAsJsonAsync("loans", createLoanDto);
+        
         if (!httpResponse.IsSuccessStatusCode)
         {
             var content = await httpResponse.Content.ReadAsStringAsync();
@@ -42,19 +33,19 @@ public class HttpLoanService : ILoanService
         return JsonSerializer.Deserialize<LoanDTO>(response, JsonOptions)!;
     }
 
-    public async Task<bool> ExtendLoanAsync(int loanId)
+    public async Task ExtendLoanAsync(int loanId)
     {
-        _authProvider.AttachToken(_client);
+        authProvider.AttachToken(client);
 
-        var username = _authProvider.ExtractUsernameFromJwt() ?? string.Empty;
-        var payload = new { loanId, username };
+        var username = authProvider.ExtractUsernameFromJwt() ?? string.Empty;
+        var payload = new CreateExtensionDTO(loanId, username);
 
         var request = new HttpRequestMessage(HttpMethod.Patch, "loans/extensions")
         {
             Content = JsonContent.Create(payload)
         };
 
-        var httpResponse = await _client.SendAsync(request);
+        var httpResponse = await client.SendAsync(request);
 
         if (!httpResponse.IsSuccessStatusCode)
         {
@@ -62,22 +53,16 @@ public class HttpLoanService : ILoanService
             throw new HttpRequestException(
                 $"ExtendLoan failed ({(int)httpResponse.StatusCode} {httpResponse.ReasonPhrase}). {content}");
         }
-
-        return true;
     }
 
-    public async Task<List<LoanDTO>> GetActiveLoansAsync(string username)
+    public async Task<List<LoanDTO>> GetActiveLoansAsync()
     {
-        _authProvider.AttachToken(_client);
+        authProvider.AttachToken(client);
+        string username = authProvider.ExtractUsernameFromJwt() ?? string.Empty;
+        
+        var url = $"loans/active?username={Uri.EscapeDataString(username)}";
 
-        // Prefer the "active" endpoint; fallback kept (pure routing fallback, no business logic)
-        var url1 = $"loans/active?username={Uri.EscapeDataString(username)}";
-        var url2 = $"loans?username={Uri.EscapeDataString(username)}";
-
-        var httpResponse = await _client.GetAsync(url1);
-
-        if (httpResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
-            httpResponse = await _client.GetAsync(url2);
+        var httpResponse = await client.GetAsync(url);
 
         if (!httpResponse.IsSuccessStatusCode)
         {

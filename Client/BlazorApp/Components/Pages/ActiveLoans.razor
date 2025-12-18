@@ -9,7 +9,7 @@
 <AuthorizeView>
     <Authorized>
         <div class="container mt-5">
-            <h2 class="text-center mb-4">Active Loans for @username</h2>
+            <h2 class="text-center mb-4">Active Loans</h2>
 
             @if (!string.IsNullOrEmpty(errorMessage))
             {
@@ -74,14 +74,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        username = AuthProvider.ExtractUsernameFromJwt();
-
-        if (string.IsNullOrEmpty(username))
-        {
-            errorMessage = "Unable to identify user. Please log in again.";
-            return;
-        }
-
         await LoadActiveLoans();
     }
 
@@ -89,28 +81,42 @@
     {
         try
         {
-            loans = await LoanService.GetActiveLoansAsync(username!);
+            loans = await LoanService.GetActiveLoansAsync();
             errorMessage = null;
         }
         catch (Exception e)
         {
-            errorMessage = ExtractFriendlyError(e);
+            errorMessage = ExtractError(e);
         }
     }
-    private string ExtractFriendlyError(Exception e)
+    private string ExtractError(Exception e)
     {
         try
         {
-            var errorResponse = JsonSerializer.Deserialize<ErrorResponseDTO>(
-                e.Message,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-            );
-
-            return errorResponse?.Details ?? "An unknown error occurred.";
+            var message = e.Message;
+            Console.WriteLine(message);
+            
+            // Look for JSON content (starts with { and ends with })
+            var jsonStart = message.IndexOf('{');
+            var jsonEnd = message.LastIndexOf('}');
+            
+            if (jsonStart >= 0 && jsonEnd > jsonStart)
+            {
+                var jsonContent = message.Substring(jsonStart, jsonEnd - jsonStart + 1);
+                var errorResponse = JsonSerializer.Deserialize<ErrorResponseDTO>(
+                    jsonContent,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
+                return errorResponse?.Details ?? errorResponse?.Message ?? "An unknown error occurred.";
+            }
+            
+            // If no JSON found, return the original message
+            return message;
         }
-        catch
+        catch (JsonException)
         {
-            return $"Error: {e.Message}";
+            // If JSON parsing fails, return the original exception message
+            return e.Message;
         }
     }
 
@@ -132,7 +138,7 @@
         }
         catch (Exception e)
         {
-            errorMessage = ExtractFriendlyError(e);
+            errorMessage = ExtractError(e);
         }
         finally
         {
