@@ -18,6 +18,16 @@ public class LoginServiceImpl implements LoginService {
     this.passwordEncoderService = passwordEncoderService;
   }
 
+  /**
+   * Authenticate a user by username and password.
+   *
+   * This method validates input fields, fetches the user record via gRPC,
+   * and verifies the provided password using the configured password encoder.
+   *
+   * @param user a User object containing username and plaintext password
+   * @return the authenticated User object from the backend (without plaintext password)
+   * @throws IllegalArgumentException when username or password is empty or authentication fails
+   */
   @Override
   public User login(User user) {
     logger.info("LoginService: Validating login request for user: {}", user.getUsername());

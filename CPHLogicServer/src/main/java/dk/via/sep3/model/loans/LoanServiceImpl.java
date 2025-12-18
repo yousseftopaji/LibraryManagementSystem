@@ -28,6 +28,23 @@ import java.util.List;
     this.loanGrpcService = loanGrpcService;
   }
 
+  /**
+   * Create a new loan (borrow a book) for a user.
+   * <p>
+   * This method performs several steps:
+   * <ol>
+   *   <li>Validates the user does not already have an active loan for the same ISBN.</li>
+   *   <li>Finds an available copy of the requested ISBN.</li>
+   *   <li>Creates and persists the Loan via gRPC.</li>
+   *   <li>Updates the book status to "Borrowed".</li>
+   * </ol>
+   *
+   * @param loan a Loan object containing at least the username and the book ISBN.
+   * @return the persisted Loan with generated id and dates set.
+   * @throws IllegalStateException    if the user already has an active loan for the ISBN.
+   * @throws IllegalArgumentException if no book copies are found or no available copies exist.
+   * @throws RuntimeException         if the loan could not be created by the backend service.
+   */
   @Override public Loan createLoan(Loan loan)
   {
     logger.info("Creating loan for user {} and ISBN {}", loan.getUsername(), loan.getBookISBN());
@@ -50,6 +67,21 @@ import java.util.List;
     return createdLoan;
   }
 
+  /**
+   * Extend an existing loan.
+   * <p>
+   * The extension process will:
+   * <ol>
+   *   <li>Retrieve and validate the loan exists.</li>
+   *   <li>Check that the requesting user is the borrower.</li>
+   *   <li>Verify timing constraints and maximum extension limits.</li>
+   *   <li>Update the due date and persist the extension via gRPC.</li>
+   * </ol>
+   *
+   * @param loan a Loan object containing the loan id, username and intended new due date (the service will compute the new due date).
+   * @throws IllegalArgumentException if the loan does not exist.
+   * @throws IllegalStateException    if the user is not the borrower, the request is too early, or the maximum extensions are reached.
+   */
   @Override public void extendLoan(Loan loan)
   {
     logger.info("Extending loan {} for user {}", loan.getLoanId(), loan.getUsername());
@@ -72,6 +104,14 @@ import java.util.List;
     logger.info("Loan {} successfully extended to {}", loan.getLoanId(), loan.getDueDate());
   }
 
+  /**
+   * Retrieve active loans for a given username.
+   *
+   * @param username the username to query active loans for.
+   * @return a list of active Loan objects for the user.
+   * @throws ResourceNotFoundException   if no active loans are found for the user.
+   * @throws GrpcCommunicationException  if there is an error communicating with the loan backend.
+   */
   @Override public List<Loan> getActiveLoansByUsername(String username)
   {
     logger.info("Fetching active loans for user {}", username);
@@ -97,6 +137,10 @@ import java.util.List;
 
   /**
    * Validates that the user doesn't already have an active loan for the same ISBN.
+   *
+   * @param username the borrower username
+   * @param isbn     the ISBN to check
+   * @throws IllegalStateException if the user already has an active loan for the ISBN
    */
   private void validateNoDuplicateActiveLoan(String username, String isbn)
   {
@@ -114,6 +158,10 @@ import java.util.List;
 
   /**
    * Finds and validates that an available book exists for the given ISBN.
+   *
+   * @param isbn the ISBN to search for
+   * @return an available Book domain object
+   * @throws IllegalArgumentException if no books or no available copies are found
    */
   private Book findAndValidateAvailableBook(String isbn)
   {
@@ -131,6 +179,10 @@ import java.util.List;
 
   /**
    * Finds the first available book from a list.
+   *
+   * @param books candidate books
+   * @return the first Book whose state equals "AVAILABLE"
+   * @throws IllegalArgumentException if no available copy is found
    */
   private Book findAvailableBook(List<Book> books)
   {
@@ -149,6 +201,10 @@ import java.util.List;
 
   /**
    * Creates a loan object and persists it via gRPC.
+   *
+   * @param username borrower
+   * @param book     book to borrow
+   * @return the persisted Loan
    */
   private Loan createAndPersistLoan(String username, Book book)
   {
@@ -194,6 +250,8 @@ import java.util.List;
 
   /**
    * Updates the book status to "Borrowed".
+   *
+   * @param bookId id of the book to update
    */
   private void updateBookStatusToBorrowed(long bookId)
   {
@@ -205,6 +263,10 @@ import java.util.List;
 
   /**
    * Retrieves a loan by ID and validates it exists.
+   *
+   * @param loanId id of loan
+   * @return the Loan object
+   * @throws IllegalArgumentException if loan not found
    */
   private Loan retrieveAndValidateLoanExists(int loanId)
   {
@@ -221,6 +283,10 @@ import java.util.List;
 
   /**
    * Validates that the requesting user is the borrower of the loan.
+   *
+   * @param loan     loan to check
+   * @param username requesting user
+   * @throws IllegalStateException if user is not the borrower
    */
   private void validateUserIsBorrower(Loan loan, String username)
   {
@@ -276,6 +342,8 @@ import java.util.List;
 
   /**
    * Applies the extension to the loan by updating due date and extension count.
+   *
+   * @param loan the loan to update; this method mutates the loan's due date and extension count
    */
   private void applyExtensionToLoan(Loan loan)
   {
@@ -289,3 +357,4 @@ import java.util.List;
         loan.getLoanId(), newDueDate, loan.getNumberOfExtensions());
   }
 }
+

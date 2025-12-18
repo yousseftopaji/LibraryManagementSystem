@@ -24,6 +24,14 @@ public class BookServiceImpl implements BookService
     this.bookGrpcService = bookGrpcService;
   }
 
+  /**
+   * Retrieve a list of unique books (one per ISBN).
+   *
+   * This method requests all book copies from the gRPC service and returns
+   * a de-duplicated list where each ISBN appears only once.
+   *
+   * @return list of representative Book objects (one per ISBN)
+   */
   @Override public List<Book> getAllBooks()
   {
     logger.info("getAllBooks called");
@@ -32,6 +40,17 @@ public class BookServiceImpl implements BookService
     return createUniqueBooks(allBooks);
   }
 
+  /**
+   * Retrieve a representative book by ISBN.
+   *
+   * If multiple copies exist the method will prefer an available copy; if
+   * none are available it returns the first copy. Throws ResourceNotFoundException
+   * when no book with the supplied ISBN exists.
+   *
+   * @param isbn the ISBN to search for
+   * @return a representative Book for the ISBN
+   * @throws ResourceNotFoundException when no book with the ISBN exists
+   */
   @Override public Book getBookByIsbn(String isbn)
   {
     logger.info("getBookByIsbn called");

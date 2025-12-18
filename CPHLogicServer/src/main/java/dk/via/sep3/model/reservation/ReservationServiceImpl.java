@@ -28,6 +28,24 @@ import java.time.LocalDate;
     this.reservationGrpcService = reservationGrpcService;
   }
 
+  /**
+   * Create a reservation for a user when no copies are available.
+   *
+   * Steps performed:
+   * <ol>
+   *   <li>Ensure books exist for the ISBN.</li>
+   *   <li>Ensure the user does not already have an active reservation for the ISBN.</li>
+   *   <li>Ensure no copies are currently available (reservations are only allowed when all copies are lent out).</li>
+   *   <li>Ensure the user doesn't already have an unreturned loan for this ISBN.</li>
+   *   <li>Select the copy most likely to become available soon (earliest due date) and reserve it.</li>
+   *   <li>Persist the reservation and mark the book as reserved.</li>
+   * </ol>
+   *
+   * @param reservation a Reservation object with username and ISBN
+   * @return a fully populated Reservation including queue position
+   * @throws IllegalArgumentException when validation fails (no books, user already reserved, copies available, or user has unreturned loan)
+   * @throws ResourceNotFoundException when no suitable book can be selected for reservation
+   */
   @Override public Reservation createReservation(Reservation reservation)
   {
     String username = reservation.getUsername();
