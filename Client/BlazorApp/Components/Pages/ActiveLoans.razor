@@ -68,6 +68,7 @@
     private List<LoanDTO>? loans;
     private string? errorMessage;
     private string? username;
+
     private LoanDTO? selectedLoan;
     private bool showDialog = false;
 
@@ -93,15 +94,24 @@
         }
         catch (Exception e)
         {
-            errorMessage = ExtractErrorMessage(e.Message);
+            errorMessage = ExtractFriendlyError(e);
         }
     }
-
-    private string ExtractErrorMessage(string message)
+    private string ExtractFriendlyError(Exception e)
     {
-            var error = JsonSerializer.Deserialize<ErrorResponseDTO>(message,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            return error?.Details ?? "An unexpected error occurred.";
+        try
+        {
+            var errorResponse = JsonSerializer.Deserialize<ErrorResponseDTO>(
+                e.Message,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            return errorResponse?.Details ?? "An unknown error occurred.";
+        }
+        catch
+        {
+            return $"Error: {e.Message}";
+        }
     }
 
     private void HandleExtendRequest(LoanDTO loan)
@@ -112,20 +122,23 @@
 
     private async Task OnConfirm()
     {
-        if (selectedLoan != null)
+        try
         {
-            bool success = await LoanService.ExtendLoanAsync(selectedLoan.LoanId);
-            if (success)
+            if (selectedLoan != null)
             {
+                await LoanService.ExtendLoanAsync(selectedLoan.LoanId);
                 await LoadActiveLoans();
             }
-            else
-            {
-                errorMessage = "Failed to extend the loan.";
-            }
         }
-        showDialog = false;
-        selectedLoan = null;
+        catch (Exception e)
+        {
+            errorMessage = ExtractFriendlyError(e);
+        }
+        finally
+        {
+            showDialog = false;
+            selectedLoan = null;
+        }
     }
 
     private void OnCancel()
