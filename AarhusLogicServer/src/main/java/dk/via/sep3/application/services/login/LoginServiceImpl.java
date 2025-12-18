@@ -6,6 +6,11 @@ import dk.via.sep3.grpcConnection.userGrpcService.UserGrpcService;
 import dk.via.sep3.security.PasswordService;
 import org.springframework.stereotype.Service;
 
+/**
+ * Implementation of login/authentication logic.
+ *
+ * @author Group 7
+ */
 @Service public class LoginServiceImpl implements LoginService
 {
   private final UserGrpcService userGrpcService;

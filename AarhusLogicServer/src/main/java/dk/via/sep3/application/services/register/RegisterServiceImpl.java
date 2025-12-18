@@ -8,6 +8,11 @@ import dk.via.sep3.application.services.validation.RegistrationValidator;
 import dk.via.sep3.security.PasswordService;
 import org.springframework.stereotype.Service;
 
+/**
+ * Implementation of user registration logic (validation, password hashing, persistence).
+ *
+ * @author Group 7
+ */
 @Service public class RegisterServiceImpl implements RegisterService
 {
   private final UserGrpcService userGrpcService;
