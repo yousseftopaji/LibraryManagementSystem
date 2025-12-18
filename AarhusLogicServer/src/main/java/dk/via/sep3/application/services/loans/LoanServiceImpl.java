@@ -1,5 +1,6 @@
 package dk.via.sep3.application.services.loans;
 
+import dk.via.sep3.exceptionHandler.BusinessRuleViolationException;
 import dk.via.sep3.exceptionHandler.GrpcCommunicationException;
 import dk.via.sep3.exceptionHandler.ResourceNotFoundException;
 import dk.via.sep3.grpcConnection.bookGrpcService.BookGrpcService;
@@ -260,7 +261,7 @@ import java.util.List;
         {
             logger.error("Extension attempted for loan {} before allowed date: {}",
                     loan.getLoanId(), allowableExtensionDate);
-            throw new IllegalStateException(
+            throw new BusinessRuleViolationException(
                     "You can extend your loan starting from: " + allowableExtensionDate);
         }
     }
