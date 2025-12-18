@@ -53,6 +53,7 @@ public class BookServiceImpl implements BookService
 
   private List<Book> createUniqueBooks(List<Book> allBooks)
   {
+      logger.info("createUniqueBooks called");
     Map<String, Book> uniqueBooksByIsbn = new LinkedHashMap<>();
     if (allBooks == null || allBooks.isEmpty())
     {
