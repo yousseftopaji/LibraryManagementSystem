@@ -2,13 +2,15 @@ package dk.via.sep3.grpcConnection.loanGrpcService;
 
 import dk.via.sep3.*;
 import dk.via.sep3.mapper.loanMapper.LoanMapper;
-import dk.via.sep3.model.domain.Loan;
+import dk.via.sep3.application.domain.Loan;
 import io.grpc.ManagedChannel;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.Date;
@@ -31,11 +33,20 @@ class LoanGrpcServiceImplTest {
     private LoanMapper loanMapper;
 
     private LoanGrpcServiceImpl loanGrpcService;
+    private MockedStatic<LoanServiceGrpc> mockedStatic;
 
     @BeforeEach
     void setUp() {
-        when(LoanServiceGrpc.newBlockingStub(channel)).thenReturn(loanStub);
+        mockedStatic = mockStatic(LoanServiceGrpc.class);
+        mockedStatic.when(() -> LoanServiceGrpc.newBlockingStub(channel)).thenReturn(loanStub);
         loanGrpcService = new LoanGrpcServiceImpl(channel, loanMapper);
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (mockedStatic != null) {
+            mockedStatic.close();
+        }
     }
 
     @Test

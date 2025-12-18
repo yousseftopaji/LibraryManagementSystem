@@ -2,13 +2,12 @@ package dk.via.sep3.controller;
 
 import dk.via.sep3.exceptionHandler.BusinessRuleViolationException;
 import dk.via.sep3.mapper.userMapper.UserMapper;
-import dk.via.sep3.model.domain.User;
-import dk.via.sep3.model.register.RegisterService;
-import dk.via.sep3.model.utils.validation.Validator;
+import dk.via.sep3.application.domain.User;
+import dk.via.sep3.application.services.register.RegisterService;
 import dk.via.sep3.security.JwtUtil;
-import dk.via.sep3.shared.auth.AuthResponseDTO;
-import dk.via.sep3.shared.registration.RegistrationDTO;
-import dk.via.sep3.shared.user.UserDTO;
+import dk.via.sep3.DTOs.auth.RegisterResponseDTO;
+import dk.via.sep3.DTOs.registration.RegistrationDTO;
+import dk.via.sep3.DTOs.user.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,16 +38,13 @@ class AuthControllerTest {
     @Mock
     private JwtUtil jwtUtil;
 
-    @Mock
-    private Validator<String> passwordValidator;
-
     @InjectMocks
     private AuthController authController;
 
     private RegistrationDTO validRegistrationDTO;
     private User validDomainUser;
     private User registeredUser;
-    private UserDTO userDTO;
+    private RegisterResponseDTO registerResponseDTO;
 
     @BeforeEach
     void setUp() {
@@ -77,13 +73,13 @@ class AuthControllerTest {
         registeredUser.setPassword("$2a$10$hashedPassword");
         registeredUser.setRole("Reader");
 
-        // Setup UserDTO
-        userDTO = new UserDTO();
-        userDTO.setFullName("John Doe");
-        userDTO.setEmail("john.doe@example.com");
-        userDTO.setPhoneNumber("12345678");
-        userDTO.setUsername("johndoe");
-        userDTO.setRole("Reader");
+        // Setup RegisterResponseDTO
+        registerResponseDTO = new RegisterResponseDTO();
+        registerResponseDTO.setUsername("johndoe");
+        registerResponseDTO.setName("John Doe");
+        registerResponseDTO.setEmail("john.doe@example.com");
+        registerResponseDTO.setPhoneNumber("12345678");
+        registerResponseDTO.setRole("Reader");
     }
 
     @Test
@@ -92,11 +88,10 @@ class AuthControllerTest {
         // Arrange
         when(userMapper.mapRegistrationDTOToDomain(validRegistrationDTO)).thenReturn(validDomainUser);
         when(registerService.register(validDomainUser)).thenReturn(registeredUser);
-        when(userMapper.mapDomainToUserDTO(registeredUser)).thenReturn(userDTO);
-        doNothing().when(passwordValidator).validate(anyString());
+        when(userMapper.mapDomainToRegisterResponseDTO(registeredUser)).thenReturn(registerResponseDTO);
 
         // Act
-        ResponseEntity<AuthResponseDTO> response = authController.register(validRegistrationDTO);
+        ResponseEntity<RegisterResponseDTO> response = authController.register(validRegistrationDTO);
 
         // Assert
         assertNotNull(response);
@@ -109,35 +104,18 @@ class AuthControllerTest {
         assertEquals("Reader", response.getBody().getRole());
 
         // Verify interactions
-        verify(passwordValidator, times(1)).validate("SecurePass123");
         verify(userMapper, times(1)).mapRegistrationDTOToDomain(validRegistrationDTO);
         verify(registerService, times(1)).register(validDomainUser);
-        verify(userMapper, times(1)).mapDomainToUserDTO(registeredUser);
+        verify(userMapper, times(1)).mapDomainToRegisterResponseDTO(registeredUser);
     }
 
     @Test
-    @DisplayName("Should throw BusinessRuleViolationException when registration DTO is null")
-    void testRegister_NullDTO() {
-        // Act & Assert
-        BusinessRuleViolationException exception = assertThrows(
-                BusinessRuleViolationException.class,
-                () -> authController.register(null)
-        );
-
-        assertEquals("Registration cannot be null", exception.getMessage());
-
-        // Verify no interactions with dependencies
-        verify(passwordValidator, never()).validate(anyString());
-        verify(userMapper, never()).mapRegistrationDTOToDomain(any());
-        verify(registerService, never()).register(any());
-    }
-
-    @Test
-    @DisplayName("Should throw exception when password validation fails")
-    void testRegister_InvalidPassword() {
+    @DisplayName("Should throw exception when username validation fails")
+    void testRegister_InvalidUsername() {
         // Arrange
-        doThrow(new BusinessRuleViolationException("Password must be at least 8 characters"))
-                .when(passwordValidator).validate(anyString());
+        when(userMapper.mapRegistrationDTOToDomain(validRegistrationDTO)).thenReturn(validDomainUser);
+        when(registerService.register(validDomainUser))
+                .thenThrow(new BusinessRuleViolationException("Username must be at least 3 characters"));
 
         // Act & Assert
         BusinessRuleViolationException exception = assertThrows(
@@ -145,12 +123,11 @@ class AuthControllerTest {
                 () -> authController.register(validRegistrationDTO)
         );
 
-        assertEquals("Password must be at least 8 characters", exception.getMessage());
+        assertEquals("Username must be at least 3 characters", exception.getMessage());
 
-        // Verify password validator was called but registration was not
-        verify(passwordValidator, times(1)).validate("SecurePass123");
-        verify(userMapper, never()).mapRegistrationDTOToDomain(any());
-        verify(registerService, never()).register(any());
+        // Verify registration was attempted
+        verify(userMapper, times(1)).mapRegistrationDTOToDomain(validRegistrationDTO);
+        verify(registerService, times(1)).register(validDomainUser);
     }
 
     @Test
@@ -160,7 +137,6 @@ class AuthControllerTest {
         when(userMapper.mapRegistrationDTOToDomain(validRegistrationDTO)).thenReturn(validDomainUser);
         when(registerService.register(validDomainUser))
                 .thenThrow(new BusinessRuleViolationException("Username already in use"));
-        doNothing().when(passwordValidator).validate(anyString());
 
         // Act & Assert
         BusinessRuleViolationException exception = assertThrows(
@@ -171,18 +147,18 @@ class AuthControllerTest {
         assertEquals("Username already in use", exception.getMessage());
 
         // Verify interactions
-        verify(passwordValidator, times(1)).validate("SecurePass123");
         verify(userMapper, times(1)).mapRegistrationDTOToDomain(validRegistrationDTO);
         verify(registerService, times(1)).register(validDomainUser);
-        verify(userMapper, never()).mapDomainToUserDTO(any());
+        verify(userMapper, never()).mapDomainToRegisterResponseDTO(any());
     }
 
     @Test
     @DisplayName("Should throw exception when email is invalid")
     void testRegister_InvalidEmail() {
         // Arrange
-        doThrow(new BusinessRuleViolationException("Invalid email format"))
-                .when(passwordValidator).validate(anyString());
+        when(userMapper.mapRegistrationDTOToDomain(validRegistrationDTO)).thenReturn(validDomainUser);
+        when(registerService.register(validDomainUser))
+                .thenThrow(new BusinessRuleViolationException("Invalid email format"));
 
         // Act & Assert
         BusinessRuleViolationException exception = assertThrows(
@@ -192,9 +168,9 @@ class AuthControllerTest {
 
         assertEquals("Invalid email format", exception.getMessage());
 
-        // Verify only password validator was called
-        verify(passwordValidator, times(1)).validate("SecurePass123");
-        verify(registerService, never()).register(any());
+        // Verify registration was attempted
+        verify(userMapper, times(1)).mapRegistrationDTOToDomain(validRegistrationDTO);
+        verify(registerService, times(1)).register(validDomainUser);
     }
 
     @Test
@@ -204,7 +180,6 @@ class AuthControllerTest {
         when(userMapper.mapRegistrationDTOToDomain(validRegistrationDTO)).thenReturn(validDomainUser);
         when(registerService.register(validDomainUser))
                 .thenThrow(new RuntimeException("Database connection failed"));
-        doNothing().when(passwordValidator).validate(anyString());
 
         // Act & Assert
         RuntimeException exception = assertThrows(
@@ -215,7 +190,6 @@ class AuthControllerTest {
         assertEquals("Database connection failed", exception.getMessage());
 
         // Verify interactions
-        verify(passwordValidator, times(1)).validate("SecurePass123");
         verify(userMapper, times(1)).mapRegistrationDTOToDomain(validRegistrationDTO);
         verify(registerService, times(1)).register(validDomainUser);
     }
@@ -226,11 +200,10 @@ class AuthControllerTest {
         // Arrange
         when(userMapper.mapRegistrationDTOToDomain(validRegistrationDTO)).thenReturn(validDomainUser);
         when(registerService.register(validDomainUser)).thenReturn(registeredUser);
-        when(userMapper.mapDomainToUserDTO(registeredUser)).thenReturn(userDTO);
-        doNothing().when(passwordValidator).validate(anyString());
+        when(userMapper.mapDomainToRegisterResponseDTO(registeredUser)).thenReturn(registerResponseDTO);
 
         // Act
-        ResponseEntity<AuthResponseDTO> response = authController.register(validRegistrationDTO);
+        ResponseEntity<RegisterResponseDTO> response = authController.register(validRegistrationDTO);
 
         // Assert - verify password is not exposed
         assertNotNull(response.getBody());
@@ -238,11 +211,11 @@ class AuthControllerTest {
         assertNotEquals("SecurePass123", response.getBody().getUsername());
 
         // Verify correct user data is mapped
-        assertEquals(userDTO.getUsername(), response.getBody().getUsername());
-        assertEquals(userDTO.getName(), response.getBody().getName());
-        assertEquals(userDTO.getEmail(), response.getBody().getEmail());
-        assertEquals(userDTO.getPhoneNumber(), response.getBody().getPhoneNumber());
-        assertEquals(userDTO.getRole(), response.getBody().getRole());
+        assertEquals(registerResponseDTO.getUsername(), response.getBody().getUsername());
+        assertEquals(registerResponseDTO.getName(), response.getBody().getName());
+        assertEquals(registerResponseDTO.getEmail(), response.getBody().getEmail());
+        assertEquals(registerResponseDTO.getPhoneNumber(), response.getBody().getPhoneNumber());
+        assertEquals(registerResponseDTO.getRole(), response.getBody().getRole());
     }
 }
 

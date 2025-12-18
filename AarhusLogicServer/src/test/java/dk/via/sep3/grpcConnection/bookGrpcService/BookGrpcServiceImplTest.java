@@ -3,15 +3,17 @@ package dk.via.sep3.grpcConnection.bookGrpcService;
 import dk.via.sep3.*;
 import dk.via.sep3.exceptionHandler.GrpcCommunicationException;
 import dk.via.sep3.mapper.bookMapper.BookMapper;
-import dk.via.sep3.model.domain.Book;
-import dk.via.sep3.model.domain.State;
+import dk.via.sep3.application.domain.Book;
+import dk.via.sep3.application.domain.State;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -34,11 +36,20 @@ class BookGrpcServiceImplTest {
     private BookMapper bookMapper;
 
     private BookGrpcServiceImpl bookGrpcService;
+    private MockedStatic<BookServiceGrpc> mockedStatic;
 
     @BeforeEach
     void setUp() {
-        when(BookServiceGrpc.newBlockingStub(channel)).thenReturn(bookStub);
+        mockedStatic = mockStatic(BookServiceGrpc.class);
+        mockedStatic.when(() -> BookServiceGrpc.newBlockingStub(channel)).thenReturn(bookStub);
         bookGrpcService = new BookGrpcServiceImpl(channel, bookMapper);
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (mockedStatic != null) {
+            mockedStatic.close();
+        }
     }
 
     @Test

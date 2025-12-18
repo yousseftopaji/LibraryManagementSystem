@@ -1,10 +1,10 @@
 package dk.via.sep3.mapper.loanMapper;
 
 import dk.via.sep3.DTOLoan;
-import dk.via.sep3.model.domain.Loan;
-import dk.via.sep3.shared.extension.CreateExtensionDTO;
-import dk.via.sep3.shared.loan.CreateLoanDTO;
-import dk.via.sep3.shared.loan.LoanDTO;
+import dk.via.sep3.application.domain.Loan;
+import dk.via.sep3.DTOs.extension.CreateExtensionDTO;
+import dk.via.sep3.DTOs.loan.CreateLoanDTO;
+import dk.via.sep3.DTOs.loan.LoanDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -3,13 +3,15 @@ package dk.via.sep3.grpcConnection.reservationGrpcService;
 import dk.via.sep3.*;
 import dk.via.sep3.exceptionHandler.GrpcCommunicationException;
 import dk.via.sep3.mapper.ReservationMapper.ReservationMapper;
-import dk.via.sep3.model.domain.Reservation;
+import dk.via.sep3.application.domain.Reservation;
 import io.grpc.ManagedChannel;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.Date;
@@ -32,11 +34,20 @@ class ReservationGrpcServiceImplTest {
     private ReservationMapper reservationMapper;
 
     private ReservationGrpcServiceImpl reservationGrpcService;
+    private MockedStatic<ReservationServiceGrpc> mockedStatic;
 
     @BeforeEach
     void setUp() {
-        when(ReservationServiceGrpc.newBlockingStub(channel)).thenReturn(reservationStub);
+        mockedStatic = mockStatic(ReservationServiceGrpc.class);
+        mockedStatic.when(() -> ReservationServiceGrpc.newBlockingStub(channel)).thenReturn(reservationStub);
         reservationGrpcService = new ReservationGrpcServiceImpl(channel, reservationMapper);
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (mockedStatic != null) {
+            mockedStatic.close();
+        }
     }
 
     @Test

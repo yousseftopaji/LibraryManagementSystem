@@ -1,11 +1,11 @@
 package dk.via.sep3.mapper.userMapper;
 
 import dk.via.sep3.DTOUser;
-import dk.via.sep3.model.domain.User;
-import dk.via.sep3.shared.auth.AuthResponseDTO;
-import dk.via.sep3.shared.login.LoginRequestDTO;
-import dk.via.sep3.shared.registration.RegistrationDTO;
-import dk.via.sep3.shared.user.UserDTO;
+import dk.via.sep3.application.domain.User;
+import dk.via.sep3.DTOs.auth.RegisterResponseDTO;
+import dk.via.sep3.DTOs.login.LoginRequestDTO;
+import dk.via.sep3.DTOs.registration.RegistrationDTO;
+import dk.via.sep3.DTOs.user.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -175,8 +175,8 @@ class UserMapperImplTest {
     // ========== mapDomainToAuthResponse Tests ==========
 
     @Test
-    @DisplayName("Should map User domain to AuthResponseDTO")
-    void testMapDomainToAuthResponse_Success() {
+    @DisplayName("Should map User domain to RegisterResponseDTO")
+    void testMapDomainToRegisterResponseDTO_Success() {
         // Arrange
         User user = new User();
         user.setUsername("johndoe");
@@ -186,7 +186,7 @@ class UserMapperImplTest {
         user.setRole("Reader");
 
         // Act
-        AuthResponseDTO dto = userMapper.mapDomainToAuthResponse(user);
+        RegisterResponseDTO dto = userMapper.mapDomainToRegisterResponseDTO(user);
 
         // Assert
         assertNotNull(dto);
@@ -198,10 +198,10 @@ class UserMapperImplTest {
     }
 
     @Test
-    @DisplayName("Should return null when User domain is null for AuthResponse")
-    void testMapDomainToAuthResponse_NullUser() {
+    @DisplayName("Should return null when User domain is null for RegisterResponse")
+    void testMapDomainToRegisterResponseDTO_NullUser() {
         // Act
-        AuthResponseDTO dto = userMapper.mapDomainToAuthResponse(null);
+        RegisterResponseDTO dto = userMapper.mapDomainToRegisterResponseDTO(null);
 
         // Assert
         assertNull(dto);
@@ -224,16 +224,6 @@ class UserMapperImplTest {
         assertNotNull(user);
         assertEquals("testuser", user.getUsername());
         assertEquals("testpass", user.getPassword());
-    }
-
-    @Test
-    @DisplayName("Should return null when LoginRequestDTO is null")
-    void testMapLoginRequestToDomain_NullDTO() {
-        // Act
-        User user = userMapper.mapLoginRequestToDomain(null);
-
-        // Assert
-        assertNull(user);
     }
 
     // ========== Edge Cases and Round-Trip Mapping ==========

@@ -1,7 +1,7 @@
 package dk.via.sep3.controller;
 
-import dk.via.sep3.model.domain.User;
-import dk.via.sep3.model.registration.RegistrationService;
+import dk.via.sep3.application.domain.User;
+import dk.via.sep3.application.services.registration.RegistrationService;
 import dk.via.sep3.mapper.registrationMapper.RegistrationMapper;
 import dk.via.sep3.DTOs.registration.CreateRegisterDTO;
 import org.slf4j.Logger;
