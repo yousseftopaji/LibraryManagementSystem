@@ -3,9 +3,9 @@ package dk.via.sep3.mapper.bookMapper;
 import dk.via.sep3.DTOBook;
 import dk.via.sep3.DTOGenre;
 import dk.via.sep3.DTOs.book.BookDTO;
-import dk.via.sep3.model.domain.Book;
-import dk.via.sep3.model.domain.Genre;
-import dk.via.sep3.model.domain.State;
+import dk.via.sep3.application.domain.Book;
+import dk.via.sep3.application.domain.Genre;
+import dk.via.sep3.application.domain.State;
 import dk.via.sep3.DTOs.book.GenreDTO;
 import org.springframework.stereotype.Component;
 

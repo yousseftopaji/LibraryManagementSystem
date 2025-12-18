@@ -1,7 +1,7 @@
 package dk.via.sep3.mapper.loanMapper;
 
 import dk.via.sep3.DTOLoan;
-import dk.via.sep3.model.domain.Loan;
+import dk.via.sep3.application.domain.Loan;
 import dk.via.sep3.DTOs.extension.CreateExtensionDTO;
 import dk.via.sep3.DTOs.loan.CreateLoanDTO;
 import dk.via.sep3.DTOs.loan.LoanDTO;
