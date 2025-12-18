@@ -1,7 +1,7 @@
 package dk.via.sep3.mapper.loanMapper;
 
 import dk.via.sep3.DTOLoan;
-import dk.via.sep3.model.domain.Loan;
+import dk.via.sep3.application.domain.Loan;
 import dk.via.sep3.DTOs.extension.CreateExtensionDTO;
 import dk.via.sep3.DTOs.loan.CreateLoanDTO;
 import dk.via.sep3.DTOs.loan.LoanDTO;
@@ -22,10 +22,13 @@ public class LoanMapperImpl implements LoanMapper
 
   @Override public DTOLoan mapDomainToDTOLoan(Loan loan)
   {
+    String borrowDateStr = loan.getBorrowDate() != null ? loan.getBorrowDate().toString() : null;
+    String dueDateStr = loan.getDueDate() != null ? loan.getDueDate().toString() : null;
+
     return DTOLoan.newBuilder()
         .setId(loan.getLoanId())
-        .setBorrowDate(loan.getBorrowDate().toString())
-        .setDueDate(loan.getDueDate().toString())
+        .setBorrowDate(borrowDateStr)
+        .setDueDate(dueDateStr)
         .setUsername(loan.getUsername())
         .setIsReturned(loan.isReturned())
         .setBookId(loan.getBookId())
@@ -35,8 +38,10 @@ public class LoanMapperImpl implements LoanMapper
 
   @Override public Loan mapDTOLoanToDomain(DTOLoan dtoLoan)
   {
-    Date borrowDate = Date.valueOf(dtoLoan.getBorrowDate());
-    Date dueDate = Date.valueOf(dtoLoan.getDueDate());
+    Date borrowDate = !dtoLoan.getBorrowDate().isEmpty()
+        ? Date.valueOf(dtoLoan.getBorrowDate()) : null;
+    Date dueDate = !dtoLoan.getDueDate().isEmpty()
+        ? Date.valueOf(dtoLoan.getDueDate()) : null;
     Loan loan = new Loan();
     loan.setLoanId(dtoLoan.getId());
     loan.setBorrowDate(borrowDate);
@@ -50,10 +55,13 @@ public class LoanMapperImpl implements LoanMapper
 
   @Override public LoanDTO mapDomainToLoanDTO(Loan loan)
   {
+    String borrowDateStr = loan.getBorrowDate() != null ? loan.getBorrowDate().toString() : null;
+    String dueDateStr = loan.getDueDate() != null ? loan.getDueDate().toString() : null;
+
     return new LoanDTO(
         String.valueOf(loan.getLoanId()),
-        loan.getBorrowDate().toString(),
-        loan.getDueDate().toString(),
+        borrowDateStr,
+        dueDateStr,
         loan.isReturned(),
         loan.getNumberOfExtensions(),
         loan.getUsername(),

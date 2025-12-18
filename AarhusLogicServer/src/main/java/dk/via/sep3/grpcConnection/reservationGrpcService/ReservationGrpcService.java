@@ -1,8 +1,6 @@
 package dk.via.sep3.grpcConnection.reservationGrpcService;
 
-import dk.via.sep3.DTOReservation;
-import dk.via.sep3.model.domain.Reservation;
-import dk.via.sep3.model.reservation.ReservationService;
+import dk.via.sep3.application.domain.Reservation;
 
 import java.util.List;
 
