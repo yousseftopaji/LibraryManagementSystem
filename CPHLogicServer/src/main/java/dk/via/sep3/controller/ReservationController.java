@@ -2,9 +2,9 @@ package dk.via.sep3.controller;
 
 import dk.via.sep3.model.domain.Reservation;
 import dk.via.sep3.model.reservation.ReservationService;
-import dk.via.sep3.shared.mapper.ReservationMapper.ReservationMapper;
-import dk.via.sep3.shared.reservation.CreateReservationDTO;
-import dk.via.sep3.shared.reservation.ReservationDTO;
+import dk.via.sep3.mapper.ReservationMapper.ReservationMapper;
+import dk.via.sep3.DTOs.reservation.CreateReservationDTO;
+import dk.via.sep3.DTOs.reservation.ReservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -30,7 +30,7 @@ public class ReservationController
     this.reservationMapper = reservationMapper;
   }
 
-  @PreAuthorize("hasRole('READER')")
+  @PreAuthorize("hasRole('Reader')")
   @PostMapping public ResponseEntity<ReservationDTO> createReservation(
       @RequestBody CreateReservationDTO createReservationDTO)
   {

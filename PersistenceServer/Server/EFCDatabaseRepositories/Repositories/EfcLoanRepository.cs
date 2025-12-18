@@ -64,14 +64,22 @@ public class EfcLoanRepository(LibraryDbContext context) : ILoanRepository
         };
     }
 
-     public async Task<IEnumerable<Loan>> GetLoansByIsbnAsync(string isbn)
+    public async Task<IEnumerable<LoanDTO>> GetLoansByIsbnAsync(string isbn)
     {
-        return await (from loan in context.Loan
-                      join book in context.Book
-                      on loan.BookId equals book.Id
-                      where book.ISBN == isbn
-                      select loan)
-                      .ToListAsync();
+        return await context.Loan
+            .Include(l => l.Book)
+            .Where(l => l.Book!.ISBN == isbn)
+            .Select(l => new LoanDTO
+            {
+                LoanId = l.Id,
+                BookId = l.BookId,
+                Username = l.Username,
+                BorrowDate = l.BorrowDate,
+                DueDate = l.DueDate,
+                NumberOfExtensions = l.NumberOfExtensions,
+                IsReturned = l.IsReturned
+            })
+            .ToListAsync();
     }
 
     public async Task<LoanDTO?> GetLoanByIdAsync(int loanId)
@@ -94,5 +102,25 @@ public class EfcLoanRepository(LibraryDbContext context) : ILoanRepository
     public Task UpdateLoanAsync(LoanDTO loan)
     {
         throw new NotImplementedException();
+    }
+
+
+    
+    public async Task<IEnumerable<LoanDTO>> GetActiveLoansByUsername(string username)
+    {
+        var loans = await context.Loan
+            .Where(l => l.Username == username && !l.IsReturned)
+            .ToListAsync();
+
+        return loans.Select(loan => new LoanDTO
+        {
+            LoanId = loan.Id,
+            BookId = loan.BookId,
+            Username = loan.Username,
+            BorrowDate = loan.BorrowDate,
+            DueDate = loan.DueDate,
+            NumberOfExtensions = loan.NumberOfExtensions,
+            IsReturned = loan.IsReturned
+        });
     }
 }
