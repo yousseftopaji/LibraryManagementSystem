@@ -1,5 +1,4 @@
-# Library Management System
-# Kitab Khana
+# Library Management System - Kitab Khana
 
 ## Introduction
 
